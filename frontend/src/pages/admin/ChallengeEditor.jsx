@@ -155,7 +155,7 @@ function BannerSection({ title, prefix, branding, setBranding, defaultHeight }) 
     try {
       const fd = new FormData();
       fd.append('image', file);
-      const res = await api.post('/admin/upload-image', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const res = await api.post('/admin/upload-image', fd);
       const url = (import.meta.env.VITE_API_URL || '') + res.data.url;
       setBranding((b) => ({ ...b, [imageKey]: url }));
     } finally {
@@ -187,10 +187,25 @@ function BannerSection({ title, prefix, branding, setBranding, defaultHeight }) 
             className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
           {prefix === 'header' && (
             <div className="space-y-2">
-              <input type="text" value={branding.logoUrl || ''}
-                onChange={(e) => setBranding((b) => ({ ...b, logoUrl: e.target.value }))}
-                placeholder="URL del logo (opcional)"
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+              <div className="flex gap-2">
+                <input type="text" value={branding.logoUrl || ''}
+                  onChange={(e) => setBranding((b) => ({ ...b, logoUrl: e.target.value }))}
+                  placeholder="URL del logo (opcional)"
+                  className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                <label className="shrink-0 cursor-pointer bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-2 py-1.5 rounded-lg transition-all flex items-center gap-1">
+                  📁 Subir
+                  <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                    const file = e.target.files[0]; if (!file) return;
+                    setUploading(true);
+                    try {
+                      const fd = new FormData(); fd.append('image', file);
+                      const res = await api.post('/admin/upload-image', fd);
+                      const url = (import.meta.env.VITE_API_URL || '') + res.data.url;
+                      setBranding((b) => ({ ...b, logoUrl: url }));
+                    } finally { setUploading(false); }
+                  }} />
+                </label>
+              </div>
               {branding.logoUrl && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-slate-500 shrink-0">Posición logo</span>
@@ -277,6 +292,7 @@ export default function ChallengeEditor() {
   const [saving, setSaving]             = useState(false);
   const [brandingOpen, setBrandingOpen] = useState(false);
   const [branding, setBranding]         = useState({});
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [generalForm, setGeneralForm]   = useState({ name: '', slug: '', pin: '' });
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
@@ -577,16 +593,29 @@ export default function ChallengeEditor() {
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2">Logo</p>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     {branding.logoUrl && (
                       <img src={branding.logoUrl} referrerPolicy="no-referrer" alt="logo"
-                        className="h-10 object-contain rounded border border-slate-700 bg-slate-800 px-1"
+                        className="h-10 object-contain rounded border border-slate-700 bg-slate-800 px-1 shrink-0"
                         onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                     )}
                     <input type="text" value={branding.logoUrl || ''}
                       onChange={(e) => setBranding((b) => ({ ...b, logoUrl: e.target.value }))}
                       placeholder="https://tu-logo.com/logo.png"
                       className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                    <label className="shrink-0 cursor-pointer bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-2 py-1.5 rounded-lg transition-all flex items-center gap-1 whitespace-nowrap">
+                      {uploadingLogo ? '...' : '📁 Subir'}
+                      <input type="file" accept="image/*" className="hidden" disabled={uploadingLogo} onChange={async (e) => {
+                        const file = e.target.files[0]; if (!file) return;
+                        setUploadingLogo(true);
+                        try {
+                          const fd = new FormData(); fd.append('image', file);
+                          const res = await api.post('/admin/upload-image', fd);
+                          const url = (import.meta.env.VITE_API_URL || '') + res.data.url;
+                          setBranding((b) => ({ ...b, logoUrl: url }));
+                        } finally { setUploadingLogo(false); }
+                      }} />
+                    </label>
                   </div>
                 </div>
                 <BannerSection title="Banner Superior" prefix="header" branding={branding} setBranding={setBranding} defaultHeight={80} />
