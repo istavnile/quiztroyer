@@ -83,7 +83,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
     try {
       const fd = new FormData();
       fd.append('image', file);
-      const res = await api.post('/admin/upload-image', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const res = await api.post('/admin/upload-image', fd);
       const url = (import.meta.env.VITE_API_URL || '') + res.data.url;
       if (target === 'slideImage') setForm((f) => ({ ...f, slideImage: url }));
       else if (target === 'bg')    updateBg({ imageUrl: url });
