@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #1e293b;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glow {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  }
+
+  .glow-green {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+  }
+
+  .glow-red {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  }
+
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 16px 2px rgba(99,102,241,0.45), 0 0 0 0 rgba(99,102,241,0.2); }
+  50%       { box-shadow: 0 0 32px 8px rgba(99,102,241,0.75), 0 0 0 8px rgba(99,102,241,0); }
+}
+
+@keyframes blob-1 {
+  0%, 100% { transform: translate(0,    0)    scale(1);    }
+  33%       { transform: translate(50px, -35px) scale(1.1);  }
+  66%       { transform: translate(-25px, 25px) scale(0.95); }
+}
+@keyframes blob-2 {
+  0%, 100% { transform: translate(0,    0)    scale(1);    }
+  33%       { transform: translate(-35px, 40px) scale(0.95); }
+  66%       { transform: translate(25px, -25px) scale(1.1);  }
+}
+@keyframes blob-3 {
+  0%, 100% { transform: scale(1);   opacity: 0.5; }
+  50%       { transform: scale(1.3); opacity: 0.85; }
+}
+
+.blob-anim-1 { animation: blob-1 12s ease-in-out infinite; }
+.blob-anim-2 { animation: blob-2 15s ease-in-out infinite; }
+.blob-anim-3 { animation: blob-3 10s ease-in-out infinite; animation-delay: 2s; }

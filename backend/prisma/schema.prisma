@@ -1,0 +1,133 @@
+// Quiztroyer - Prisma Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Challenge {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  pin       String
+  branding  Json     @default("{}")
+  // branding: { bgColor, logoUrl, headerText, footerText, primaryColor, accentColor }
+  status    ChallengeStatus @default(DRAFT)
+  questions Question[]
+  sessions  GameSession[]
+  liveRoom  LiveRoom?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+}
+
+model Question {
+  id          String    @id @default(cuid())
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  order       Int
+  type        QuestionType
+  prompt      String
+  maxChars    Int       @default(200)
+  timeLimit   Int       @default(30)
+  // config JSON shape by type:
+  // quiz:       { options: [{id, text, isCorrect}] }
+  // truefalse:  { correctAnswer: boolean }
+  // puzzle:     { items: [string] }  <- stored in CORRECT order
+  // pinimage:   { imageUrl: string, correctX: number, correctY: number, radius: number }
+  config      Json
+  answers     Answer[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([challengeId, order])
+}
+
+model GameSession {
+  id          String    @id @default(cuid())
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
+  playerName  String
+  playerDni   String
+  socketId    String?
+  totalScore  Int       @default(0)
+  answers     Answer[]
+  rank        Int?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@unique([challengeId, playerDni])
+  @@index([challengeId, totalScore])
+}
+
+model Answer {
+  id         String      @id @default(cuid())
+  sessionId  String
+  session    GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question    @relation(fields: [questionId], references: [id])
+  // answer JSON shape by type:
+  // quiz:       { optionId: string }
+  // truefalse:  { value: boolean }
+  // puzzle:     { order: [string] }
+  // pinimage:   { x: number, y: number }
+  answer     Json
+  correct    Boolean
+  score      Int         @default(0)
+  timeTakenMs Int        @default(0)
+  createdAt  DateTime    @default(now())
+
+  @@unique([sessionId, questionId])
+}
+
+model LiveRoom {
+  id             String    @id @default(cuid())
+  challengeId    String    @unique
+  challenge      Challenge @relation(fields: [challengeId], references: [id])
+  currentSlide   Int       @default(-1)
+  slideStartedAt DateTime?
+  phase          RoomPhase @default(LOBBY)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+enum ChallengeStatus {
+  DRAFT
+  LIVE
+  ENDED
+}
+
+enum QuestionType {
+  QUIZ
+  TRUEFALSE
+  PUZZLE
+  PINIMAGE
+}
+
+enum RoomPhase {
+  LOBBY
+  PLAYING
+  RANKING
+  ENDED
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String?  @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  adminId   String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
