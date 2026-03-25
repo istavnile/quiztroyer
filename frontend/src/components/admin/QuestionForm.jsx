@@ -318,26 +318,61 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
         {form.type === 'PINIMAGE' && (
           <div className="border border-slate-700 rounded-xl p-3 space-y-3">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Imagen y zona correcta</p>
-            <input type="text" value={form.config.imageUrl || ''} onChange={(e) => updateConfig('imageUrl', e.target.value)}
-              placeholder="https://... o subir" className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm" />
-            <label className="text-xs text-indigo-400 cursor-pointer hover:text-indigo-300">
-              📁 {uploading ? 'Subiendo...' : 'Subir imagen'}
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'pinimage')} disabled={uploading} />
-            </label>
-            {form.config.imageUrl && (
-              <img src={form.config.imageUrl} referrerPolicy="no-referrer" alt="map"
-                className="rounded-lg max-h-32 object-contain border border-slate-700 w-full" />
-            )}
-            <div className="grid grid-cols-3 gap-2">
-              {[['correctX', 'X%'], ['correctY', 'Y%'], ['radius', 'Radio%']].map(([key, label]) => (
-                <div key={key}>
-                  <label className="block text-xs text-slate-500 mb-1">{label}</label>
-                  <input type="number" min={0} max={100} step={0.5} value={form.config[key] || 50}
-                    onChange={(e) => updateConfig(key, parseFloat(e.target.value))}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm" />
-                </div>
-              ))}
+            <div className="flex gap-2">
+              <input type="text" value={form.config.imageUrl || ''} onChange={(e) => updateConfig('imageUrl', e.target.value)}
+                placeholder="https://... o subir" className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm" />
+              <label className="shrink-0 text-xs text-indigo-400 cursor-pointer hover:text-indigo-300 flex items-center">
+                📁 {uploading ? '...' : 'Subir'}
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'pinimage')} disabled={uploading} />
+              </label>
             </div>
+            {form.config.imageUrl ? (
+              <div className="space-y-2">
+                <p className="text-xs text-slate-500">Haz clic en la imagen para marcar la zona correcta</p>
+                <div
+                  className="relative rounded-lg overflow-hidden border border-slate-700 cursor-crosshair select-none"
+                  onClick={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    updateConfig('correctX', parseFloat(x.toFixed(1)));
+                    updateConfig('correctY', parseFloat(y.toFixed(1)));
+                  }}
+                >
+                  <img src={form.config.imageUrl} referrerPolicy="no-referrer" alt="map"
+                    className="w-full object-contain pointer-events-none" draggable={false} />
+                  {(form.config.correctX != null) && (
+                    <div
+                      className="absolute border-4 border-green-400 rounded-full pointer-events-none"
+                      style={{
+                        left: `${form.config.correctX}%`,
+                        top: `${form.config.correctY}%`,
+                        width: `${(form.config.radius || 8) * 2}%`,
+                        height: `${(form.config.radius || 8) * 2}%`,
+                        transform: 'translate(-50%, -50%)',
+                        boxShadow: '0 0 0 2px rgba(0,0,0,0.5)',
+                      }}
+                    />
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <label className="text-xs text-slate-500 shrink-0">Radio zona: {form.config.radius || 8}%</label>
+                  <input type="range" min={3} max={30} step={1}
+                    value={form.config.radius || 8}
+                    onChange={(e) => updateConfig('radius', parseInt(e.target.value))}
+                    className="flex-1 accent-green-400" />
+                </div>
+                {form.config.correctX != null && (
+                  <p className="text-xs text-slate-600">
+                    Posición: X {form.config.correctX}% — Y {form.config.correctY}%
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-6 text-slate-600 text-xs border border-dashed border-slate-700 rounded-lg">
+                Sube una imagen para marcar la zona correcta
+              </div>
+            )}
           </div>
         )}
 
