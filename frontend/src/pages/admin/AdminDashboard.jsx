@@ -71,6 +71,9 @@ export default function AdminDashboard() {
   const [changePassError, setChangePassError] = useState('');
   const [changePassOk, setChangePassOk]     = useState(false);
   const [savingPass, setSavingPass]         = useState(false);
+  const [resultsChallenge, setResultsChallenge] = useState(null); // { id, name }
+  const [results, setResults]               = useState([]);
+  const [loadingResults, setLoadingResults] = useState(false);
   const currentUsername = localStorage.getItem('qt_admin_username') || 'admin';
 
   useEffect(() => { loadChallenges(); }, []);
@@ -159,6 +162,38 @@ export default function AdminDashboard() {
     if (!window.confirm('¿Eliminar este admin?')) return;
     await api.delete(`/admin/admins/${id}`);
     loadAdmins();
+  }
+
+  async function loadResults(challengeId) {
+    setLoadingResults(true);
+    setResults([]);
+    try {
+      const r = await api.get(`/admin/challenges/${challengeId}/results`);
+      setResults(r.data);
+    } finally {
+      setLoadingResults(false);
+    }
+  }
+
+  function exportCSV() {
+    const rows = [
+      ['Puesto', 'Nombre', 'DNI', 'Puntaje', 'Fecha'],
+      ...results.map((s, i) => [
+        i + 1,
+        s.playerName,
+        s.playerDni,
+        s.totalScore,
+        s.completedAt ? new Date(s.completedAt).toLocaleString('es-PE') : '-',
+      ]),
+    ];
+    const csv = rows.map((r) => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `resultados-${resultsChallenge?.name || 'quiz'}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   async function handleChangePassword(e) {
@@ -337,6 +372,72 @@ export default function AdminDashboard() {
                     {creatingAdmin ? 'Creando...' : '+ Crear admin'}
                   </button>
                 </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+        {resultsChallenge && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)' }}
+            onClick={(e) => e.target === e.currentTarget && setResultsChallenge(null)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-white">📊 Resultados</h2>
+                  <p className="text-slate-500 text-xs mt-0.5">{resultsChallenge.name}</p>
+                </div>
+                <div className="flex gap-2">
+                  {results.length > 0 && (
+                    <button onClick={exportCSV}
+                      className="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">
+                      ⬇ CSV
+                    </button>
+                  )}
+                  <button onClick={() => setResultsChallenge(null)}
+                    className="text-slate-500 hover:text-slate-300 text-xl px-1">×</button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto">
+                {loadingResults ? (
+                  <div className="flex justify-center py-10">
+                    <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : results.length === 0 ? (
+                  <div className="text-center py-10 text-slate-500">
+                    <div className="text-4xl mb-2">🎯</div>
+                    <p>Sin participantes aún</p>
+                  </div>
+                ) : (
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-slate-500 text-xs uppercase tracking-wider border-b border-slate-700">
+                        <th className="pb-2 pr-3">#</th>
+                        <th className="pb-2 pr-3">Nombre</th>
+                        <th className="pb-2 pr-3">DNI</th>
+                        <th className="pb-2 pr-3 text-right">Puntaje</th>
+                        <th className="pb-2 text-right">Fecha</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                      {results.map((s, i) => (
+                        <tr key={s.id} className={i === 0 ? 'text-yellow-400' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-amber-600' : 'text-slate-400'}>
+                          <td className="py-2.5 pr-3 font-bold">
+                            {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`}
+                          </td>
+                          <td className="py-2.5 pr-3 font-semibold text-white">{s.playerName}</td>
+                          <td className="py-2.5 pr-3 font-mono">{s.playerDni}</td>
+                          <td className="py-2.5 pr-3 text-right font-bold">{s.totalScore.toLocaleString()}</td>
+                          <td className="py-2.5 text-right text-xs text-slate-500">
+                            {s.completedAt ? new Date(s.completedAt).toLocaleString('es-PE') : '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </motion.div>
           </motion.div>
@@ -538,6 +639,15 @@ export default function AdminDashboard() {
                         className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 rounded-xl transition-all"
                       >
                         🎮 Live
+                      </button>
+                    )}
+                    {c._count?.sessions > 0 && (
+                      <button
+                        onClick={() => { setResultsChallenge({ id: c.id, name: c.name }); loadResults(c.id); }}
+                        className="bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 text-sm px-3 py-2 rounded-xl transition-all"
+                        title="Ver resultados"
+                      >
+                        📊
                       </button>
                     )}
                     <button
