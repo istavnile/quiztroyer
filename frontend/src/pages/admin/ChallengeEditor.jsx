@@ -422,7 +422,7 @@ export default function ChallengeEditor() {
                     initial={{ opacity: 0, scale: 0.95, y: -4 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="absolute left-0 top-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-1.5 flex flex-col gap-0.5 w-44 z-10 shadow-xl"
+                    className="absolute left-0 top-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-1.5 flex flex-col gap-0.5 w-44 z-50 shadow-xl"
                   >
                     {Object.entries(TYPE_LABELS).map(([type, meta]) => (
                       <button key={type} onClick={() => handleAddQuestion(type)}
