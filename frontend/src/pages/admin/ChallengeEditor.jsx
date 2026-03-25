@@ -406,7 +406,7 @@ export default function ChallengeEditor() {
       <div className="max-w-7xl mx-auto p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
 
         {/* ── SLIDES SIDEBAR (desktop: left column, mobile: full row at top) ── */}
-        <div className="w-full lg:w-52 lg:shrink-0 lg:sticky lg:top-24 flex flex-col gap-3 lg:max-h-[calc(100vh-7rem)]">
+        <div className="w-full lg:w-52 lg:shrink-0 lg:sticky lg:top-24 flex flex-col gap-3 lg:max-h-[calc(100vh-7rem)] z-10">
           <div className="flex items-center justify-between">
             <h2 className="text-white font-bold text-sm">📋 Slides <span className="text-slate-500 font-normal">({questions.length})</span></h2>
             <div className="relative">
