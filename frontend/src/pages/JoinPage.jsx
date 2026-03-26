@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../lib/api';
+import PageBackground from '../components/PageBackground';
+
+const glowTransition = { duration: 1.4, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' };
+const glowAnim = (color) => ({
+  animate: { boxShadow: [`0 0 10px 2px ${color}50`, `0 0 28px 8px ${color}bb`] },
+  transition: glowTransition,
+});
 
 export default function JoinPage() {
   const { slug } = useParams();
@@ -15,7 +22,7 @@ export default function JoinPage() {
   const [dni, setDni] = useState('');
   const [pinError, setPinError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [siteSettings, setSiteSettings] = useState({ homeBgColor: '#0f172a', homeButtonColor: '#6366f1' });
+  const [siteSettings, setSiteSettings] = useState({ homeBgColor: '#0f172a', homeButtonColor: '#6366f1', bgEffect: 'blobs' });
 
   useEffect(() => {
     api.get('/settings').then((r) => setSiteSettings((p) => ({ ...p, ...r.data }))).catch(() => {});
@@ -41,7 +48,6 @@ export default function JoinPage() {
   function handleJoin(e) {
     e.preventDefault();
     if (!name.trim() || !dni.trim()) return;
-    // Store in session
     sessionStorage.setItem('qt_name', name.trim());
     sessionStorage.setItem('qt_dni', dni.trim());
     navigate(`/play/${slug}`);
@@ -69,22 +75,16 @@ export default function JoinPage() {
   }
 
   const branding = challenge.branding || {};
-
-  const accent = branding.primaryColor || siteSettings.homeButtonColor || '#6366f1';
-  const bgColor = branding.bgColor || siteSettings.homeBgColor || '#0f172a';
+  const accent  = branding.primaryColor || siteSettings.homeButtonColor || '#6366f1';
+  const bgColor = branding.bgColor      || siteSettings.homeBgColor     || '#0f172a';
+  const glow    = glowAnim(accent);
 
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden"
       style={{ background: bgColor }}
     >
-      {/* Animated blobs */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="blob-anim-1 absolute -top-20 -right-20 w-[280px] h-[280px] sm:w-[480px] sm:h-[480px] rounded-full blur-3xl opacity-25"
-          style={{ background: accent }} />
-        <div className="blob-anim-2 absolute -bottom-20 -left-20 w-[280px] h-[280px] sm:w-[480px] sm:h-[480px] rounded-full blur-3xl opacity-20"
-          style={{ background: accent }} />
-      </div>
+      <PageBackground siteSettings={siteSettings} color={accent} />
 
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -125,14 +125,15 @@ export default function JoinPage() {
               {pinError && (
                 <p className="text-red-400 text-sm text-center">{pinError}</p>
               )}
-              <button
+              <motion.button
                 type="submit"
                 disabled={loading || !pin}
-                className="w-full disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors"
+                className="w-full disabled:opacity-50 text-white font-bold py-3 rounded-xl"
                 style={{ background: accent }}
+                {...glow}
               >
                 {loading ? 'Verificando...' : 'Verificar PIN'}
-              </button>
+              </motion.button>
             </form>
           </motion.div>
         )}
@@ -172,14 +173,15 @@ export default function JoinPage() {
                   style={{ border: `2px solid rgb(51 65 85)` }}
                 />
               </div>
-              <button
+              <motion.button
                 type="submit"
                 disabled={!name.trim() || !dni.trim()}
-                className="w-full font-bold py-3 rounded-xl transition-colors text-white disabled:opacity-50"
+                className="w-full font-bold py-3 rounded-xl text-white disabled:opacity-50"
                 style={{ background: accent }}
+                {...glow}
               >
                 ¡Entrar al desafío!
-              </button>
+              </motion.button>
             </form>
           </motion.div>
         )}

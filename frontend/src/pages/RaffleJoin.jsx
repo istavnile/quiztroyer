@@ -2,12 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import api from '../lib/api';
+import PageBackground from '../components/PageBackground';
+
+const glowTransition = { duration: 1.4, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' };
+const glowAnim = (color) => ({
+  animate: { boxShadow: [`0 0 10px 2px ${color}50`, `0 0 28px 8px ${color}bb`] },
+  transition: glowTransition,
+});
 
 export default function RaffleJoin() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [raffle, setRaffle] = useState(null);
-  const [siteSettings, setSiteSettings] = useState({ homeBgColor: '#0f172a', homeButtonColor: '#6366f1' });
+  const [siteSettings, setSiteSettings] = useState({ homeBgColor: '#0f172a', homeButtonColor: '#6366f1', bgEffect: 'blobs' });
   const [pin, setPin] = useState('');
   const [pinOk, setPinOk] = useState(false);
   const [form, setForm] = useState({ nombre: '', apellido: '', dni: '', correo: '', telefono: '' });
@@ -56,16 +63,14 @@ export default function RaffleJoin() {
   if (loading) return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">Cargando...</div>;
   if (!raffle) return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">Sorteo no encontrado</div>;
 
-  const bg = raffle.branding?.bgColor || siteSettings.homeBgColor || '#0f172a';
+  const bg      = raffle.branding?.bgColor      || siteSettings.homeBgColor    || '#0f172a';
   const primary = raffle.branding?.primaryColor || siteSettings.homeButtonColor || '#6366f1';
+  const glow    = glowAnim(primary);
 
   if (!pinOk) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden" style={{ background: bg }}>
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="blob-anim-1 absolute -top-20 -right-20 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] rounded-full blur-3xl opacity-25" style={{ background: primary }} />
-          <div className="blob-anim-2 absolute -bottom-20 -left-20 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] rounded-full blur-3xl opacity-20" style={{ background: primary }} />
-        </div>
+        <PageBackground siteSettings={siteSettings} color={primary} />
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-2xl p-8 w-full max-w-sm relative z-10 text-center">
           {raffle.branding?.logoUrl
             ? <img src={raffle.branding.logoUrl} alt="logo" className="h-14 object-contain mx-auto mb-4" />
@@ -77,14 +82,17 @@ export default function RaffleJoin() {
             type="text" inputMode="numeric" maxLength={8}
             value={pin} onChange={(e) => setPin(e.target.value)}
             placeholder="PIN del sorteo"
-            className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-center text-2xl tracking-widest mb-4 focus:outline-none focus:ring-2"
-            style={{ '--tw-ring-color': primary }}
+            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white text-center text-2xl tracking-widest mb-4 focus:outline-none"
+            style={{ border: `2px solid ${primary}` }}
           />
-          <button onClick={() => { if (pin.trim()) setPinOk(true); }}
-            className="w-full text-white font-bold py-3 rounded-xl glow-pulse"
-            style={{ background: primary }}>
+          <motion.button
+            onClick={() => { if (pin.trim()) setPinOk(true); }}
+            className="w-full text-white font-bold py-3 rounded-xl"
+            style={{ background: primary }}
+            {...glow}
+          >
             Continuar →
-          </button>
+          </motion.button>
         </motion.div>
       </div>
     );
@@ -92,10 +100,7 @@ export default function RaffleJoin() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden" style={{ background: bg }}>
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="blob-anim-1 absolute -top-20 -right-20 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] rounded-full blur-3xl opacity-25" style={{ background: primary }} />
-        <div className="blob-anim-2 absolute -bottom-20 -left-20 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] rounded-full blur-3xl opacity-20" style={{ background: primary }} />
-      </div>
+      <PageBackground siteSettings={siteSettings} color={primary} />
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
         className="glass rounded-2xl p-6 w-full max-w-md relative z-10">
@@ -121,7 +126,7 @@ export default function RaffleJoin() {
               <input
                 type={type} value={form[key]} placeholder={placeholder}
                 onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                className={`w-full bg-slate-800 border rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 text-sm ${errors[key] ? 'border-red-500' : 'border-slate-700'}`}
+                className={`w-full bg-slate-800 border rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-sm ${errors[key] ? 'border-red-500' : 'border-slate-700'}`}
               />
               {errors[key] && <p className="text-red-400 text-xs mt-1">{errors[key]}</p>}
             </div>
@@ -133,11 +138,14 @@ export default function RaffleJoin() {
             </div>
           )}
 
-          <button type="submit" disabled={submitting}
-            className="w-full text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 mt-2"
-            style={{ background: primary }}>
+          <motion.button
+            type="submit" disabled={submitting}
+            className="w-full text-white font-bold py-3 rounded-xl disabled:opacity-50 mt-2"
+            style={{ background: primary }}
+            {...glow}
+          >
             {submitting ? 'Registrando...' : '¡Participar en el sorteo!'}
-          </button>
+          </motion.button>
         </form>
       </motion.div>
     </div>
