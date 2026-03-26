@@ -7,6 +7,7 @@ export default function RaffleJoin() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [raffle, setRaffle] = useState(null);
+  const [siteSettings, setSiteSettings] = useState({ homeBgColor: '#0f172a', homeButtonColor: '#6366f1' });
   const [pin, setPin] = useState('');
   const [pinOk, setPinOk] = useState(false);
   const [form, setForm] = useState({ nombre: '', apellido: '', dni: '', correo: '', telefono: '' });
@@ -16,6 +17,7 @@ export default function RaffleJoin() {
   const [serverError, setServerError] = useState('');
 
   useEffect(() => {
+    api.get('/settings').then((r) => setSiteSettings((p) => ({ ...p, ...r.data }))).catch(() => {});
     api.get(`/raffle/${slug}`)
       .then((r) => setRaffle(r.data))
       .catch(() => setRaffle(null))
@@ -54,8 +56,8 @@ export default function RaffleJoin() {
   if (loading) return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">Cargando...</div>;
   if (!raffle) return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">Sorteo no encontrado</div>;
 
-  const bg = raffle.branding?.bgColor || '#0f172a';
-  const primary = raffle.branding?.primaryColor || '#6366f1';
+  const bg = raffle.branding?.bgColor || siteSettings.homeBgColor || '#0f172a';
+  const primary = raffle.branding?.primaryColor || siteSettings.homeButtonColor || '#6366f1';
 
   if (!pinOk) {
     return (
