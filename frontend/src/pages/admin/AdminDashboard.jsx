@@ -234,7 +234,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-900 p-4 sm:p-6 relative overflow-hidden">
       {/* Animated background blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="blob-anim-1 absolute -top-48 -right-48 w-[600px] h-[600px] rounded-full blur-3xl opacity-20" style={{ background: siteSettings.blob1Color }} />
@@ -472,53 +472,36 @@ export default function AdminDashboard() {
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white">
+            <h1 className="text-2xl sm:text-3xl font-black text-white">
               <span className="text-gradient">QUIZ</span>TROYER
             </h1>
             <p className="text-slate-400 text-sm mt-1">Panel de Administrador</p>
           </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => { setShowChangePass(true); setChangePassError(''); setChangePassOk(false); }}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-400 font-medium px-4 py-2 rounded-xl transition-all text-sm"
-              title="Cambiar contraseña"
-            >
-              🔑
-            </button>
-            <button
-              onClick={() => { setShowAdmins(true); loadAdmins(); setAdminError(''); }}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-400 font-medium px-4 py-2 rounded-xl transition-all text-sm"
-              title="Gestionar admins"
-            >
-              👥
-            </button>
-            <button
-              onClick={() => setShowSettings(true)}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-400 font-medium px-4 py-2 rounded-xl transition-all text-sm"
-              title="Personalizar pantalla de inicio"
-            >
-              🎨
-            </button>
-            <button
-              onClick={() => { setShowCreate(true); setCreateError(''); setForm({ name: '', slug: '', pin: '' }); }}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-xl transition-all text-sm"
-            >
-              + Nuevo Desafío
-            </button>
-            <button
-              onClick={() => { setShowCreateRaffle(true); setRaffleError(''); setRaffleForm({ name: '', slug: '', pin: '' }); }}
-              className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2 rounded-xl transition-all text-sm"
-            >
-              🎟️ Nuevo Sorteo
-            </button>
-            <button
-              onClick={handleLogout}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-400 font-medium px-4 py-2 rounded-xl transition-all text-sm"
-            >
-              Salir
-            </button>
+          <div className="flex flex-wrap gap-2">
+            {/* Icon buttons */}
+            <div className="flex gap-2">
+              <button onClick={() => { setShowChangePass(true); setChangePassError(''); setChangePassOk(false); }}
+                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-2 rounded-xl transition-all text-sm" title="Cambiar contraseña">🔑</button>
+              <button onClick={() => { setShowAdmins(true); loadAdmins(); setAdminError(''); }}
+                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-2 rounded-xl transition-all text-sm" title="Gestionar admins">👥</button>
+              <button onClick={() => setShowSettings(true)}
+                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-2 rounded-xl transition-all text-sm" title="Personalizar">🎨</button>
+              <button onClick={handleLogout}
+                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-2 rounded-xl transition-all text-sm">Salir</button>
+            </div>
+            {/* Action buttons */}
+            <div className="flex gap-2">
+              <button onClick={() => { setShowCreate(true); setCreateError(''); setForm({ name: '', slug: '', pin: '' }); }}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-2 rounded-xl transition-all text-sm">
+                + Desafío
+              </button>
+              <button onClick={() => { setShowCreateRaffle(true); setRaffleError(''); setRaffleForm({ name: '', slug: '', pin: '' }); }}
+                className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-2 rounded-xl transition-all text-sm">
+                🎟️ Sorteo
+              </button>
+            </div>
           </div>
         </div>
 
