@@ -15,8 +15,10 @@ export default function JoinPage() {
   const [dni, setDni] = useState('');
   const [pinError, setPinError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [siteSettings, setSiteSettings] = useState({ homeBgColor: '#0f172a', homeButtonColor: '#6366f1' });
 
   useEffect(() => {
+    api.get('/settings').then((r) => setSiteSettings((p) => ({ ...p, ...r.data }))).catch(() => {});
     api.get(`/challenges/${slug}`)
       .then((r) => setChallenge(r.data))
       .catch(() => setNotFound(true));
@@ -68,19 +70,20 @@ export default function JoinPage() {
 
   const branding = challenge.branding || {};
 
-  const blobColor = branding.primaryColor || '#6366f1';
+  const accent = branding.primaryColor || siteSettings.homeButtonColor || '#6366f1';
+  const bgColor = branding.bgColor || siteSettings.homeBgColor || '#0f172a';
 
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden"
-      style={{ background: branding.bgColor || '#0f172a' }}
+      style={{ background: bgColor }}
     >
-      {/* Animated blobs using challenge primary color */}
+      {/* Animated blobs */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="blob-anim-1 absolute -top-20 -right-20 w-[280px] h-[280px] sm:w-[480px] sm:h-[480px] rounded-full blur-3xl opacity-25"
-          style={{ background: blobColor }} />
+          style={{ background: accent }} />
         <div className="blob-anim-2 absolute -bottom-20 -left-20 w-[280px] h-[280px] sm:w-[480px] sm:h-[480px] rounded-full blur-3xl opacity-20"
-          style={{ background: blobColor }} />
+          style={{ background: accent }} />
       </div>
 
       <motion.div
@@ -115,7 +118,8 @@ export default function JoinPage() {
                 onChange={(e) => setPin(e.target.value)}
                 placeholder="PIN del desafío"
                 maxLength={8}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-center text-2xl tracking-widest placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white text-center text-2xl tracking-widest placeholder-slate-600 focus:outline-none"
+                style={{ border: `2px solid ${accent}` }}
                 autoFocus
               />
               {pinError && (
@@ -124,7 +128,8 @@ export default function JoinPage() {
               <button
                 type="submit"
                 disabled={loading || !pin}
-                className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors glow-pulse"
+                className="w-full disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors"
+                style={{ background: accent }}
               >
                 {loading ? 'Verificando...' : 'Verificar PIN'}
               </button>
@@ -150,7 +155,8 @@ export default function JoinPage() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Tu nombre"
                   maxLength={30}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none"
+                  style={{ border: `2px solid rgb(51 65 85)` }}
                   autoFocus
                 />
               </div>
@@ -162,14 +168,15 @@ export default function JoinPage() {
                   onChange={(e) => setDni(e.target.value)}
                   placeholder="Tu número de documento"
                   maxLength={20}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none"
+                  style={{ border: `2px solid rgb(51 65 85)` }}
                 />
               </div>
               <button
                 type="submit"
                 disabled={!name.trim() || !dni.trim()}
-                className="w-full font-bold py-3 rounded-xl transition-colors text-white disabled:opacity-50 glow-pulse"
-                style={{ background: branding.primaryColor || '#6366f1' }}
+                className="w-full font-bold py-3 rounded-xl transition-colors text-white disabled:opacity-50"
+                style={{ background: accent }}
               >
                 ¡Entrar al desafío!
               </button>
