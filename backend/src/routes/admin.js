@@ -297,7 +297,7 @@ const SETTINGS_PATH = path.join(__dirname, '../../uploads/settings.json');
 
 function readSettings() {
   try { return JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8')); }
-  catch { return { blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '' }; }
+  catch { return { blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '', bgEffect: 'blobs' }; }
 }
 
 // GET /api/admin/settings

@@ -58,7 +58,7 @@ export default function AdminDashboard() {
   const [confirmDelete, setConfirmDelete] = useState(null); // { id, name }
   const [deleting, setDeleting]     = useState(false);
   const [showSettings, setShowSettings]   = useState(false);
-  const [siteSettings, setSiteSettings]   = useState({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '' });
+  const [siteSettings, setSiteSettings]   = useState({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '', bgEffect: 'blobs' });
   const [savingSettings, setSavingSettings] = useState(false);
   const [showAdmins, setShowAdmins]       = useState(false);
   const [adminList, setAdminList]         = useState([]);
@@ -265,6 +265,36 @@ export default function AdminDashboard() {
             >
               <h2 className="text-lg font-bold text-white mb-5">🎨 Pantalla de inicio</h2>
               <div className="space-y-4">
+
+                {/* Background effect selector */}
+                <div>
+                  <p className="text-xs text-slate-400 mb-2">Efecto de fondo</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { key: 'blobs',     label: 'Blobs',      icon: '🫧' },
+                      { key: 'nodes',     label: 'Nodos',      icon: '🕸️' },
+                      { key: 'particles', label: 'Partículas', icon: '✨' },
+                      { key: 'waves',     label: 'Ondas',      icon: '〰️' },
+                      { key: 'polygons',  label: 'Polígonos',  icon: '🔷' },
+                      { key: 'pattern',   label: 'Patrón',     icon: '⚏' },
+                    ].map(({ key, label, icon }) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setSiteSettings((s) => ({ ...s, bgEffect: key }))}
+                        className={`py-2 px-2 rounded-lg text-xs font-medium transition-all text-center ${
+                          (siteSettings.bgEffect || 'blobs') === key
+                            ? 'bg-indigo-600 text-white ring-2 ring-indigo-400'
+                            : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                        }`}
+                      >
+                        <div className="text-base mb-0.5">{icon}</div>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Logo */}
                 <div>
                   <p className="text-xs text-slate-400 mb-1">Logo (opcional)</p>

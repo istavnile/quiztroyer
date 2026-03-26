@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import api from '../lib/api';
+import BackgroundEffect from '../components/BackgroundEffect';
 
 export default function Home() {
   const [slug, setSlug]       = useState('');
-  const [colors, setColors]   = useState({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '' });
+  const [colors, setColors]   = useState({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '', bgEffect: 'blobs' });
   const [inputFocused, setInputFocused] = useState(false);
   const navigate = useNavigate();
 
@@ -22,24 +23,17 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden" style={{ background: colors.homeBgColor }}>
-      {/* Animated background blobs */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="blob-anim-1 absolute -top-20 -right-20 w-[280px] h-[280px] sm:w-[500px] sm:h-[500px] rounded-full blur-3xl opacity-30"
-          style={{ background: colors.blob1Color }}
-        />
-        <div
-          className="blob-anim-2 absolute -bottom-20 -left-20 w-[280px] h-[280px] sm:w-[500px] sm:h-[500px] rounded-full blur-3xl opacity-30"
-          style={{ background: colors.blob2Color }}
-        />
-        <div
-          className="blob-anim-3 absolute rounded-full blur-3xl opacity-20"
-          style={{
-            background: colors.blob3Color,
-            width: 'min(320px, 60vw)', height: 'min(320px, 60vw)',
-            top: '50%', left: '50%',
-          }}
-        />
+      {/* Background effect */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {colors.bgEffect === 'blobs' || !colors.bgEffect ? (
+          <>
+            <div className="blob-anim-1 absolute -top-20 -right-20 w-[280px] h-[280px] sm:w-[500px] sm:h-[500px] rounded-full blur-3xl opacity-30" style={{ background: colors.blob1Color }} />
+            <div className="blob-anim-2 absolute -bottom-20 -left-20 w-[280px] h-[280px] sm:w-[500px] sm:h-[500px] rounded-full blur-3xl opacity-30" style={{ background: colors.blob2Color }} />
+            <div className="blob-anim-3 absolute rounded-full blur-3xl opacity-20" style={{ background: colors.blob3Color, width: 'min(320px, 60vw)', height: 'min(320px, 60vw)', top: '50%', left: '50%' }} />
+          </>
+        ) : (
+          <BackgroundEffect type={colors.bgEffect} color={accent} />
+        )}
       </div>
 
       <motion.div
