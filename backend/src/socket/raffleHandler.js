@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// In-memory raffle rooms: slug -> { adminSocket, participants: Map(socketId -> {entryId, nombre, apellido}) }
 const raffleRooms = new Map();
 
 function getRaffleRoom(slug) {
@@ -11,12 +10,20 @@ function getRaffleRoom(slug) {
   return raffleRooms.get(slug);
 }
 
+async function broadcastRoster(ns, slug, raffleId) {
+  const entries = await prisma.raffleEntry.findMany({
+    where: { raffleId },
+    select: { nombre: true, apellido: true },
+    orderBy: { createdAt: 'asc' },
+  });
+  ns.to(`raffle:${slug}`).emit('raffle:roster', entries.map((e) => `${e.nombre} ${e.apellido}`));
+}
+
 function setupRaffleSocket(io) {
   const ns = io.of('/raffle');
 
   ns.on('connection', (socket) => {
 
-    // Player joins raffle lobby
     socket.on('raffle:join', async ({ slug, entryId, nombre, apellido }) => {
       try {
         const raffle = await prisma.raffle.findUnique({ where: { slug } });
@@ -26,18 +33,17 @@ function setupRaffleSocket(io) {
         room.participants.set(socket.id, { entryId, nombre, apellido });
         socket.join(`raffle:${slug}`);
 
-        // Update socketId in DB
         await prisma.raffleEntry.update({ where: { id: entryId }, data: { socketId: socket.id } });
 
         socket.emit('raffle:joined', { raffleName: raffle.name, status: raffle.status });
         ns.to(`raffle:${slug}`).emit('raffle:count', room.participants.size);
+        await broadcastRoster(ns, slug, raffle.id);
         console.log(`[Raffle] ${nombre} joined ${slug}. Total: ${room.participants.size}`);
       } catch (err) {
         console.error('[Raffle join error]', err.message);
       }
     });
 
-    // Admin joins control room
     socket.on('raffle:admin-join', async ({ slug, token }) => {
       try {
         const jwt = require('jsonwebtoken');
@@ -53,10 +59,7 @@ function setupRaffleSocket(io) {
         room.adminSocket = socket.id;
         socket.join(`raffle:${slug}`);
 
-        socket.emit('raffle:admin-ready', {
-          raffle,
-          participantCount: room.participants.size,
-        });
+        socket.emit('raffle:admin-ready', { raffle, participantCount: room.participants.size });
         console.log(`[Raffle] Admin joined control for ${slug}`);
       } catch {
         socket.emit('raffle:error', 'No autorizado');
@@ -69,36 +72,41 @@ function setupRaffleSocket(io) {
         const room = getRaffleRoom(slug);
         if (room.adminSocket !== socket.id) return;
 
+        const raffle = await prisma.raffle.findUnique({ where: { slug } });
+        const entries = await prisma.raffleEntry.findMany({ where: { raffleId: raffle.id } });
+        if (entries.length === 0) return socket.emit('raffle:error', 'No hay participantes');
+
+        // Pick a random featured name for this spin
+        const featured = entries[Math.floor(Math.random() * entries.length)];
+
+        // Start spinning animation (word cloud goes chaotic)
+        ns.to(`raffle:${slug}`).emit('raffle:spinning', { spinNumber });
+
         if (spinNumber < 3) {
-          // Spins 1 and 2 — just animate, no winner yet
-          ns.to(`raffle:${slug}`).emit('raffle:spinning', { spinNumber });
-          console.log(`[Raffle] Spin ${spinNumber} in ${slug}`);
+          // After 4s of animation, reveal a random name (not necessarily the winner)
+          setTimeout(() => {
+            ns.to(`raffle:${slug}`).emit('raffle:spin-result', {
+              spinNumber,
+              nombre: featured.nombre,
+              apellido: featured.apellido,
+            });
+          }, 4000);
+          console.log(`[Raffle] Spin ${spinNumber} in ${slug}, featuring: ${featured.nombre}`);
         } else {
-          // Spin 3 — pick winner
-          const entries = await prisma.raffleEntry.findMany({
-            where: { raffleId: (await prisma.raffle.findUnique({ where: { slug } })).id },
-          });
-          if (entries.length === 0) return socket.emit('raffle:error', 'No hay participantes');
-
-          const winner = entries[Math.floor(Math.random() * entries.length)];
-
-          await prisma.raffleEntry.update({ where: { id: winner.id }, data: { isWinner: true } });
+          // Spin 3 = pick winner
+          await prisma.raffleEntry.update({ where: { id: featured.id }, data: { isWinner: true } });
           await prisma.raffle.update({ where: { slug }, data: { status: 'DONE' } });
 
-          ns.to(`raffle:${slug}`).emit('raffle:spinning', { spinNumber: 3 });
-
-          // Short delay so animation plays before winner reveal
           setTimeout(() => {
             ns.to(`raffle:${slug}`).emit('raffle:winner', {
-              nombre: winner.nombre,
-              apellido: winner.apellido,
-              dni: winner.dni,
-              correo: winner.correo,
-              telefono: winner.telefono,
+              nombre: featured.nombre,
+              apellido: featured.apellido,
+              dni: featured.dni,
+              correo: featured.correo,
+              telefono: featured.telefono,
             });
-          }, 3000);
-
-          console.log(`[Raffle] Winner in ${slug}: ${winner.nombre} ${winner.apellido}`);
+          }, 4000);
+          console.log(`[Raffle] Winner in ${slug}: ${featured.nombre} ${featured.apellido}`);
         }
       } catch (err) {
         console.error('[Raffle spin error]', err.message);
