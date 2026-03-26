@@ -90,12 +90,11 @@ export default function Home() {
             style={{ background: accent }}
             animate={{
               boxShadow: [
-                `0 0 16px 2px ${accent}70, 0 0 0 0 ${accent}30`,
-                `0 0 32px 8px ${accent}c0, 0 0 0 8px ${accent}00`,
-                `0 0 16px 2px ${accent}70, 0 0 0 0 ${accent}30`,
+                `0 0 10px 2px ${accent}50`,
+                `0 0 28px 8px ${accent}bb`,
               ],
             }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            transition={{ duration: 1.4, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
           >
             Continuar →
           </motion.button>
