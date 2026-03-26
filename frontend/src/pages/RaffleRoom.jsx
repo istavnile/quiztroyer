@@ -356,7 +356,7 @@ export default function RaffleRoom() {
           <div className="blob-anim-1 absolute -top-20 -right-20 w-[300px] h-[300px] rounded-full blur-3xl opacity-25" style={{ background: primary }} />
           <div className="blob-anim-2 absolute -bottom-20 -left-20 w-[300px] h-[300px] rounded-full blur-3xl opacity-20" style={{ background: primary }} />
           <div className="blob-anim-3 absolute rounded-full blur-3xl opacity-15" style={{
-            background: '#ec4899', width: 200, height: 200, top: '50%', left: '50%', transform: 'translate(-50%,-50%)'
+            background: '#ec4899', width: 200, height: 200, top: '50%', left: '50%'
           }} />
         </div>
 

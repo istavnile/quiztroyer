@@ -38,7 +38,6 @@ export default function Home() {
             background: colors.blob3Color,
             width: 'min(320px, 60vw)', height: 'min(320px, 60vw)',
             top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
           }}
         />
       </div>
