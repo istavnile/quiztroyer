@@ -74,9 +74,14 @@ export default function AdminDashboard() {
   const [resultsChallenge, setResultsChallenge] = useState(null); // { id, name }
   const [results, setResults]               = useState([]);
   const [loadingResults, setLoadingResults] = useState(false);
+  const [raffles, setRaffles]               = useState([]);
+  const [showCreateRaffle, setShowCreateRaffle] = useState(false);
+  const [raffleForm, setRaffleForm]         = useState({ name: '', slug: '', pin: '' });
+  const [creatingRaffle, setCreatingRaffle] = useState(false);
+  const [raffleError, setRaffleError]       = useState('');
   const currentUsername = localStorage.getItem('qt_admin_username') || 'admin';
 
-  useEffect(() => { loadChallenges(); }, []);
+  useEffect(() => { loadChallenges(); loadRaffles(); }, []);
 
   useEffect(() => {
     api.get('/settings').then((r) => setSiteSettings(r.data)).catch(() => {});
@@ -162,6 +167,27 @@ export default function AdminDashboard() {
     if (!window.confirm('¿Eliminar este admin?')) return;
     await api.delete(`/admin/admins/${id}`);
     loadAdmins();
+  }
+
+  async function loadRaffles() {
+    try { const r = await api.get('/raffle/admin/list'); setRaffles(r.data); } catch {}
+  }
+
+  async function handleCreateRaffle(e) {
+    e.preventDefault();
+    setCreatingRaffle(true); setRaffleError('');
+    try {
+      const res = await api.post('/raffle/admin/create', raffleForm);
+      navigate(`/admin/raffles/${res.data.id}/control`);
+    } catch (err) {
+      setRaffleError(err.response?.data?.error || 'Error al crear el sorteo');
+    } finally { setCreatingRaffle(false); }
+  }
+
+  async function handleDeleteRaffle(id, name) {
+    if (!window.confirm(`¿Eliminar "${name}"?`)) return;
+    await api.delete(`/raffle/admin/${id}`);
+    loadRaffles();
   }
 
   async function loadResults(challengeId) {
@@ -482,6 +508,12 @@ export default function AdminDashboard() {
               + Nuevo Desafío
             </button>
             <button
+              onClick={() => { setShowCreateRaffle(true); setRaffleError(''); setRaffleForm({ name: '', slug: '', pin: '' }); }}
+              className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2 rounded-xl transition-all text-sm"
+            >
+              🎟️ Nuevo Sorteo
+            </button>
+            <button
               onClick={handleLogout}
               className="bg-slate-800 hover:bg-slate-700 text-slate-400 font-medium px-4 py-2 rounded-xl transition-all text-sm"
             >
@@ -576,6 +608,96 @@ export default function AdminDashboard() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Create Raffle Modal */}
+        <AnimatePresence>
+          {showCreateRaffle && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+              onClick={(e) => e.target === e.currentTarget && setShowCreateRaffle(false)}>
+              <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+                className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                <h2 className="text-xl font-bold text-white mb-6">🎟️ Nuevo Sorteo</h2>
+                <form onSubmit={handleCreateRaffle} className="space-y-4">
+                  <div>
+                    <label className="block text-sm text-slate-400 mb-1">Nombre del sorteo</label>
+                    <input type="text" value={raffleForm.name}
+                      onChange={(e) => { const name = e.target.value; setRaffleForm((f) => ({ ...f, name, slug: autoSlug(name) })); }}
+                      placeholder="Gran Sorteo NVIDIA" required autoFocus
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-400 mb-1">Slug (URL)</label>
+                    <div className="flex items-center">
+                      <span className="bg-slate-700 border border-r-0 border-slate-600 rounded-l-xl px-3 py-2.5 text-slate-500 text-sm">/sorteo/</span>
+                      <input type="text" value={raffleForm.slug}
+                        onChange={(e) => setRaffleForm((f) => ({ ...f, slug: e.target.value }))}
+                        placeholder="gran-sorteo" required
+                        className="flex-1 bg-slate-800 border border-slate-600 rounded-r-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-400 mb-1">PIN de acceso</label>
+                    <input type="text" value={raffleForm.pin}
+                      onChange={(e) => setRaffleForm((f) => ({ ...f, pin: e.target.value }))}
+                      placeholder="1234" maxLength={8} required
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500 tracking-widest text-center text-xl" />
+                  </div>
+                  {raffleError && <div className="bg-red-500/20 border border-red-500/40 rounded-xl px-4 py-2"><p className="text-red-400 text-sm">{raffleError}</p></div>}
+                  <div className="flex gap-3 pt-1">
+                    <button type="button" onClick={() => setShowCreateRaffle(false)}
+                      className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2.5 rounded-xl font-medium transition-all">Cancelar</button>
+                    <button type="submit" disabled={creatingRaffle || !raffleForm.name || !raffleForm.slug || !raffleForm.pin}
+                      className="flex-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all">
+                      {creatingRaffle ? 'Creando...' : 'Crear →'}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Raffles section */}
+        {raffles.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">🎟️ Sorteos</h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {raffles.map((r, i) => (
+                <motion.div key={r.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                  className="glass rounded-2xl p-5 flex flex-col gap-4 border border-amber-500/20">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-white font-bold text-base truncate">{r.name}</h3>
+                      <p className="text-slate-500 text-xs mt-0.5">/sorteo/{r.slug}</p>
+                    </div>
+                    <span className={`text-xs font-semibold px-2 py-1 rounded-full shrink-0 ${
+                      r.status === 'OPEN' ? 'text-green-400 bg-green-500/20' :
+                      r.status === 'DONE' ? 'text-purple-400 bg-purple-500/20' :
+                      'text-slate-400 bg-slate-700'}`}>
+                      {r.status === 'OPEN' ? '🟢 Abierto' : r.status === 'DONE' ? 'Finalizado' : 'Borrador'}
+                    </span>
+                  </div>
+                  <div className="flex gap-3 text-xs text-slate-500">
+                    <span>👥 {r._count?.entries || 0} inscritos</span>
+                    <span>🔑 {r.pin}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => navigate(`/admin/raffles/${r.id}/control`)}
+                      className="flex-1 bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold py-2 rounded-xl transition-all">
+                      🎰 Control
+                    </button>
+                    <button onClick={() => handleDeleteRaffle(r.id, r.name)}
+                      className="bg-red-500/15 hover:bg-red-500/30 text-red-400 text-sm px-3 py-2 rounded-xl transition-all">🗑</button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {raffles.length > 0 && <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">🎯 Desafíos</h2>}
 
         {/* Challenges grid */}
         {loading ? (

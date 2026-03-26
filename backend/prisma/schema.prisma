@@ -131,3 +131,41 @@ model PasswordResetToken {
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
 }
+
+model Raffle {
+  id        String        @id @default(cuid())
+  name      String
+  slug      String        @unique
+  pin       String
+  status    RaffleStatus  @default(DRAFT)
+  branding  Json          @default("{}")
+  entries   RaffleEntry[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([slug])
+}
+
+model RaffleEntry {
+  id        String   @id @default(cuid())
+  raffleId  String
+  raffle    Raffle   @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+  nombre    String
+  apellido  String
+  dni       String
+  correo    String
+  telefono  String
+  socketId  String?
+  isWinner  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@unique([raffleId, dni])
+  @@index([raffleId])
+}
+
+enum RaffleStatus {
+  DRAFT
+  OPEN
+  SPINNING
+  DONE
+}

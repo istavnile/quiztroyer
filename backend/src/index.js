@@ -8,7 +8,9 @@ const fs = require('fs');
 
 const adminRoutes = require('./routes/admin');
 const challengeRoutes = require('./routes/challenges');
+const raffleRoutes = require('./routes/raffle');
 const { setupGameSocket } = require('./socket/gameHandler');
+const { setupRaffleSocket } = require('./socket/raffleHandler');
 
 const app = express();
 const server = http.createServer(app);
@@ -45,6 +47,7 @@ app.get('/api/settings', (req, res) => {
 // REST Routes
 app.use('/api/admin', adminRoutes);
 app.use('/api/challenges', challengeRoutes);
+app.use('/api/raffle', raffleRoutes);
 
 // Global error handler (prevents server crash)
 app.use((err, req, res, next) => {
@@ -54,6 +57,7 @@ app.use((err, req, res, next) => {
 
 // Socket.io
 setupGameSocket(io);
+setupRaffleSocket(io);
 
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {

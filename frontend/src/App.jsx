@@ -11,6 +11,9 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ChallengeEditor from './pages/admin/ChallengeEditor';
 import LiveControl from './pages/admin/LiveControl';
 import GameRoom from './pages/game/GameRoom';
+import RaffleJoin from './pages/RaffleJoin';
+import RaffleRoom from './pages/RaffleRoom';
+import RaffleControl from './pages/admin/RaffleControl';
 
 function RequireAdmin({ children }) {
   const token = localStorage.getItem('qt_admin_token');
@@ -27,6 +30,8 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/join/:slug" element={<JoinPage />} />
             <Route path="/play/:slug" element={<GameRoom />} />
+            <Route path="/sorteo/:slug" element={<RaffleJoin />} />
+            <Route path="/sorteo/:slug/lobby" element={<RaffleRoom />} />
 
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
@@ -51,6 +56,15 @@ export default function App() {
               element={
                 <RequireAdmin>
                   <LiveControl />
+                </RequireAdmin>
+              }
+            />
+
+            <Route
+              path="/admin/raffles/:id/control"
+              element={
+                <RequireAdmin>
+                  <RaffleControl />
                 </RequireAdmin>
               }
             />
