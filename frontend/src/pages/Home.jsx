@@ -85,13 +85,21 @@ export default function Home() {
               autoFocus
             />
           </div>
-          <button
+          <motion.button
             type="submit"
-            className="w-full text-white font-bold py-3 rounded-xl transition-colors duration-200 text-lg glow-pulse"
+            className="w-full text-white font-bold py-3 rounded-xl text-lg"
             style={{ background: accent }}
+            animate={{
+              boxShadow: [
+                `0 0 16px 2px ${accent}70, 0 0 0 0 ${accent}30`,
+                `0 0 32px 8px ${accent}c0, 0 0 0 8px ${accent}00`,
+                `0 0 16px 2px ${accent}70, 0 0 0 0 ${accent}30`,
+              ],
+            }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           >
             Continuar →
-          </button>
+          </motion.button>
         </form>
       </motion.div>
 
