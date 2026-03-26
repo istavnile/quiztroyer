@@ -24,8 +24,8 @@ export default function LobbyScreen() {
               key={i}
               className="absolute rounded-full animate-ping"
               style={{
-                width: `${i * 180}px`,
-                height: `${i * 180}px`,
+                width: `${i * Math.min(180, window.innerWidth * 0.35)}px`,
+                height: `${i * Math.min(180, window.innerWidth * 0.35)}px`,
                 background: primaryColor,
                 opacity: 0.06,
                 animationDelay: `${i * 0.35}s`,

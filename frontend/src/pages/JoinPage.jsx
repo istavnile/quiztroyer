@@ -77,9 +77,9 @@ export default function JoinPage() {
     >
       {/* Animated blobs using challenge primary color */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="blob-anim-1 absolute -top-40 -right-40 w-[480px] h-[480px] rounded-full blur-3xl opacity-25"
+        <div className="blob-anim-1 absolute -top-20 -right-20 w-[280px] h-[280px] sm:w-[480px] sm:h-[480px] rounded-full blur-3xl opacity-25"
           style={{ background: blobColor }} />
-        <div className="blob-anim-2 absolute -bottom-40 -left-40 w-[480px] h-[480px] rounded-full blur-3xl opacity-20"
+        <div className="blob-anim-2 absolute -bottom-20 -left-20 w-[280px] h-[280px] sm:w-[480px] sm:h-[480px] rounded-full blur-3xl opacity-20"
           style={{ background: blobColor }} />
       </div>
 

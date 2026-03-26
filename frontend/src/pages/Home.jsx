@@ -22,20 +22,20 @@ export default function Home() {
       {/* Animated background blobs — CSS keyframes, no transform conflict */}
       <div className="absolute inset-0 pointer-events-none">
         <div
-          className="blob-anim-1 absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full blur-3xl opacity-30"
+          className="blob-anim-1 absolute -top-20 -right-20 w-[280px] h-[280px] sm:w-[500px] sm:h-[500px] rounded-full blur-3xl opacity-30"
           style={{ background: colors.blob1Color }}
         />
         <div
-          className="blob-anim-2 absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full blur-3xl opacity-30"
+          className="blob-anim-2 absolute -bottom-20 -left-20 w-[280px] h-[280px] sm:w-[500px] sm:h-[500px] rounded-full blur-3xl opacity-30"
           style={{ background: colors.blob2Color }}
         />
         <div
           className="blob-anim-3 absolute rounded-full blur-3xl opacity-20"
           style={{
             background: colors.blob3Color,
-            width: 320, height: 320,
-            top: 'calc(50% - 160px)',
-            left: 'calc(50% - 160px)',
+            width: 'min(320px, 60vw)', height: 'min(320px, 60vw)',
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
           }}
         />
       </div>
@@ -46,7 +46,7 @@ export default function Home() {
         transition={{ duration: 0.6 }}
         className="text-center mb-12 relative z-10"
       >
-        <h1 className="text-7xl font-black tracking-tighter mb-3">
+        <h1 className="text-5xl sm:text-7xl font-black tracking-tighter mb-3">
           <span className="text-gradient">QUIZ</span>
           <span className="text-white">TROYER</span>
         </h1>
