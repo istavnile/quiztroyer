@@ -5,11 +5,12 @@ import api from '../lib/api';
 
 export default function Home() {
   const [slug, setSlug]       = useState('');
-  const [colors, setColors]   = useState({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5' });
+  const [colors, setColors]   = useState({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '' });
+  const [inputFocused, setInputFocused] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get('/settings').then((r) => setColors(r.data)).catch(() => {});
+    api.get('/settings').then((r) => setColors((prev) => ({ ...prev, ...r.data }))).catch(() => {});
   }, []);
 
   function handleJoin(e) {
@@ -17,9 +18,11 @@ export default function Home() {
     if (slug.trim()) navigate(`/join/${slug.trim().toLowerCase()}`);
   }
 
+  const accent = colors.homeButtonColor || '#4f46e5';
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden" style={{ background: colors.homeBgColor }}>
-      {/* Animated background blobs — CSS keyframes, no transform conflict */}
+      {/* Animated background blobs */}
       <div className="absolute inset-0 pointer-events-none">
         <div
           className="blob-anim-1 absolute -top-20 -right-20 w-[280px] h-[280px] sm:w-[500px] sm:h-[500px] rounded-full blur-3xl opacity-30"
@@ -46,10 +49,14 @@ export default function Home() {
         transition={{ duration: 0.6 }}
         className="text-center mb-12 relative z-10"
       >
-        <h1 className="text-5xl sm:text-7xl font-black tracking-tighter mb-3">
-          <span className="text-gradient">QUIZ</span>
-          <span className="text-white">TROYER</span>
-        </h1>
+        {colors.logoUrl ? (
+          <img src={colors.logoUrl} alt="logo" className="h-16 sm:h-20 object-contain mx-auto mb-4" />
+        ) : (
+          <h1 className="text-5xl sm:text-7xl font-black tracking-tighter mb-3">
+            <span className="text-gradient">QUIZ</span>
+            <span className="text-white">TROYER</span>
+          </h1>
+        )}
         <p className="text-slate-400 text-lg">La plataforma de quizzes en vivo mas épica</p>
       </motion.div>
 
@@ -67,15 +74,21 @@ export default function Home() {
               type="text"
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
               placeholder="ej: demo-quiz"
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg"
+              className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-lg transition-all"
+              style={{
+                border: `2px solid ${inputFocused ? accent : 'rgb(51 65 85)'}`,
+                boxShadow: inputFocused ? `0 0 0 3px ${accent}30` : 'none',
+              }}
               autoFocus
             />
           </div>
           <button
             type="submit"
             className="w-full text-white font-bold py-3 rounded-xl transition-colors duration-200 text-lg glow-pulse"
-            style={{ background: colors.homeButtonColor }}
+            style={{ background: accent }}
           >
             Continuar →
           </button>
@@ -89,7 +102,7 @@ export default function Home() {
         className="mt-8 text-slate-600 text-sm relative z-10"
       >
         ¿Eres admin?{' '}
-        <a href="/admin" className="text-indigo-400 hover:text-indigo-300 transition-colors">
+        <a href="/admin" className="transition-colors font-medium" style={{ color: accent }}>
           Panel de control
         </a>
       </motion.p>

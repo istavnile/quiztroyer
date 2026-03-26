@@ -83,6 +83,16 @@ router.patch('/admin/:id/status', requireAdmin, async (req, res) => {
   res.json(raffle);
 });
 
+// PATCH /api/raffle/admin/:id/branding
+router.patch('/admin/:id/branding', requireAdmin, async (req, res) => {
+  const { branding } = req.body;
+  const raffle = await prisma.raffle.update({
+    where: { id: req.params.id },
+    data: { branding: branding || {} },
+  });
+  res.json(raffle);
+});
+
 // DELETE /api/raffle/admin/:id
 router.delete('/admin/:id', requireAdmin, async (req, res) => {
   await prisma.raffle.delete({ where: { id: req.params.id } });

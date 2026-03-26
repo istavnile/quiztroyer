@@ -17,10 +17,13 @@ export default function RaffleControl() {
   const [winner, setWinner] = useState(null);
   const [spinning, setSpinning] = useState(false);
   const [phase, setPhase] = useState('lobby'); // lobby | spinning | done
+  const [branding, setBranding] = useState({ bgColor: '#080c1a', primaryColor: '#6366f1', logoUrl: '' });
+  const [brandingSaving, setBrandingSaving] = useState(false);
 
   useEffect(() => {
     api.get(`/raffle/admin/${id}`).then((r) => {
       setRaffle(r.data);
+      if (r.data.branding) setBranding({ bgColor: '#080c1a', primaryColor: '#6366f1', logoUrl: '', ...r.data.branding });
       if (r.data.status === 'DONE') {
         const w = r.data.entries.find((e) => e.isWinner);
         if (w) { setWinner(w); setPhase('done'); setSpinsDone(3); }
@@ -69,6 +72,25 @@ export default function RaffleControl() {
     if (spinning || spinsDone >= 3) return;
     const next = spinsDone + 1;
     socketRef.current?.emit('raffle:spin', { slug: raffle.slug, spinNumber: next });
+  }
+
+  async function saveBranding() {
+    setBrandingSaving(true);
+    try {
+      await api.patch(`/raffle/admin/${id}/branding`, { branding });
+      setRaffle((r) => ({ ...r, branding }));
+    } finally {
+      setBrandingSaving(false);
+    }
+  }
+
+  async function uploadLogo(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await api.post('/admin/upload-image', fd);
+    setBranding((b) => ({ ...b, logoUrl: res.data.url }));
   }
 
   if (!raffle) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Cargando...</div>;
@@ -169,6 +191,56 @@ export default function RaffleControl() {
             </div>
           </motion.div>
         )}
+
+        {/* Branding */}
+        <div className="glass rounded-xl p-4 space-y-3">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Branding</p>
+
+          {/* Logo */}
+          <div>
+            <p className="text-xs text-slate-500 mb-1">Logo</p>
+            <div className="flex items-center gap-3">
+              {branding.logoUrl && (
+                <img src={branding.logoUrl} alt="logo" className="h-10 object-contain rounded bg-slate-800 p-1" />
+              )}
+              <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded-lg transition-all">
+                📁 Subir logo
+                <input type="file" accept="image/*" className="hidden" onChange={uploadLogo} />
+              </label>
+              {branding.logoUrl && (
+                <button onClick={() => setBranding((b) => ({ ...b, logoUrl: '' }))}
+                  className="text-red-400 text-xs hover:text-red-300">✕ Quitar</button>
+              )}
+            </div>
+          </div>
+
+          {/* Colors */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-xs text-slate-500 mb-1">Color de fondo</p>
+              <div className="flex items-center gap-2">
+                <input type="color" value={branding.bgColor || '#080c1a'}
+                  onChange={(e) => setBranding((b) => ({ ...b, bgColor: e.target.value }))}
+                  className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
+                <span className="text-xs text-slate-400 font-mono">{branding.bgColor || '#080c1a'}</span>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 mb-1">Color primario</p>
+              <div className="flex items-center gap-2">
+                <input type="color" value={branding.primaryColor || '#6366f1'}
+                  onChange={(e) => setBranding((b) => ({ ...b, primaryColor: e.target.value }))}
+                  className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
+                <span className="text-xs text-slate-400 font-mono">{branding.primaryColor || '#6366f1'}</span>
+              </div>
+            </div>
+          </div>
+
+          <button onClick={saveBranding} disabled={brandingSaving}
+            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-bold py-2 rounded-lg transition-all">
+            {brandingSaving ? 'Guardando...' : '💾 Guardar branding'}
+          </button>
+        </div>
 
         {/* Entries list */}
         {raffle.entries?.length > 0 && (

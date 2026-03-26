@@ -58,7 +58,7 @@ export default function AdminDashboard() {
   const [confirmDelete, setConfirmDelete] = useState(null); // { id, name }
   const [deleting, setDeleting]     = useState(false);
   const [showSettings, setShowSettings]   = useState(false);
-  const [siteSettings, setSiteSettings]   = useState({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5' });
+  const [siteSettings, setSiteSettings]   = useState({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '' });
   const [savingSettings, setSavingSettings] = useState(false);
   const [showAdmins, setShowAdmins]       = useState(false);
   const [adminList, setAdminList]         = useState([]);
@@ -265,9 +265,35 @@ export default function AdminDashboard() {
             >
               <h2 className="text-lg font-bold text-white mb-5">🎨 Pantalla de inicio</h2>
               <div className="space-y-4">
+                {/* Logo */}
+                <div>
+                  <p className="text-xs text-slate-400 mb-1">Logo (opcional)</p>
+                  <div className="flex items-center gap-3">
+                    {siteSettings.logoUrl && (
+                      <img src={siteSettings.logoUrl} alt="logo" className="h-10 object-contain rounded bg-slate-800 p-1 shrink-0" />
+                    )}
+                    <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded-lg transition-all shrink-0">
+                      📁 Subir logo
+                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const fd = new FormData();
+                        fd.append('image', file);
+                        const res = await api.post('/admin/upload-image', fd);
+                        setSiteSettings((s) => ({ ...s, logoUrl: res.data.url }));
+                      }} />
+                    </label>
+                    {siteSettings.logoUrl && (
+                      <button onClick={() => setSiteSettings((s) => ({ ...s, logoUrl: '' }))}
+                        className="text-red-400 text-xs hover:text-red-300">✕ Quitar</button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Color fields */}
                 {[
                   { key: 'homeBgColor',      label: 'Fondo de la pantalla' },
-                  { key: 'homeButtonColor',  label: 'Color del botón' },
+                  { key: 'homeButtonColor',  label: 'Color del botón / acento' },
                   { key: 'blob1Color',       label: 'Blob 1 (arriba derecha)' },
                   { key: 'blob2Color',       label: 'Blob 2 (abajo izquierda)' },
                   { key: 'blob3Color',       label: 'Blob 3 (centro)' },

@@ -37,10 +37,10 @@ app.get('/health', (req, res) => res.json({ ok: true, ts: Date.now() }));
 // Public site settings (no auth)
 app.get('/api/settings', (req, res) => {
   try {
-    const data = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+    const data = JSON.parse(fs.readFileSync(path.join(__dirname, '../uploads/settings.json'), 'utf8'));
     res.json(data);
   } catch {
-    res.json({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899' });
+    res.json({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '' });
   }
 });
 

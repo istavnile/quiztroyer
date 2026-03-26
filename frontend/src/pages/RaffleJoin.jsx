@@ -43,7 +43,7 @@ export default function RaffleJoin() {
     setSubmitting(true);
     try {
       const res = await api.post(`/raffle/${slug}/enter`, { ...form, pin });
-      navigate(`/sorteo/${slug}/lobby`, { state: { entryId: res.data.entryId, nombre: res.data.nombre, slug } });
+      navigate(`/sorteo/${slug}/lobby`, { state: { entryId: res.data.entryId, nombre: res.data.nombre, slug, branding: raffle.branding } });
     } catch (err) {
       setServerError(err.response?.data?.error || 'Error al registrarse');
     } finally {
@@ -65,7 +65,10 @@ export default function RaffleJoin() {
           <div className="blob-anim-2 absolute -bottom-20 -left-20 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] rounded-full blur-3xl opacity-20" style={{ background: primary }} />
         </div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-2xl p-8 w-full max-w-sm relative z-10 text-center">
-          <div className="text-5xl mb-4">🎟️</div>
+          {raffle.branding?.logoUrl
+            ? <img src={raffle.branding.logoUrl} alt="logo" className="h-14 object-contain mx-auto mb-4" />
+            : <div className="text-5xl mb-4">🎟️</div>
+          }
           <h1 className="text-2xl font-black text-white mb-1">{raffle.name}</h1>
           <p className="text-slate-400 text-sm mb-6">Ingresa el PIN para participar</p>
           <input
@@ -95,7 +98,10 @@ export default function RaffleJoin() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
         className="glass rounded-2xl p-6 w-full max-w-md relative z-10">
         <div className="text-center mb-6">
-          <div className="text-4xl mb-2">🎟️</div>
+          {raffle.branding?.logoUrl
+            ? <img src={raffle.branding.logoUrl} alt="logo" className="h-12 object-contain mx-auto mb-2" />
+            : <div className="text-4xl mb-2">🎟️</div>
+          }
           <h1 className="text-xl font-black text-white">{raffle.name}</h1>
           <p className="text-slate-400 text-sm">Completa tus datos para participar</p>
         </div>
