@@ -16,7 +16,9 @@ async function broadcastRoster(ns, slug, raffleId) {
     select: { nombre: true, apellido: true },
     orderBy: { createdAt: 'asc' },
   });
+  const count = entries.length;
   ns.to(`raffle:${slug}`).emit('raffle:roster', entries.map((e) => `${e.nombre} ${e.apellido}`));
+  ns.to(`raffle:${slug}`).emit('raffle:count', count);
 }
 
 function setupRaffleSocket(io) {
@@ -36,9 +38,9 @@ function setupRaffleSocket(io) {
         await prisma.raffleEntry.update({ where: { id: entryId }, data: { socketId: socket.id } });
 
         socket.emit('raffle:joined', { raffleName: raffle.name, status: raffle.status });
-        ns.to(`raffle:${slug}`).emit('raffle:count', room.participants.size);
         await broadcastRoster(ns, slug, raffle.id);
-        console.log(`[Raffle] ${nombre} joined ${slug}. Total: ${room.participants.size}`);
+        const dbCount = await prisma.raffleEntry.count({ where: { raffleId: raffle.id } });
+        console.log(`[Raffle] ${nombre} joined ${slug}. Total registered: ${dbCount}`);
       } catch (err) {
         console.error('[Raffle join error]', err.message);
       }
@@ -59,7 +61,8 @@ function setupRaffleSocket(io) {
         room.adminSocket = socket.id;
         socket.join(`raffle:${slug}`);
 
-        socket.emit('raffle:admin-ready', { raffle, participantCount: room.participants.size });
+        const adminCount = await prisma.raffleEntry.count({ where: { raffleId: raffle.id } });
+        socket.emit('raffle:admin-ready', { raffle, participantCount: adminCount });
         console.log(`[Raffle] Admin joined control for ${slug}`);
       } catch {
         socket.emit('raffle:error', 'No autorizado');
@@ -80,9 +83,10 @@ function setupRaffleSocket(io) {
         socket.data = { displaySlug: slug };
 
         const winner = raffle.entries.find((e) => e.isWinner) || null;
+        const displayCount = raffle.entries.length;
         socket.emit('raffle:display-ready', {
           raffle: { name: raffle.name, slug: raffle.slug, branding: raffle.branding, status: raffle.status },
-          participantCount: room.participants.size,
+          participantCount: displayCount,
           names: raffle.entries.map((e) => `${e.nombre} ${e.apellido}`),
           winner,
         });
@@ -140,10 +144,8 @@ function setupRaffleSocket(io) {
 
     socket.on('disconnect', () => {
       for (const [slug, room] of raffleRooms.entries()) {
-        if (room.participants.has(socket.id)) {
-          room.participants.delete(socket.id);
-          ns.to(`raffle:${slug}`).emit('raffle:count', room.participants.size);
-        }
+        // Only clean up socket tracking — DB count is the source of truth, don't emit raffle:count
+        if (room.participants.has(socket.id)) room.participants.delete(socket.id);
         if (room.adminSocket === socket.id) room.adminSocket = null;
       }
     });

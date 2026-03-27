@@ -99,9 +99,9 @@ function ConfirmModal({ message, onConfirm, onCancel }) {
 }
 
 /* ── QR Modal ── */
-function QRModal({ url, title, onClose }) {
+function QRModal({ url, title, pin, onClose }) {
   function openFullscreen() {
-    const params = new URLSearchParams({ url, title });
+    const params = new URLSearchParams({ url, title, ...(pin ? { pin } : {}) });
     window.open(`/qr?${params.toString()}`, '_blank', 'noopener');
   }
   return (
@@ -125,6 +125,12 @@ function QRModal({ url, title, onClose }) {
           <QRCodeSVG value={url} size={200} level="H" includeMargin={false} />
         </div>
         <p className="text-slate-500 text-xs text-center break-all">{url}</p>
+        {pin && (
+          <div className="text-center">
+            <p className="text-slate-500 text-xs mb-1">PIN</p>
+            <p className="text-white font-black text-2xl tracking-widest">{pin}</p>
+          </div>
+        )}
         <button
           onClick={openFullscreen}
           className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
@@ -329,7 +335,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen p-4 sm:p-6 relative overflow-hidden" style={{ background: siteSettings.homeBgColor || '#0f172a' }}>
       <PageBackground siteSettings={siteSettings} color={accent} />
       <AnimatePresence>
-        {qrModal && <QRModal url={qrModal.url} title={qrModal.title} onClose={() => setQrModal(null)} />}
+        {qrModal && <QRModal url={qrModal.url} title={qrModal.title} pin={qrModal.pin} onClose={() => setQrModal(null)} />}
         {confirmDelete && (
           <ConfirmModal
             message={`¿Eliminar "${confirmDelete.name}" permanentemente? Esta acción no se puede deshacer.`}
@@ -814,7 +820,7 @@ export default function AdminDashboard() {
                       <UilDashboard size={16} />Control
                     </button>
                     <button
-                      onClick={() => setQrModal({ url: `${window.location.origin}/sorteo/${r.slug}`, title: r.name })}
+                      onClick={() => setQrModal({ url: `${window.location.origin}/sorteo/${r.slug}`, title: r.name, pin: r.pin })}
                       className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">
                       <UilQrcodeScan size={16} />
                     </button>
@@ -903,7 +909,7 @@ export default function AdminDashboard() {
                       </button>
                     )}
                     <button
-                      onClick={() => setQrModal({ url: `${window.location.origin}/join/${c.slug}`, title: c.name })}
+                      onClick={() => setQrModal({ url: `${window.location.origin}/join/${c.slug}`, title: c.name, pin: c.pin })}
                       className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">
                       <UilQrcodeScan size={16} />
                     </button>

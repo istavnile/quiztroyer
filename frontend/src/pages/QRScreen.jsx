@@ -7,6 +7,7 @@ export default function QRScreen() {
   const params = new URLSearchParams(window.location.search);
   const url    = params.get('url') || '';
   const title  = params.get('title') || '';
+  const pin    = params.get('pin') || '';
 
   const [settings, setSettings] = useState({
     homeBgColor: '#0f172a', homeButtonColor: '#6366f1',
@@ -50,9 +51,18 @@ export default function QRScreen() {
           <QRCodeSVG value={url} size={320} level="H" includeMargin={false} />
         </div>
 
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-3">
           <p className="text-white text-2xl sm:text-3xl font-bold">{title}</p>
           <p className="text-slate-400 text-base sm:text-lg font-mono break-all">{url}</p>
+          {pin && (
+            <div className="mt-2">
+              <p className="text-slate-500 text-sm uppercase tracking-widest mb-1">PIN</p>
+              <p className="text-white font-black tracking-widest"
+                style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)', textShadow: `0 0 30px ${settings.homeButtonColor}88` }}>
+                {pin}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
