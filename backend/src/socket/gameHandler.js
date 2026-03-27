@@ -160,6 +160,43 @@ function setupGameSocket(io) {
     });
 
     // ─────────────────────────────────────────────
+    // DISPLAY: join as projection screen (no auth)
+    // ─────────────────────────────────────────────
+    socket.on('display:join', async ({ slug }) => {
+      const challenge = await prisma.challenge.findUnique({
+        where: { slug },
+        include: { questions: { orderBy: { order: 'asc' } } },
+      });
+      if (!challenge) return socket.emit('error', { message: 'Desafío no encontrado' });
+
+      const room = getRoom(slug);
+      socket.join(getRoomId(slug));
+      socket.data = { role: 'display', slug };
+
+      let currentQuestion = null;
+      let timeRemainingMs = null;
+      if (room.phase === 'PLAYING' && room.slideIndex >= 0) {
+        const qs = room.questions?.length ? room.questions : challenge.questions;
+        const q = qs[room.slideIndex];
+        if (q) {
+          currentQuestion = sanitizeQuestionForPlayer(q);
+          timeRemainingMs = Math.max(0, (q.timeLimit * 1000) - (Date.now() - (room.slideStartedAt || 0)));
+        }
+      }
+
+      socket.emit('display:ready', {
+        challenge: { name: challenge.name, slug: challenge.slug, branding: challenge.branding },
+        phase: room.phase,
+        slideIndex: room.slideIndex,
+        totalSlides: challenge.questions.length,
+        playerCount: room.players.size,
+        currentQuestion,
+        timeRemainingMs,
+        serverTimestamp: room.slideStartedAt,
+      });
+    });
+
+    // ─────────────────────────────────────────────
     // PLAYER: join lobby
     // ─────────────────────────────────────────────
     socket.on('player:join', async ({ slug, name, dni }) => {

@@ -66,6 +66,31 @@ function setupRaffleSocket(io) {
       }
     });
 
+    // Display screen joins (no auth, projection mode)
+    socket.on('raffle:display-join', async ({ slug }) => {
+      try {
+        const raffle = await prisma.raffle.findUnique({
+          where: { slug },
+          include: { entries: { select: { nombre: true, apellido: true, isWinner: true }, orderBy: { createdAt: 'asc' } } },
+        });
+        if (!raffle) return socket.emit('raffle:error', 'Sorteo no encontrado');
+
+        const room = getRaffleRoom(slug);
+        socket.join(`raffle:${slug}`);
+        socket.data = { displaySlug: slug };
+
+        const winner = raffle.entries.find((e) => e.isWinner) || null;
+        socket.emit('raffle:display-ready', {
+          raffle: { name: raffle.name, slug: raffle.slug, branding: raffle.branding, status: raffle.status },
+          participantCount: room.participants.size,
+          names: raffle.entries.map((e) => `${e.nombre} ${e.apellido}`),
+          winner,
+        });
+      } catch (err) {
+        console.error('[Display join error]', err.message);
+      }
+    });
+
     // Admin triggers a spin (spinNumber: 1 | 2 | 3)
     socket.on('raffle:spin', async ({ slug, spinNumber }) => {
       try {

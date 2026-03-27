@@ -15,6 +15,8 @@ import RaffleJoin from './pages/RaffleJoin';
 import RaffleRoom from './pages/RaffleRoom';
 import RaffleControl from './pages/admin/RaffleControl';
 import QRScreen from './pages/QRScreen';
+import ChallengeDisplay from './pages/display/ChallengeDisplay';
+import RaffleDisplay from './pages/display/RaffleDisplay';
 
 function RequireAdmin({ children }) {
   const token = localStorage.getItem('qt_admin_token');
@@ -71,6 +73,8 @@ export default function App() {
             />
 
             <Route path="/qr" element={<QRScreen />} />
+            <Route path="/display/challenge/:slug" element={<ChallengeDisplay />} />
+            <Route path="/display/raffle/:slug" element={<RaffleDisplay />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </GameProvider>

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdmin } from '../../context/AdminContext';
 import api from '../../lib/api';
-import { UilCircle, UilCheck, UilApps, UilMapPin, UilLink, UilRocket, UilChartBar, UilPlay, UilStopCircle, UilTrophy, UilClock, UilMedal } from '@iconscout/react-unicons';
+import { UilCircle, UilCheck, UilApps, UilMapPin, UilLink, UilRocket, UilChartBar, UilPlay, UilStopCircle, UilTrophy, UilClock, UilMedal, UilDesktop, UilCopy } from '@iconscout/react-unicons';
 
 const TYPE_ICONS = {
   QUIZ:      <UilCircle size={14} />,
@@ -77,12 +77,21 @@ export default function LiveControl() {
             </div>
           </div>
         </div>
-        <button
-          onClick={copyJoinLink}
-          className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm px-3 py-2 rounded-xl transition-all"
-        >
-          <span className="flex items-center gap-1.5"><UilLink size={15} />Copiar link de acceso</span>
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => window.open(`${window.location.origin}/display/challenge/${challengeData?.slug}`, '_blank')}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm px-3 py-2 rounded-xl transition-all"
+            title="Abrir pantalla de proyección"
+          >
+            <span className="flex items-center gap-1.5"><UilDesktop size={15} />Pantalla</span>
+          </button>
+          <button
+            onClick={copyJoinLink}
+            className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm px-3 py-2 rounded-xl transition-all"
+          >
+            <span className="flex items-center gap-1.5"><UilLink size={15} />Copiar link</span>
+          </button>
+        </div>
       </div>
 
       <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4">

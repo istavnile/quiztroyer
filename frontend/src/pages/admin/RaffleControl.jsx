@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { io } from 'socket.io-client';
 import api from '../../lib/api';
-import { UilCheck, UilRefresh, UilTrophy, UilUpload, UilSave, UilPlay } from '@iconscout/react-unicons';
+import { UilCheck, UilRefresh, UilTrophy, UilUpload, UilSave, UilPlay, UilDesktop } from '@iconscout/react-unicons';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || '';
 
@@ -103,7 +103,13 @@ export default function RaffleControl() {
         <button onClick={() => navigate('/admin')} className="text-slate-400 hover:text-white transition-colors text-sm">← Admin</button>
         <span className="text-slate-600">/</span>
         <span className="font-bold truncate">{raffle.name}</span>
-        <span className="ml-auto text-xs px-2 py-1 rounded-full bg-slate-800 text-slate-400">Sorteo</span>
+        <button
+          onClick={() => window.open(`${window.location.origin}/display/raffle/${raffle.slug}`, '_blank')}
+          className="ml-auto flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm px-3 py-1.5 rounded-xl transition-all"
+          title="Abrir pantalla de proyección"
+        >
+          <UilDesktop size={15} />Pantalla
+        </button>
       </div>
 
       <div className="max-w-2xl mx-auto p-4 space-y-4">
