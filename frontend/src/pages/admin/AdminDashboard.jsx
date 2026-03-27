@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../lib/api';
+import PageBackground from '../../components/PageBackground';
 
 const STATUS_BADGE = {
   DRAFT:  { label: 'Borrador',     color: 'text-slate-400 bg-slate-700' },
@@ -233,13 +234,11 @@ export default function AdminDashboard() {
     finally { setSavingPass(false); }
   }
 
+  const accent = siteSettings.homeButtonColor || '#6366f1';
+
   return (
-    <div className="min-h-screen bg-slate-900 p-4 sm:p-6 relative overflow-hidden">
-      {/* Animated background blobs */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="blob-anim-1 absolute -top-48 -right-48 w-[600px] h-[600px] rounded-full blur-3xl opacity-20" style={{ background: siteSettings.blob1Color }} />
-        <div className="blob-anim-2 absolute -bottom-48 -left-48 w-[600px] h-[600px] rounded-full blur-3xl opacity-20" style={{ background: siteSettings.blob2Color }} />
-      </div>
+    <div className="min-h-screen p-4 sm:p-6 relative overflow-hidden" style={{ background: siteSettings.homeBgColor || '#0f172a' }}>
+      <PageBackground siteSettings={siteSettings} color={accent} />
       <AnimatePresence>
         {confirmDelete && (
           <ConfirmModal
