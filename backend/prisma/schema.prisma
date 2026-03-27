@@ -160,6 +160,8 @@ model RaffleEntry {
   createdAt DateTime @default(now())
 
   @@unique([raffleId, dni])
+  @@unique([raffleId, correo])
+  @@unique([raffleId, telefono])
   @@index([raffleId])
 }
 

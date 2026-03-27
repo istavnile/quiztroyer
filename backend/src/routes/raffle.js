@@ -33,13 +33,38 @@ router.post('/:slug/enter', async (req, res) => {
   if (raffle.pin !== pin) return res.status(403).json({ error: 'PIN incorrecto' });
   if (raffle.status !== 'OPEN') return res.status(400).json({ error: 'El sorteo no está abierto' });
 
+  // Check duplicates with specific messages
+  const dniNorm     = dni.trim().toLowerCase();
+  const correoNorm  = correo.trim().toLowerCase();
+  const telNorm     = telefono.replace(/[\s\-().]/g, '');
+
+  const existing = await prisma.raffleEntry.findFirst({
+    where: {
+      raffleId: raffle.id,
+      OR: [
+        { dni:      { equals: dniNorm,    mode: 'insensitive' } },
+        { correo:   { equals: correoNorm, mode: 'insensitive' } },
+        { telefono: telNorm },
+      ],
+    },
+    select: { dni: true, correo: true, telefono: true },
+  });
+
+  if (existing) {
+    if (existing.dni.toLowerCase() === dniNorm)
+      return res.status(409).json({ error: 'Este DNI ya está registrado en el sorteo' });
+    if (existing.correo.toLowerCase() === correoNorm)
+      return res.status(409).json({ error: 'Este correo ya está registrado en el sorteo' });
+    return res.status(409).json({ error: 'Este teléfono ya está registrado en el sorteo' });
+  }
+
   try {
     const entry = await prisma.raffleEntry.create({
-      data: { raffleId: raffle.id, nombre, apellido, dni, correo, telefono },
+      data: { raffleId: raffle.id, nombre, apellido, dni: dniNorm, correo: correoNorm, telefono: telNorm },
     });
     res.json({ entryId: entry.id, nombre: entry.nombre });
   } catch (err) {
-    if (err.code === 'P2002') return res.status(409).json({ error: 'Este DNI ya está registrado' });
+    if (err.code === 'P2002') return res.status(409).json({ error: 'Datos duplicados. Verifica DNI, correo y teléfono' });
     throw err;
   }
 });
