@@ -10,6 +10,48 @@ import {
   UilUpload, UilExclamationTriangle, UilDashboard, UilLock,
 } from '@iconscout/react-unicons';
 
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+function ScrambledLogo() {
+  const QUIZ = 'QUIZ';
+  const TROYER = 'TROYER';
+  const [quizLetters, setQuizLetters]     = useState(QUIZ.split(''));
+  const [troyerLetters, setTroyerLetters] = useState(TROYER.split(''));
+
+  function scramble() {
+    const full  = QUIZ + TROYER;
+    const steps = 16;
+    let step    = 0;
+    const timer = setInterval(() => {
+      step++;
+      const resolved = Math.floor((step / steps) * full.length);
+      const next = full.split('').map((ch, i) =>
+        i < resolved ? ch : CHARS[Math.floor(Math.random() * CHARS.length)]
+      );
+      setQuizLetters(next.slice(0, 4));
+      setTroyerLetters(next.slice(4));
+      if (step >= steps) {
+        clearInterval(timer);
+        setQuizLetters(QUIZ.split(''));
+        setTroyerLetters(TROYER.split(''));
+      }
+    }, 45);
+  }
+
+  useEffect(() => {
+    const t1 = setTimeout(scramble, 600);
+    const t2 = setInterval(scramble, 9000);
+    return () => { clearTimeout(t1); clearInterval(t2); };
+  }, []);
+
+  return (
+    <h1 className="text-2xl sm:text-3xl font-black tracking-tight select-none">
+      <span className="text-gradient">{quizLetters.join('')}</span>
+      <span className="text-white">{troyerLetters.join('')}</span>
+    </h1>
+  );
+}
+
 const STATUS_BADGE = {
   DRAFT:  { label: 'Borrador',     color: 'text-slate-400 bg-slate-700' },
   LIVE:   { label: '🔴 En vivo',   color: 'text-green-400 bg-green-500/20' },
@@ -534,9 +576,7 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white">
-              <span className="text-gradient">QUIZ</span>TROYER
-            </h1>
+            <ScrambledLogo />
             <p className="text-slate-400 text-sm mt-1">Panel de Administrador</p>
           </div>
           <div className="flex flex-wrap gap-2">
