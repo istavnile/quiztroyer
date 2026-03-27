@@ -14,6 +14,7 @@ import GameRoom from './pages/game/GameRoom';
 import RaffleJoin from './pages/RaffleJoin';
 import RaffleRoom from './pages/RaffleRoom';
 import RaffleControl from './pages/admin/RaffleControl';
+import QRScreen from './pages/QRScreen';
 
 function RequireAdmin({ children }) {
   const token = localStorage.getItem('qt_admin_token');
@@ -69,6 +70,7 @@ export default function App() {
               }
             />
 
+            <Route path="/qr" element={<QRScreen />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </GameProvider>

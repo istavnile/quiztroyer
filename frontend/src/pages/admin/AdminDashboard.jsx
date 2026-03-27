@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { QRCodeSVG } from 'qrcode.react';
 import api from '../../lib/api';
 import PageBackground from '../../components/PageBackground';
 import {
@@ -8,6 +9,7 @@ import {
   UilPlus, UilTicket, UilBullseye, UilPlay,
   UilTrashAlt, UilChartBar, UilFileAlt, UilSave,
   UilUpload, UilExclamationTriangle, UilDashboard, UilLock,
+  UilQrcodeScan, UilExpandAlt, UilTimesCircle,
 } from '@iconscout/react-unicons';
 
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -96,6 +98,44 @@ function ConfirmModal({ message, onConfirm, onCancel }) {
   );
 }
 
+/* ── QR Modal ── */
+function QRModal({ url, title, onClose }) {
+  function openFullscreen() {
+    const params = new URLSearchParams({ url, title });
+    window.open(`/qr?${params.toString()}`, '_blank', 'noopener');
+  }
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(6px)' }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+        className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-xs shadow-2xl flex flex-col items-center gap-4"
+      >
+        <div className="w-full flex items-center justify-between">
+          <h3 className="text-white font-bold text-sm truncate max-w-[200px]">{title}</h3>
+          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
+            <UilTimesCircle size={20} />
+          </button>
+        </div>
+        <div className="bg-white p-3 rounded-xl">
+          <QRCodeSVG value={url} size={200} level="H" includeMargin={false} />
+        </div>
+        <p className="text-slate-500 text-xs text-center break-all">{url}</p>
+        <button
+          onClick={openFullscreen}
+          className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
+        >
+          <UilExpandAlt size={16} />Proyectar en pantalla
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [challenges, setChallenges] = useState([]);
@@ -128,6 +168,7 @@ export default function AdminDashboard() {
   const [raffleForm, setRaffleForm]         = useState({ name: '', slug: '', pin: '' });
   const [creatingRaffle, setCreatingRaffle] = useState(false);
   const [raffleError, setRaffleError]       = useState('');
+  const [qrModal, setQrModal]               = useState(null); // { url, title }
   const currentUsername = localStorage.getItem('qt_admin_username') || 'admin';
 
   useEffect(() => { loadChallenges(); loadRaffles(); }, []);
@@ -288,6 +329,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen p-4 sm:p-6 relative overflow-hidden" style={{ background: siteSettings.homeBgColor || '#0f172a' }}>
       <PageBackground siteSettings={siteSettings} color={accent} />
       <AnimatePresence>
+        {qrModal && <QRModal url={qrModal.url} title={qrModal.title} onClose={() => setQrModal(null)} />}
         {confirmDelete && (
           <ConfirmModal
             message={`¿Eliminar "${confirmDelete.name}" permanentemente? Esta acción no se puede deshacer.`}
@@ -771,6 +813,11 @@ export default function AdminDashboard() {
                       className="flex-1 bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5">
                       <UilDashboard size={16} />Control
                     </button>
+                    <button
+                      onClick={() => setQrModal({ url: `${window.location.origin}/sorteo/${r.slug}`, title: r.name })}
+                      className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">
+                      <UilQrcodeScan size={16} />
+                    </button>
                     <button onClick={() => handleDeleteRaffle(r.id, r.name)}
                       className="bg-red-500/15 hover:bg-red-500/30 text-red-400 p-2 rounded-xl transition-all"><UilTrashAlt size={16} /></button>
                   </div>
@@ -855,6 +902,11 @@ export default function AdminDashboard() {
                         <UilChartBar size={16} />
                       </button>
                     )}
+                    <button
+                      onClick={() => setQrModal({ url: `${window.location.origin}/join/${c.slug}`, title: c.name })}
+                      className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">
+                      <UilQrcodeScan size={16} />
+                    </button>
                     <button
                       onClick={() => setConfirmDelete({ id: c.id, name: c.name })}
                       className="bg-red-500/15 hover:bg-red-500/30 text-red-400 p-2 rounded-xl transition-all"
