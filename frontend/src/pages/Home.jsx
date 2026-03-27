@@ -50,7 +50,7 @@ export default function Home() {
             <span className="text-white">TROYER</span>
           </h1>
         )}
-        <p className="text-slate-400 text-lg">La plataforma de quizzes en vivo mas épica</p>
+        <p className="text-slate-500 text-sm">La plataforma de quizzes en vivo mas épica</p>
       </motion.div>
 
       <motion.div
@@ -70,9 +70,10 @@ export default function Home() {
               onFocus={() => setInputFocused(true)}
               onBlur={() => setInputFocused(false)}
               placeholder="ej: demo-quiz"
-              className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-lg transition-all"
+              className="w-full rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-lg transition-all"
               style={{
-                border: `2px solid ${inputFocused ? accent : 'rgb(51 65 85)'}`,
+                background: 'rgba(0,0,0,0.55)',
+                border: `2px solid ${inputFocused ? accent : 'rgba(255,255,255,0.12)'}`,
                 boxShadow: inputFocused ? `0 0 0 3px ${accent}30` : 'none',
               }}
               autoFocus
@@ -99,7 +100,7 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="mt-8 text-slate-600 text-sm relative z-10"
+        className="mt-8 text-slate-300 text-sm relative z-10"
       >
         ¿Eres admin?{' '}
         <a href="/admin" className="transition-colors font-medium" style={{ color: accent }}>
