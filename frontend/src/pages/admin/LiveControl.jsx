@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdmin } from '../../context/AdminContext';
 import api from '../../lib/api';
-import { UilCircle, UilCheck, UilApps, UilMapPin, UilLink, UilRocket, UilChartBar, UilPlay, UilFlag, UilTrophy, UilClock, UilMedal } from '@iconscout/react-unicons';
+import { UilCircle, UilCheck, UilApps, UilMapPin, UilLink, UilRocket, UilChartBar, UilPlay, UilStopCircle, UilTrophy, UilClock, UilMedal } from '@iconscout/react-unicons';
 
 const TYPE_ICONS = {
   QUIZ:      <UilCircle size={14} />,
@@ -190,7 +190,7 @@ export default function LiveControl() {
                       className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl transition-all text-lg"
                     >
                       {isLastSlide
-                        ? <span className="flex items-center justify-center gap-1.5"><UilFlag size={20} />Terminar</span>
+                        ? <span className="flex items-center justify-center gap-1.5"><UilStopCircle size={20} />Terminar</span>
                         : <span className="flex items-center justify-center gap-1.5"><UilPlay size={20} />Siguiente</span>}
                     </motion.button>
                   </div>
@@ -220,7 +220,7 @@ export default function LiveControl() {
                     className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl text-lg transition-all"
                   >
                     {isLastSlide
-                      ? <span className="flex items-center justify-center gap-2"><UilFlag size={20} />Finalizar Desafío</span>
+                      ? <span className="flex items-center justify-center gap-2"><UilStopCircle size={20} />Finalizar Desafío</span>
                       : <span className="flex items-center justify-center gap-2"><UilPlay size={20} />Siguiente Pregunta</span>}
                   </motion.button>
                 </motion.div>
