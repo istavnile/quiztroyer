@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../lib/api';
 import PageBackground from '../../components/PageBackground';
+import {
+  UilKeySkeleton, UilUsersAlt, UilPalette, UilSignout,
+  UilPlus, UilTicket, UilBullseye, UilPlay,
+  UilTrashAlt, UilChartBar, UilFileAlt, UilSave,
+  UilUpload, UilExclamationTriangle, UilDashboard, UilLock,
+} from '@iconscout/react-unicons';
 
 const STATUS_BADGE = {
   DRAFT:  { label: 'Borrador',     color: 'text-slate-400 bg-slate-700' },
@@ -27,7 +33,7 @@ function ConfirmModal({ message, onConfirm, onCancel }) {
         exit={{ scale: 0.92, opacity: 0 }}
         className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
       >
-        <div className="text-3xl mb-3 text-center">⚠️</div>
+        <div className="flex justify-center mb-3"><UilExclamationTriangle size={32} className="text-yellow-400" /></div>
         <p className="text-white text-center font-medium mb-6">{message}</p>
         <div className="flex gap-3">
           <button
@@ -262,7 +268,7 @@ export default function AdminDashboard() {
               exit={{ scale: 0.95, opacity: 0 }}
               className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
             >
-              <h2 className="text-lg font-bold text-white mb-5">🎨 Pantalla de inicio</h2>
+              <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2"><UilPalette size={20} />Pantalla de inicio</h2>
               <div className="space-y-4">
 
                 {/* Background effect selector */}
@@ -270,13 +276,13 @@ export default function AdminDashboard() {
                   <p className="text-xs text-slate-400 mb-2">Efecto de fondo</p>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { key: 'blobs',     label: 'Blobs',      icon: '🫧' },
-                      { key: 'nodes',     label: 'Nodos',      icon: '🕸️' },
-                      { key: 'particles', label: 'Partículas', icon: '✨' },
-                      { key: 'waves',     label: 'Ondas',      icon: '〰️' },
-                      { key: 'polygons',  label: 'Polígonos',  icon: '🔷' },
-                      { key: 'pattern',   label: 'Patrón',     icon: '⚏' },
-                    ].map(({ key, label, icon }) => (
+                      { key: 'blobs',     label: 'Blobs'      },
+                      { key: 'nodes',     label: 'Nodos'      },
+                      { key: 'particles', label: 'Partículas' },
+                      { key: 'waves',     label: 'Ondas'      },
+                      { key: 'polygons',  label: 'Polígonos'  },
+                      { key: 'pattern',   label: 'Patrón'     },
+                    ].map(({ key, label }) => (
                       <button
                         key={key}
                         type="button"
@@ -287,7 +293,6 @@ export default function AdminDashboard() {
                             : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
                         }`}
                       >
-                        <div className="text-base mb-0.5">{icon}</div>
                         {label}
                       </button>
                     ))}
@@ -301,8 +306,8 @@ export default function AdminDashboard() {
                     {siteSettings.logoUrl && (
                       <img src={siteSettings.logoUrl} alt="logo" className="h-10 object-contain rounded bg-slate-800 p-1 shrink-0" />
                     )}
-                    <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded-lg transition-all shrink-0">
-                      📁 Subir logo
+                    <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded-lg transition-all shrink-0 flex items-center gap-1.5">
+                      <UilUpload size={13} />Subir logo
                       <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
@@ -360,7 +365,7 @@ export default function AdminDashboard() {
                   disabled={savingSettings}
                   className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all text-sm"
                 >
-                  {savingSettings ? 'Guardando...' : '💾 Guardar'}
+                  {savingSettings ? 'Guardando...' : <span className="flex items-center justify-center gap-1.5"><UilSave size={16} />Guardar</span>}
                 </button>
               </div>
             </motion.div>
@@ -374,7 +379,7 @@ export default function AdminDashboard() {
             onClick={(e) => e.target === e.currentTarget && setShowChangePass(false)}>
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
               className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-              <h2 className="text-lg font-bold text-white mb-1">🔑 Cambiar contraseña</h2>
+              <h2 className="text-lg font-bold text-white mb-1 flex items-center gap-2"><UilKeySkeleton size={20} />Cambiar contraseña</h2>
               <p className="text-slate-500 text-xs mb-5">Usuario: <span className="text-slate-300">{currentUsername}</span></p>
               <form onSubmit={handleChangePassword} className="space-y-3">
                 <input type="password" placeholder="Contraseña actual" value={changePassForm.current}
@@ -408,7 +413,7 @@ export default function AdminDashboard() {
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
               className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[80vh] flex flex-col">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-bold text-white">👥 Administradores</h2>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2"><UilUsersAlt size={20} />Administradores</h2>
                 <button onClick={() => setShowAdmins(false)} className="text-slate-500 hover:text-slate-300 text-xl">×</button>
               </div>
 
@@ -466,7 +471,7 @@ export default function AdminDashboard() {
               className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-lg font-bold text-white">📊 Resultados</h2>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2"><UilChartBar size={20} />Resultados</h2>
                   <p className="text-slate-500 text-xs mt-0.5">{resultsChallenge.name}</p>
                 </div>
                 <div className="flex gap-2">
@@ -487,8 +492,8 @@ export default function AdminDashboard() {
                     <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
                   </div>
                 ) : results.length === 0 ? (
-                  <div className="text-center py-10 text-slate-500">
-                    <div className="text-4xl mb-2">🎯</div>
+                  <div className="text-center py-10 text-slate-600">
+                    <UilBullseye size={40} className="mx-auto mb-2 opacity-40" />
                     <p>Sin participantes aún</p>
                   </div>
                 ) : (
@@ -506,7 +511,7 @@ export default function AdminDashboard() {
                       {results.map((s, i) => (
                         <tr key={s.id} className={i === 0 ? 'text-yellow-400' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-amber-600' : 'text-slate-400'}>
                           <td className="py-2.5 pr-3 font-bold">
-                            {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`}
+                            {i + 1}
                           </td>
                           <td className="py-2.5 pr-3 font-semibold text-white">{s.playerName}</td>
                           <td className="py-2.5 pr-3 font-mono">{s.playerDni}</td>
@@ -538,23 +543,23 @@ export default function AdminDashboard() {
             {/* Icon buttons */}
             <div className="flex gap-2">
               <button onClick={() => { setShowChangePass(true); setChangePassError(''); setChangePassOk(false); }}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-2 rounded-xl transition-all text-sm" title="Cambiar contraseña">🔑</button>
+                className="bg-slate-800 hover:bg-slate-700 text-slate-400 p-2 rounded-xl transition-all" title="Cambiar contraseña"><UilKeySkeleton size={18} /></button>
               <button onClick={() => { setShowAdmins(true); loadAdmins(); setAdminError(''); }}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-2 rounded-xl transition-all text-sm" title="Gestionar admins">👥</button>
+                className="bg-slate-800 hover:bg-slate-700 text-slate-400 p-2 rounded-xl transition-all" title="Gestionar admins"><UilUsersAlt size={18} /></button>
               <button onClick={() => setShowSettings(true)}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-2 rounded-xl transition-all text-sm" title="Personalizar">🎨</button>
+                className="bg-slate-800 hover:bg-slate-700 text-slate-400 p-2 rounded-xl transition-all" title="Personalizar"><UilPalette size={18} /></button>
               <button onClick={handleLogout}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-2 rounded-xl transition-all text-sm">Salir</button>
+                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5"><UilSignout size={16} />Salir</button>
             </div>
             {/* Action buttons */}
             <div className="flex gap-2">
               <button onClick={() => { setShowCreate(true); setCreateError(''); setForm({ name: '', slug: '', pin: '' }); }}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-2 rounded-xl transition-all text-sm">
-                + Desafío
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
+                <UilPlus size={16} />Desafío
               </button>
               <button onClick={() => { setShowCreateRaffle(true); setRaffleError(''); setRaffleForm({ name: '', slug: '', pin: '' }); }}
-                className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-2 rounded-xl transition-all text-sm">
-                🎟️ Sorteo
+                className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
+                <UilTicket size={16} />Sorteo
               </button>
             </div>
           </div>
@@ -577,7 +582,7 @@ export default function AdminDashboard() {
                 exit={{ scale: 0.95, opacity: 0 }}
                 className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl"
               >
-                <h2 className="text-xl font-bold text-white mb-6">✨ Nuevo Desafío</h2>
+                <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><UilPlus size={22} />Nuevo Desafío</h2>
                 <form onSubmit={handleCreate} className="space-y-4">
                   <div>
                     <label className="block text-sm text-slate-400 mb-1">Nombre</label>
@@ -656,7 +661,7 @@ export default function AdminDashboard() {
               onClick={(e) => e.target === e.currentTarget && setShowCreateRaffle(false)}>
               <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
                 className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                <h2 className="text-xl font-bold text-white mb-6">🎟️ Nuevo Sorteo</h2>
+                <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><UilTicket size={22} />Nuevo Sorteo</h2>
                 <form onSubmit={handleCreateRaffle} className="space-y-4">
                   <div>
                     <label className="block text-sm text-slate-400 mb-1">Nombre del sorteo</label>
@@ -700,7 +705,7 @@ export default function AdminDashboard() {
         {/* Raffles section */}
         {raffles.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">🎟️ Sorteos</h2>
+            <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5"><UilTicket size={14} />Sorteos</h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {raffles.map((r, i) => (
                 <motion.div key={r.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
@@ -714,20 +719,20 @@ export default function AdminDashboard() {
                       r.status === 'OPEN' ? 'text-green-400 bg-green-500/20' :
                       r.status === 'DONE' ? 'text-purple-400 bg-purple-500/20' :
                       'text-slate-400 bg-slate-700'}`}>
-                      {r.status === 'OPEN' ? '🟢 Abierto' : r.status === 'DONE' ? 'Finalizado' : 'Borrador'}
+                      {r.status === 'OPEN' ? <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />Abierto</span> : r.status === 'DONE' ? 'Finalizado' : 'Borrador'}
                     </span>
                   </div>
                   <div className="flex gap-3 text-xs text-slate-500">
-                    <span>👥 {r._count?.entries || 0} inscritos</span>
-                    <span>🔑 {r.pin}</span>
+                    <span className="flex items-center gap-1"><UilUsersAlt size={13} />{r._count?.entries || 0} inscritos</span>
+                    <span className="flex items-center gap-1"><UilLock size={13} />{r.pin}</span>
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => navigate(`/admin/raffles/${r.id}/control`)}
-                      className="flex-1 bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold py-2 rounded-xl transition-all">
-                      🎰 Control
+                      className="flex-1 bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5">
+                      <UilDashboard size={16} />Control
                     </button>
                     <button onClick={() => handleDeleteRaffle(r.id, r.name)}
-                      className="bg-red-500/15 hover:bg-red-500/30 text-red-400 text-sm px-3 py-2 rounded-xl transition-all">🗑</button>
+                      className="bg-red-500/15 hover:bg-red-500/30 text-red-400 p-2 rounded-xl transition-all"><UilTrashAlt size={16} /></button>
                   </div>
                 </motion.div>
               ))}
@@ -735,7 +740,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {raffles.length > 0 && <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">🎯 Desafíos</h2>}
+        {raffles.length > 0 && <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5"><UilBullseye size={14} />Desafíos</h2>}
 
         {/* Challenges grid */}
         {loading ? (
@@ -748,7 +753,7 @@ export default function AdminDashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-20"
           >
-            <div className="text-6xl mb-4">🎯</div>
+            <div className="flex justify-center mb-4"><UilBullseye size={56} className="text-slate-700" /></div>
             <h2 className="text-xl font-bold text-white mb-2">Sin desafíos aún</h2>
             <p className="text-slate-400 mb-6">Crea tu primer quiz para comenzar</p>
             <button
@@ -781,9 +786,9 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-                    <span>📝 {c._count?.questions || 0} preguntas</span>
-                    <span>👥 {c._count?.sessions || 0} jugadores</span>
-                    <span>🔑 {c.pin}</span>
+                    <span className="flex items-center gap-1"><UilFileAlt size={13} />{c._count?.questions || 0} preguntas</span>
+                    <span className="flex items-center gap-1"><UilUsersAlt size={13} />{c._count?.sessions || 0} jugadores</span>
+                    <span className="flex items-center gap-1"><UilLock size={13} />{c.pin}</span>
                   </div>
 
                   <div className="flex gap-2 pt-1">
@@ -796,26 +801,26 @@ export default function AdminDashboard() {
                     {c.status !== 'ENDED' && (
                       <button
                         onClick={() => navigate(`/admin/challenges/${c.id}/live`)}
-                        className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 rounded-xl transition-all"
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5"
                       >
-                        🎮 Live
+                        <UilPlay size={15} />Live
                       </button>
                     )}
                     {c._count?.sessions > 0 && (
                       <button
                         onClick={() => { setResultsChallenge({ id: c.id, name: c.name }); loadResults(c.id); }}
-                        className="bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 text-sm px-3 py-2 rounded-xl transition-all"
+                        className="bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 p-2 rounded-xl transition-all"
                         title="Ver resultados"
                       >
-                        📊
+                        <UilChartBar size={16} />
                       </button>
                     )}
                     <button
                       onClick={() => setConfirmDelete({ id: c.id, name: c.name })}
-                      className="bg-red-500/15 hover:bg-red-500/30 text-red-400 text-sm px-3 py-2 rounded-xl transition-all"
+                      className="bg-red-500/15 hover:bg-red-500/30 text-red-400 p-2 rounded-xl transition-all"
                       title="Eliminar"
                     >
-                      🗑
+                      <UilTrashAlt size={16} />
                     </button>
                   </div>
                 </motion.div>

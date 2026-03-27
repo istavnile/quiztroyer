@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { io } from 'socket.io-client';
 import api from '../../lib/api';
+import { UilCheck, UilRefresh, UilTrophy, UilUpload, UilSave, UilPlay } from '@iconscout/react-unicons';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || '';
 
@@ -125,7 +126,7 @@ export default function RaffleControl() {
             <p className="text-slate-400 text-sm mb-3">El sorteo está cerrado. Ábrelo para que los participantes puedan inscribirse.</p>
             <button onClick={openRaffle}
               className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-xl transition-all">
-              🟢 Abrir sorteo
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-400 inline-block" />Abrir sorteo</span>
             </button>
           </div>
         )}
@@ -155,10 +156,12 @@ export default function RaffleControl() {
               className={`w-full py-5 rounded-2xl font-black text-xl transition-all disabled:opacity-40
                 ${spinsDone === 2 ? 'bg-yellow-500 hover:bg-yellow-400 text-black' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}
             >
-              {spinning ? '🎰 Girando...' :
-               spinsDone === 0 ? '🎰 Primer giro' :
-               spinsDone === 1 ? '🎰 Segundo giro' :
-               spinsDone === 2 ? '🏆 ¡Girar para revelar ganador!' : '✅ Sorteo completado'}
+              {spinning
+                ? <span className="flex items-center justify-center gap-2"><UilRefresh size={18} className="animate-spin" />Girando...</span>
+                : spinsDone === 0 ? <span className="flex items-center justify-center gap-2"><UilPlay size={18} />Primer giro</span>
+                : spinsDone === 1 ? <span className="flex items-center justify-center gap-2"><UilPlay size={18} />Segundo giro</span>
+                : spinsDone === 2 ? <span className="flex items-center justify-center gap-2"><UilTrophy size={18} />¡Girar para revelar ganador!</span>
+                : <span className="flex items-center justify-center gap-2"><UilCheck size={18} />Sorteo completado</span>}
             </motion.button>
 
             {participantCount === 0 && (
@@ -178,7 +181,7 @@ export default function RaffleControl() {
         {phase === 'done' && winner && (
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
             className="glass rounded-2xl p-6 border border-yellow-500/30 text-center">
-            <div className="text-5xl mb-3">🏆</div>
+            <div className="flex justify-center mb-3"><UilTrophy size={48} className="text-yellow-400" /></div>
             <p className="text-yellow-400 font-bold uppercase tracking-widest text-xs mb-2">Ganador del sorteo</p>
             <h2 className="text-2xl font-black text-white mb-4">{winner.nombre} {winner.apellido}</h2>
             <div className="grid grid-cols-1 gap-2 text-left text-sm">
@@ -204,7 +207,7 @@ export default function RaffleControl() {
                 <img src={branding.logoUrl} alt="logo" className="h-10 object-contain rounded bg-slate-800 p-1" />
               )}
               <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded-lg transition-all">
-                📁 Subir logo
+                <span className="flex items-center gap-1.5"><UilUpload size={13} />Subir logo</span>
                 <input type="file" accept="image/*" className="hidden" onChange={uploadLogo} />
               </label>
               {branding.logoUrl && (
@@ -238,7 +241,7 @@ export default function RaffleControl() {
 
           <button onClick={saveBranding} disabled={brandingSaving}
             className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-bold py-2 rounded-lg transition-all">
-            {brandingSaving ? 'Guardando...' : '💾 Guardar branding'}
+            {brandingSaving ? 'Guardando...' : <span className="flex items-center justify-center gap-1.5"><UilSave size={16} />Guardar branding</span>}
           </button>
         </div>
 

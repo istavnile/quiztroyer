@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../lib/api';
+import { UilDashboard } from '@iconscout/react-unicons';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ export default function AdminLogin() {
         className="glass rounded-2xl p-8 w-full max-w-sm"
       >
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🎮</div>
+          <div className="flex justify-center mb-3"><UilDashboard size={48} className="text-indigo-400" /></div>
           <h1 className="text-2xl font-black text-white">Panel de Admin</h1>
           <p className="text-slate-400 text-sm mt-1">Quiztroyer Control Center</p>
         </div>

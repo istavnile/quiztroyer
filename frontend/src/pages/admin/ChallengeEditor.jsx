@@ -18,12 +18,13 @@ import { CSS } from '@dnd-kit/utilities';
 import api from '../../lib/api';
 import QuestionForm from '../../components/admin/QuestionForm';
 import SlidePreview from '../../components/admin/SlidePreview';
+import { UilCircle, UilCheck, UilApps, UilMapPin, UilEye, UilPalette, UilLayers, UilPlay, UilSave, UilUpload, UilTrashAlt } from '@iconscout/react-unicons';
 
 const TYPE_LABELS = {
-  QUIZ:      { label: 'Quiz',   icon: '🔘', color: 'bg-blue-500/20 text-blue-400' },
-  TRUEFALSE: { label: 'V/F',    icon: '✅', color: 'bg-green-500/20 text-green-400' },
-  PUZZLE:    { label: 'Puzzle', icon: '🧩', color: 'bg-yellow-500/20 text-yellow-400' },
-  PINIMAGE:  { label: 'Pin',    icon: '📍', color: 'bg-red-500/20 text-red-400' },
+  QUIZ:      { label: 'Quiz',   icon: <UilCircle size={11} />, color: 'bg-blue-500/20 text-blue-400' },
+  TRUEFALSE: { label: 'V/F',    icon: <UilCheck size={11} />,  color: 'bg-green-500/20 text-green-400' },
+  PUZZLE:    { label: 'Puzzle', icon: <UilApps size={11} />,   color: 'bg-yellow-500/20 text-yellow-400' },
+  PINIMAGE:  { label: 'Pin',    icon: <UilMapPin size={11} />, color: 'bg-red-500/20 text-red-400' },
 };
 
 /* ── Compact slide item for sidebar ── */
@@ -408,12 +409,12 @@ export default function ChallengeEditor() {
             onClick={() => navigate(`/admin/challenges/${id}/live`)}
             className="bg-green-600 hover:bg-green-500 text-white text-sm font-bold px-4 py-2 rounded-xl transition-all"
           >
-            🎮 Control Live
+            <span className="flex items-center gap-1.5"><UilPlay size={15} />Control Live</span>
           </button>
           <a href={`/join/${challenge?.slug}`} target="_blank" rel="noreferrer"
-            className="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all"
+            className="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all flex items-center gap-1.5"
           >
-            👁 Preview
+            <UilEye size={15} />Preview
           </a>
         </div>
       </div>
@@ -424,7 +425,7 @@ export default function ChallengeEditor() {
         {/* ── SLIDES SIDEBAR (desktop: left column, mobile: full row at top) ── */}
         <div className="w-full lg:w-52 lg:shrink-0 lg:sticky lg:top-24 flex flex-col gap-3 lg:max-h-[calc(100vh-7rem)] z-10">
           <div className="flex items-center justify-between">
-            <h2 className="text-white font-bold text-sm">📋 Slides <span className="text-slate-500 font-normal">({questions.length})</span></h2>
+            <h2 className="text-white font-bold text-sm flex items-center gap-1.5"><UilLayers size={15} />Slides <span className="text-slate-500 font-normal">({questions.length})</span></h2>
             <div className="relative">
               <button
                 onClick={() => setShowAddType(!showAddType)}
@@ -506,14 +507,14 @@ export default function ChallengeEditor() {
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button type="button" onClick={() => setBrandingOpen(true)}
-                    className="bg-slate-700 hover:bg-slate-600 text-white text-sm px-3 py-2 rounded-xl transition-all whitespace-nowrap"
+                    className="bg-slate-700 hover:bg-slate-600 text-white text-sm px-3 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5"
                   >
-                    🎨 Branding
+                    <UilPalette size={15} />Branding
                   </button>
                   <button type="submit" disabled={saving}
-                    className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-bold px-3 py-2 rounded-xl transition-all whitespace-nowrap"
+                    className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-bold px-3 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5"
                   >
-                    {saving ? '…' : '💾 Guardar'}
+                    {saving ? '…' : <><UilSave size={15} />Guardar</>}
                   </button>
                 </div>
               </div>
@@ -534,7 +535,7 @@ export default function ChallengeEditor() {
               >
                 {/* Preview — full width, capped so it doesn't grow too tall */}
                 <div className="w-full">
-                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2">👁 Preview</p>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2 flex items-center gap-1"><UilEye size={13} />Preview</p>
                   <SlidePreview question={livePreviewForm || editingQuestion} branding={branding} compact maxScale={1.8} />
                 </div>
 
@@ -580,7 +581,7 @@ export default function ChallengeEditor() {
               className="fixed right-0 top-0 h-full w-full max-w-md bg-slate-900 border-l border-slate-700 z-50 flex flex-col shadow-2xl"
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700 shrink-0">
-                <h2 className="text-white font-bold">🎨 Branding</h2>
+                <h2 className="text-white font-bold flex items-center gap-2"><UilPalette size={18} />Branding</h2>
                 <button onClick={() => setBrandingOpen(false)} className="text-slate-400 hover:text-white text-lg leading-none">✕</button>
               </div>
 
@@ -626,7 +627,7 @@ export default function ChallengeEditor() {
                 <button onClick={handleSaveBranding} disabled={saving}
                   className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
                 >
-                  {saving ? 'Guardando...' : '💾 Guardar branding'}
+                  {saving ? 'Guardando...' : <span className="flex items-center justify-center gap-1.5"><UilSave size={16} />Guardar branding</span>}
                 </button>
               </div>
             </motion.div>

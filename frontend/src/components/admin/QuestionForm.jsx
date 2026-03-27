@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../lib/api';
 import { GRADIENT_PRESETS } from '../../lib/slideThemes';
+import { UilCircle, UilCheck, UilApps, UilMapPin, UilImage, UilUpload, UilPalette, UilSave } from '@iconscout/react-unicons';
 
 function PosSlider({ label, value, onChange }) {
   return (
@@ -14,10 +15,10 @@ function PosSlider({ label, value, onChange }) {
 }
 
 const TYPE_LABELS = {
-  QUIZ:      '🔘 Quiz (Opción Múltiple)',
-  TRUEFALSE: '✅ Verdadero / Falso',
-  PUZZLE:    '🧩 Puzzle (Orden)',
-  PINIMAGE:  '📍 Pin on Image',
+  QUIZ:      <span className="flex items-center gap-1.5"><UilCircle size={14} />Quiz (Opción Múltiple)</span>,
+  TRUEFALSE: <span className="flex items-center gap-1.5"><UilCheck size={14} />Verdadero / Falso</span>,
+  PUZZLE:    <span className="flex items-center gap-1.5"><UilApps size={14} />Puzzle (Orden)</span>,
+  PINIMAGE:  <span className="flex items-center gap-1.5"><UilMapPin size={14} />Pin on Image</span>,
 };
 
 export default function QuestionForm({ question, onSave, onCancel, saving, onFormChange }) {
@@ -149,7 +150,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
             className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-white/5 transition-colors"
           >
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-              🖼 Imagen del slide
+              <span className="flex items-center gap-1.5"><UilImage size={13} />Imagen del slide</span>
               {slideImageUrl && <span className="w-2 h-2 rounded-full bg-indigo-400 inline-block" />}
             </span>
             <span className="text-slate-600 text-xs">{showSlideImage ? '▲' : '▼'}</span>
@@ -166,7 +167,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
                 />
               </div>
               <label className="flex items-center gap-2 text-xs text-indigo-400 hover:text-indigo-300 cursor-pointer transition-colors">
-                📁 {uploading ? 'Subiendo...' : 'Subir imagen'}
+                <span className="flex items-center gap-1.5"><UilUpload size={13} />{uploading ? 'Subiendo...' : 'Subir imagen'}</span>
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'slideImage')} disabled={uploading} />
               </label>
               {slideImageUrl && (
@@ -184,7 +185,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
             className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-white/5 transition-colors"
           >
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-              🎨 Fondo del slide
+              <span className="flex items-center gap-1.5"><UilPalette size={13} />Fondo del slide</span>
               {bg.type && bg.type !== 'color' && <span className="w-2 h-2 rounded-full bg-indigo-400 inline-block" />}
               {bg.type === 'color' && bg.color && bg.color !== '#0f172a' && <span className="w-2 h-2 rounded-full bg-indigo-400 inline-block" />}
             </span>
@@ -199,7 +200,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
                 onClick={() => { setBgTab(tab); updateBg({ type: tab }); }}
                 className={`flex-1 py-1.5 capitalize transition-all ${bgTab === tab ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
               >
-                {tab === 'color' ? '🎨 Color' : tab === 'gradient' ? '🌈 Gradiente' : '🖼 Imagen'}
+                {tab === 'color' ? 'Color' : tab === 'gradient' ? 'Gradiente' : 'Imagen'}
               </button>
             ))}
           </div>
@@ -237,7 +238,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
                 placeholder="https://... — recomendado: 1920×1080"
                 className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
               <label className="flex items-center gap-2 text-xs text-indigo-400 hover:text-indigo-300 cursor-pointer transition-colors">
-                📁 {uploadingBg ? 'Subiendo...' : 'Subir imagen de fondo'}
+                <span className="flex items-center gap-1.5"><UilUpload size={13} />{uploadingBg ? 'Subiendo...' : 'Subir imagen de fondo'}</span>
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'bg')} disabled={uploadingBg} />
               </label>
               {bg.imageUrl && (
@@ -322,7 +323,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
               <input type="text" value={form.config.imageUrl || ''} onChange={(e) => updateConfig('imageUrl', e.target.value)}
                 placeholder="https://... o subir" className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm" />
               <label className="shrink-0 text-xs text-indigo-400 cursor-pointer hover:text-indigo-300 flex items-center">
-                📁 {uploading ? '...' : 'Subir'}
+                <span className="flex items-center gap-1"><UilUpload size={13} />{uploading ? '...' : 'Subir'}</span>
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'pinimage')} disabled={uploading} />
               </label>
             </div>
@@ -384,7 +385,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
           </button>
           <button type="submit" disabled={saving}
             className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-bold py-2.5 rounded-xl transition-all">
-            {saving ? 'Guardando...' : '💾 Guardar'}
+            {saving ? 'Guardando...' : <span className="flex items-center justify-center gap-1.5"><UilSave size={15} />Guardar</span>}
           </button>
         </div>
       </form>

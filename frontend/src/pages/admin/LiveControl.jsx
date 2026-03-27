@@ -3,9 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdmin } from '../../context/AdminContext';
 import api from '../../lib/api';
+import { UilCircle, UilCheck, UilApps, UilMapPin, UilLink, UilRocket, UilChartBar, UilPlay, UilFlag, UilTrophy, UilClock, UilMedal } from '@iconscout/react-unicons';
 
-const TYPE_ICONS = { QUIZ: '🔘', TRUEFALSE: '✅', PUZZLE: '🧩', PINIMAGE: '📍' };
-const MEDALS = ['🥇', '🥈', '🥉'];
+const TYPE_ICONS = {
+  QUIZ:      <UilCircle size={14} />,
+  TRUEFALSE: <UilCheck size={14} />,
+  PUZZLE:    <UilApps size={14} />,
+  PINIMAGE:  <UilMapPin size={14} />,
+};
 
 export default function LiveControl() {
   const { id } = useParams();
@@ -76,7 +81,7 @@ export default function LiveControl() {
           onClick={copyJoinLink}
           className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm px-3 py-2 rounded-xl transition-all"
         >
-          🔗 Copiar link de acceso
+          <span className="flex items-center gap-1.5"><UilLink size={15} />Copiar link de acceso</span>
         </button>
       </div>
 
@@ -111,7 +116,7 @@ export default function LiveControl() {
                   animate={{ opacity: 1 }}
                   className="text-center"
                 >
-                  <div className="text-6xl mb-4">⏳</div>
+                  <div className="flex justify-center mb-4"><UilClock size={56} className="text-slate-500" /></div>
                   <h2 className="text-2xl font-bold text-white mb-2">Lobby activo</h2>
                   <p className="text-slate-400 mb-2">
                     {playerCount === 0
@@ -131,7 +136,7 @@ export default function LiveControl() {
                     disabled={totalSlides === 0}
                     className="bg-green-500 hover:bg-green-400 disabled:opacity-40 text-white font-black text-xl px-10 py-5 rounded-2xl transition-all glow-green shadow-xl"
                   >
-                    🚀 Iniciar Desafío
+                    <span className="flex items-center gap-2"><UilRocket size={22} />Iniciar Desafío</span>
                   </motion.button>
 
                   {totalSlides === 0 && (
@@ -148,7 +153,7 @@ export default function LiveControl() {
                   className="space-y-4"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="text-2xl">{TYPE_ICONS[currentQuestion.type]}</span>
+                    <span className="text-slate-400">{TYPE_ICONS[currentQuestion.type]}</span>
                     <div>
                       <p className="text-slate-400 text-xs">Slide {slideIndex + 1} de {totalSlides}</p>
                       <p className="text-white font-semibold">{currentQuestion.prompt}</p>
@@ -177,14 +182,16 @@ export default function LiveControl() {
                       onClick={hostRanking}
                       className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-xl transition-all"
                     >
-                      📊 Ver Ranking
+                      <span className="flex items-center justify-center gap-1.5"><UilChartBar size={18} />Ver Ranking</span>
                     </motion.button>
                     <motion.button
                       whileTap={{ scale: 0.97 }}
                       onClick={hostNext}
                       className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl transition-all text-lg"
                     >
-                      {isLastSlide ? '🏁 Terminar' : '▶ Siguiente'}
+                      {isLastSlide
+                        ? <span className="flex items-center justify-center gap-1.5"><UilFlag size={20} />Terminar</span>
+                        : <span className="flex items-center justify-center gap-1.5"><UilPlay size={20} />Siguiente</span>}
                     </motion.button>
                   </div>
                 </motion.div>
@@ -197,11 +204,11 @@ export default function LiveControl() {
                   animate={{ opacity: 1 }}
                   className="text-center"
                 >
-                  <h2 className="text-xl font-bold text-white mb-4">📊 Mostrando Ranking</h2>
+                  <h2 className="text-xl font-bold text-white mb-4 flex items-center justify-center gap-2"><UilChartBar size={20} />Mostrando Ranking</h2>
                   <div className="space-y-2 mb-6 text-left">
                     {ranking.slice(0, 5).map((p, i) => (
                       <div key={p.id} className="flex items-center gap-3 bg-slate-800 rounded-xl px-4 py-2">
-                        <span className="text-lg">{MEDALS[i] || `#${i + 1}`}</span>
+                        <span className="text-sm font-black text-slate-400 w-5 text-center">#{i + 1}</span>
                         <span className="flex-1 text-white text-sm font-medium">{p.playerName}</span>
                         <span className="text-indigo-400 font-bold text-sm">{p.totalScore?.toLocaleString()}</span>
                       </div>
@@ -212,7 +219,9 @@ export default function LiveControl() {
                     onClick={hostNext}
                     className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl text-lg transition-all"
                   >
-                    {isLastSlide ? '🏁 Finalizar Desafío' : '▶ Siguiente Pregunta'}
+                    {isLastSlide
+                      ? <span className="flex items-center justify-center gap-2"><UilFlag size={20} />Finalizar Desafío</span>
+                      : <span className="flex items-center justify-center gap-2"><UilPlay size={20} />Siguiente Pregunta</span>}
                   </motion.button>
                 </motion.div>
               )}
@@ -224,12 +233,12 @@ export default function LiveControl() {
                   animate={{ opacity: 1 }}
                   className="text-center"
                 >
-                  <div className="text-6xl mb-4">🏆</div>
+                  <div className="flex justify-center mb-4"><UilTrophy size={56} className="text-yellow-400" /></div>
                   <h2 className="text-2xl font-bold text-white mb-6">Desafío Finalizado</h2>
                   <div className="space-y-2 mb-6 text-left">
                     {podium.slice(0, 3).map((p, i) => (
                       <div key={i} className="flex items-center gap-3 bg-slate-800 rounded-xl px-4 py-3">
-                        <span className="text-2xl">{MEDALS[i]}</span>
+                        <span className="text-sm font-black text-slate-400 w-5 text-center">#{i + 1}</span>
                         <span className="flex-1 text-white font-bold">{p.name}</span>
                         <span className="text-indigo-400 font-black">{p.score?.toLocaleString()}</span>
                       </div>
@@ -250,7 +259,7 @@ export default function LiveControl() {
         {/* Right: Live ranking sidebar */}
         <div className="space-y-4">
           <div className="glass rounded-2xl p-4">
-            <h3 className="text-white font-bold text-sm mb-3">🏅 Top Jugadores</h3>
+            <h3 className="text-white font-bold text-sm mb-3 flex items-center gap-1.5"><UilMedal size={15} />Top Jugadores</h3>
             <div className="space-y-2">
               {ranking.slice(0, 10).map((p, i) => (
                 <div key={p.id} className="flex items-center gap-2 text-sm">
