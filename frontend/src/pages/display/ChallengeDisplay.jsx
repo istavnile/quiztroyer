@@ -2,70 +2,278 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { io } from 'socket.io-client';
+import confetti from 'canvas-confetti';
 import api from '../../lib/api';
-import PageBackground from '../../components/PageBackground';
+import BrandingLayout from '../../components/BrandingLayout';
+import CountdownTimer from '../../components/CountdownTimer';
+import { resolveSlideBackground } from '../../lib/slideThemes';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || '';
 
 const OPTION_COLORS = [
-  { bg: 'bg-red-600',    border: 'border-red-400',    label: 'A' },
-  { bg: 'bg-blue-600',   border: 'border-blue-400',   label: 'B' },
-  { bg: 'bg-yellow-500', border: 'border-yellow-400', label: 'C' },
-  { bg: 'bg-green-600',  border: 'border-green-400',  label: 'D' },
+  { bg: 'bg-red-500/20    border-red-500/50',    icon: '🔴' },
+  { bg: 'bg-blue-500/20   border-blue-500/50',   icon: '🔵' },
+  { bg: 'bg-yellow-500/20 border-yellow-500/50', icon: '🟡' },
+  { bg: 'bg-green-500/20  border-green-500/50',  icon: '🟢' },
 ];
 
-function CountdownRing({ timeMs, totalMs }) {
-  const pct = Math.max(0, Math.min(1, timeMs / totalMs));
-  const r = 44, circ = 2 * Math.PI * r;
-  const dash = pct * circ;
-  const color = pct > 0.5 ? '#22c55e' : pct > 0.25 ? '#f59e0b' : '#ef4444';
+// ── EN VIVO badge ─────────────────────────────────────────────────────────────
+function LiveBadge() {
   return (
-    <div className="relative flex items-center justify-center w-28 h-28">
-      <svg className="absolute inset-0 -rotate-90" width="112" height="112">
-        <circle cx="56" cy="56" r={r} fill="none" stroke="#1e293b" strokeWidth="8" />
-        <circle cx="56" cy="56" r={r} fill="none" stroke={color} strokeWidth="8"
-          strokeDasharray={`${dash} ${circ}`} strokeLinecap="round"
-          style={{ transition: 'stroke-dasharray 0.5s linear, stroke 0.5s' }} />
-      </svg>
-      <span className="text-3xl font-black text-white z-10">{Math.ceil(timeMs / 1000)}</span>
+    <div style={{ position: 'fixed', top: 20, right: 24, zIndex: 100, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <motion.div
+        style={{ width: 12, height: 12, borderRadius: '50%', background: '#ef4444', boxShadow: '0 0 8px #ef4444' }}
+        animate={{ opacity: [1, 0.2, 1], scale: [1, 0.8, 1] }}
+        transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <span style={{ color: '#ef4444', fontWeight: 900, fontSize: 13, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+        En vivo
+      </span>
     </div>
   );
 }
 
+// ── Question display (display-mode — no interaction) ─────────────────────────
+function QuizDisplay({ options, revealConfig }) {
+  const correctId = revealConfig?.type === 'QUIZ'
+    ? revealConfig.config.options?.find((o) => o.isCorrect)?.id
+    : null;
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+      {options.map((opt, i) => {
+        const col = OPTION_COLORS[i % OPTION_COLORS.length];
+        const isCorrect = correctId === opt.id;
+        const isWrong   = correctId && correctId !== opt.id;
+        return (
+          <motion.div key={opt.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.08 }}
+            className={`border rounded-2xl p-4 text-left min-h-20 transition-all duration-300
+              ${isCorrect ? 'bg-green-500/30 border-green-400 ring-2 ring-green-400 scale-105'
+                : isWrong ? 'opacity-30 bg-white/5 border-white/10'
+                : col.bg}`}>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{isCorrect ? '✅' : col.icon}</span>
+              <span className="text-white font-semibold text-base leading-snug">{opt.text}</span>
+            </div>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
+function TrueFalseDisplay({ revealConfig }) {
+  const correct = revealConfig?.type === 'TRUEFALSE' ? revealConfig.config.correctAnswer : null;
+  return (
+    <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto">
+      {[true, false].map((val) => {
+        const isCorrect = correct === val;
+        const isWrong   = correct !== null && correct !== val;
+        return (
+          <div key={String(val)}
+            className={`rounded-2xl py-8 text-center text-2xl font-black border-2 transition-all duration-300
+              ${isCorrect ? 'bg-green-500/30 border-green-400 ring-2 ring-green-400 scale-105'
+                : isWrong ? 'opacity-30 bg-white/5 border-white/10'
+                : val ? 'bg-blue-500/20 border-blue-500/50' : 'bg-red-500/20 border-red-500/50'}`}>
+            <span className="text-white">{val ? '✓ Verdadero' : '✗ Falso'}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function PuzzleDisplay({ items, revealConfig }) {
+  const display = revealConfig?.config?.items || items || [];
+  return (
+    <div className="flex flex-col gap-2 max-w-lg mx-auto w-full">
+      {display.map((item, i) => (
+        <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: i * 0.06 }}
+          className={`rounded-2xl px-5 py-4 border-2 text-white font-bold flex items-center gap-4
+            ${revealConfig ? 'bg-green-500/20 border-green-400' : 'bg-indigo-500/20 border-indigo-500/50'}`}>
+          <span className="text-xl font-black opacity-50">{i + 1}</span>
+          <span>{item}</span>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+function PinImageDisplay({ imageUrl, revealConfig }) {
+  return (
+    <div className="relative max-w-lg mx-auto w-full">
+      <img src={imageUrl} alt="" className="w-full rounded-xl" />
+      {revealConfig && (
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
+          className="absolute w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg"
+          style={{ left: `${revealConfig.config.correctX}%`, top: `${revealConfig.config.correctY}%`, transform: 'translate(-50%,-50%)' }} />
+      )}
+    </div>
+  );
+}
+
+// ── LOBBY ─────────────────────────────────────────────────────────────────────
+function LobbyView({ name, playerCount, branding }) {
+  const primary = branding?.primaryColor || '#6366f1';
+  return (
+    <BrandingLayout branding={branding}>
+      <div className="flex-1 flex flex-col items-center justify-center p-8 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {[1,2,3].map((i) => (
+            <div key={i} className="absolute rounded-full animate-ping" style={{
+              width: `${i * 200}px`, height: `${i * 200}px`,
+              top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+              background: primary, opacity: 0.04, animationDelay: `${i * 0.4}s`, animationDuration: '2.4s',
+            }} />
+          ))}
+        </div>
+        <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring' }} className="text-center relative z-10">
+          <div className="text-7xl mb-6">🎯</div>
+          <h1 className="text-4xl sm:text-6xl font-black text-white mb-3">{name}</h1>
+          <p className="text-white/50 text-xl mb-10">El desafío está por comenzar</p>
+          <div className="flex gap-2 justify-center mb-8">
+            {[0,1,2].map(i => (
+              <motion.div key={i} className="w-3 h-3 rounded-full"
+                style={{ background: primary }}
+                animate={{ y: [0, -14, 0] }}
+                transition={{ duration: 0.8, delay: i * 0.15, repeat: Infinity }} />
+            ))}
+          </div>
+          <div className="glass rounded-xl px-8 py-4 inline-flex items-center gap-3">
+            <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: primary }} />
+            <span className="text-2xl font-black text-white">{playerCount}</span>
+            <span className="text-white/60">jugadores conectados</span>
+          </div>
+        </motion.div>
+      </div>
+    </BrandingLayout>
+  );
+}
+
+// ── RANKING ───────────────────────────────────────────────────────────────────
+function RankingView({ ranking, branding }) {
+  const primary = branding?.primaryColor || '#6366f1';
+  return (
+    <BrandingLayout branding={branding}>
+      <div className="flex-1 flex flex-col items-center justify-start p-6 overflow-auto">
+        <motion.h2 initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}
+          className="text-4xl font-black text-white mb-6 mt-2">Clasificación</motion.h2>
+        <div className="w-full max-w-xl space-y-2">
+          {ranking.slice(0, 10).map((p, i) => (
+            <motion.div key={p.sessionId || i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="flex items-center gap-4 rounded-xl px-5 py-3"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <span className="font-black w-8 text-center text-lg"
+                style={{ color: i === 0 ? '#ffd700' : i === 1 ? '#c0c0c0' : i === 2 ? '#cd7f32' : 'rgba(255,255,255,0.3)' }}>
+                #{i + 1}
+              </span>
+              <span className="flex-1 text-white font-semibold truncate text-lg">{p.playerName}</span>
+              <span className="font-bold" style={{ color: primary }}>{p.totalScore?.toLocaleString()} pts</span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </BrandingLayout>
+  );
+}
+
+// ── PODIUM ────────────────────────────────────────────────────────────────────
+function PodiumView({ podium, branding }) {
+  const primary = branding?.primaryColor || '#6366f1';
+  const accent  = branding?.accentColor  || '#f59e0b';
+
+  useEffect(() => {
+    const colors = [primary, accent, '#ec4899', '#ffd700', '#c0c0c0'];
+    setTimeout(() => confetti({ particleCount: 200, spread: 120, origin: { y: 0.5 }, colors }), 400);
+    const end = Date.now() + 8000;
+    const stream = () => {
+      confetti({ particleCount: 4, angle: 60,  spread: 60, origin: { x: 0 }, colors });
+      confetti({ particleCount: 4, angle: 120, spread: 60, origin: { x: 1 }, colors });
+      if (Date.now() < end) requestAnimationFrame(stream);
+    };
+    stream();
+    const iv = setInterval(() => confetti({ particleCount: 80, spread: 90, origin: { x: Math.random(), y: Math.random() * 0.5 }, colors }), 3000);
+    return () => clearInterval(iv);
+  }, []);
+
+  const [first, second, third] = podium || [];
+  const podiumConfig = [
+    { data: second, h: 'h-28', label: '🥈', color: '#c0c0c0', pos: '2', delay: 0.6 },
+    { data: first,  h: 'h-40', label: '🥇', color: '#ffd700', pos: '1', delay: 1.0 },
+    { data: third,  h: 'h-20', label: '🥉', color: '#cd7f32', pos: '3', delay: 0.3 },
+  ];
+
+  return (
+    <BrandingLayout branding={branding}>
+      <div className="flex-1 flex flex-col items-center justify-start p-6 overflow-auto relative">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="blob-anim-1 absolute -top-32 -right-32 w-96 h-96 rounded-full blur-3xl opacity-20" style={{ background: '#ffd700' }} />
+          <div className="blob-anim-2 absolute -bottom-32 -left-32 w-96 h-96 rounded-full blur-3xl opacity-15" style={{ background: primary }} />
+        </div>
+        <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+          className="text-center mb-8 mt-2 relative z-10">
+          <h1 className="text-5xl font-black text-white">🏆 Resultados Finales</h1>
+          <p className="text-white/50 mt-1">¡Gracias por participar!</p>
+        </motion.div>
+        <div className="flex items-end justify-center gap-3 mb-10 w-full max-w-md relative z-10">
+          {podiumConfig.map(({ data, h, label, color, pos, delay }, i) => (
+            <motion.div key={i} initial={{ y: 100, opacity: 0, scale: 0.8 }} animate={{ y: 0, opacity: 1, scale: 1 }}
+              transition={{ delay, type: 'spring', stiffness: 200, damping: 18 }}
+              className="flex flex-col items-center flex-1">
+              {data && (<>
+                <div className="text-3xl mb-0.5">{label}</div>
+                <div className="text-white font-bold text-sm text-center truncate w-full px-1">{data.name}</div>
+                <div className="font-bold text-sm mb-1.5" style={{ color: primary }}>{data.score?.toLocaleString()} pts</div>
+              </>)}
+              <div className={`${h} w-full rounded-t-xl flex items-center justify-center`}
+                style={{ background: color, opacity: data ? 1 : 0.25 }}>
+                <span className="font-black text-2xl text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>{pos}</span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+        <div className="w-full max-w-md space-y-2 relative z-10">
+          {(podium || []).slice(0, 10).map((player, i) => (
+            <motion.div key={player.id || i} initial={{ x: -16, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.6 + i * 0.04 }}
+              className="flex items-center gap-3 rounded-xl px-4 py-3"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <span className="font-black text-white/50 w-7 text-center text-sm">#{i + 1}</span>
+              <span className="flex-1 text-white font-semibold truncate">{player.name}</span>
+              <span className="font-bold text-sm text-white/80">{player.score?.toLocaleString()}</span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </BrandingLayout>
+  );
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
 export default function ChallengeDisplay() {
   const { slug } = useParams();
   const socketRef = useRef(null);
 
   const [siteSettings, setSiteSettings] = useState({ homeBgColor: '#0f172a', homeButtonColor: '#6366f1', bgEffect: 'blobs', logoUrl: '' });
-  const [challenge, setChallenge]   = useState(null);
-  const [phase, setPhase]           = useState('LOBBY');
-  const [slideIndex, setSlideIndex] = useState(-1);
-  const [totalSlides, setTotalSlides] = useState(0);
-  const [playerCount, setPlayerCount] = useState(0);
-  const [question, setQuestion]     = useState(null);
+  const [challenge, setChallenge]       = useState(null);
+  const [phase, setPhase]               = useState('LOBBY');
+  const [slideIndex, setSlideIndex]     = useState(-1);
+  const [totalSlides, setTotalSlides]   = useState(0);
+  const [playerCount, setPlayerCount]   = useState(0);
+  const [question, setQuestion]         = useState(null);
   const [revealConfig, setRevealConfig] = useState(null);
-  const [timeMs, setTimeMs]         = useState(0);
-  const [totalTimeMs, setTotalTimeMs] = useState(30000);
-  const [ranking, setRanking]       = useState([]);
-  const [podium, setPodium]         = useState(null);
-  const timerRef = useRef(null);
+  const [slideStartTs, setSlideStartTs] = useState(null);
+  const [timeRemainingMs, setTimeRemainingMs] = useState(null);
+  const [ranking, setRanking]           = useState([]);
+  const [podium, setPodium]             = useState(null);
 
-  // Site settings for background
   useEffect(() => {
     api.get('/settings').then((r) => setSiteSettings((s) => ({ ...s, ...r.data }))).catch(() => {});
   }, []);
-
-  function startTimer(ms) {
-    setTimeMs(ms);
-    setTotalTimeMs(ms);
-    clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setTimeMs((t) => {
-        if (t <= 100) { clearInterval(timerRef.current); return 0; }
-        return t - 100;
-      });
-    }, 100);
-  }
 
   useEffect(() => {
     const socket = io(`${SOCKET_URL}/game`, { transports: ['websocket', 'polling'] });
@@ -73,268 +281,144 @@ export default function ChallengeDisplay() {
 
     socket.on('connect', () => socket.emit('display:join', { slug }));
 
-    socket.on('display:ready', ({ challenge: c, phase: p, slideIndex: si, totalSlides: ts, playerCount: pc, currentQuestion, timeRemainingMs }) => {
+    socket.on('display:ready', ({ challenge: c, phase: p, slideIndex: si, totalSlides: ts, playerCount: pc, currentQuestion, timeRemainingMs: tr, serverTimestamp }) => {
       setChallenge(c);
       setPhase(p);
       setSlideIndex(si);
       setTotalSlides(ts);
       setPlayerCount(pc);
-      if (currentQuestion && timeRemainingMs != null) {
+      if (currentQuestion) {
         setQuestion(currentQuestion);
-        startTimer(timeRemainingMs);
+        setSlideStartTs(serverTimestamp || (Date.now() - (currentQuestion.timeLimit * 1000 - (tr || 0))));
+        setTimeRemainingMs(tr);
       }
     });
 
     socket.on('room:players', ({ count }) => setPlayerCount(count));
 
-    socket.on('game:start', ({ totalSlides: ts }) => {
-      setTotalSlides(ts);
-      setPhase('PLAYING');
-      setRevealConfig(null);
-    });
+    socket.on('game:start', ({ totalSlides: ts }) => { setTotalSlides(ts); setPhase('PLAYING'); setRevealConfig(null); });
 
-    socket.on('slide:show', ({ question: q, timeRemainingMs, slideIndex: si, totalSlides: ts }) => {
+    socket.on('slide:show', ({ question: q, timeRemainingMs: tr, slideIndex: si, totalSlides: ts, serverTimestamp }) => {
       setQuestion(q);
       setSlideIndex(si);
       setTotalSlides(ts);
       setRevealConfig(null);
       setPhase('PLAYING');
-      startTimer(timeRemainingMs);
+      setSlideStartTs(serverTimestamp || Date.now());
+      setTimeRemainingMs(tr);
     });
 
-    socket.on('slide:timeout', () => {
-      clearInterval(timerRef.current);
-      setTimeMs(0);
-    });
+    socket.on('slide:timeout', () => setRevealConfig((r) => r)); // keep reveal if already set
 
-    socket.on('slide:reveal', ({ config, type }) => {
-      setRevealConfig({ config, type });
-      clearInterval(timerRef.current);
-    });
+    socket.on('slide:reveal', ({ config, type }) => setRevealConfig({ config, type }));
 
-    socket.on('ranking:update', ({ ranking: r }) => {
-      setRanking(r);
-      setPhase('RANKING');
-    });
-
+    socket.on('ranking:update', ({ ranking: r }) => { setRanking(r); });
     socket.on('phase:ranking', () => setPhase('RANKING'));
 
-    socket.on('game:end', ({ podium: p }) => {
-      setPodium(p);
-      setPhase('ENDED');
-    });
+    socket.on('game:end', ({ podium: p }) => { setPodium(p); setPhase('ENDED'); });
 
-    return () => { socket.disconnect(); clearInterval(timerRef.current); };
+    return () => socket.disconnect();
   }, [slug]);
 
-  const branding = challenge?.branding || {};
-  const bg       = branding.bgColor || siteSettings.homeBgColor;
+  const branding = { ...(challenge?.branding || {}), bgColor: challenge?.branding?.bgColor || siteSettings.homeBgColor };
   const primary  = branding.primaryColor || siteSettings.homeButtonColor;
-  const logo     = branding.logoUrl || siteSettings.logoUrl;
 
-  // --- LOBBY ---
   if (phase === 'LOBBY') return (
-    <Screen bg={bg} siteSettings={siteSettings} primary={primary}>
-      <Logo logo={logo} />
-      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-        <h1 className="text-4xl sm:text-6xl font-black text-white mb-4">{challenge?.name || '…'}</h1>
-        <p className="text-slate-400 text-xl mb-8">Esperando que el host inicie el desafío</p>
-        <div className="flex items-center justify-center gap-3">
-          <div className="flex gap-1">{[0,1,2].map(i => (
-            <motion.div key={i} className="w-3 h-3 rounded-full bg-indigo-500"
-              animate={{ y: [0, -12, 0] }} transition={{ duration: 0.8, delay: i * 0.15, repeat: Infinity }} />
-          ))}</div>
-        </div>
-      </motion.div>
-      <div className="flex items-center gap-2 bg-slate-800/60 rounded-full px-5 py-2.5">
-        <span className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse" />
-        <span className="text-white font-bold text-lg">{playerCount}</span>
-        <span className="text-slate-400">jugadores conectados</span>
-      </div>
-    </Screen>
+    <>
+      <LiveBadge />
+      <LobbyView name={challenge?.name || '…'} playerCount={playerCount} branding={branding} />
+    </>
   );
 
-  // --- ENDED / PODIUM ---
   if (phase === 'ENDED' && podium) return (
-    <Screen bg={bg} siteSettings={siteSettings} primary={primary}>
-      <Logo logo={logo} />
-      <motion.h2 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
-        className="text-5xl font-black text-white mb-10">🏆 Podio Final</motion.h2>
-      <div className="flex items-end gap-6 mb-8">
-        {[podium[1], podium[0], podium[2]].map((p, visualIdx) => {
-          if (!p) return <div key={visualIdx} className="w-40" />;
-          const heights = ['h-32', 'h-48', 'h-28'];
-          const ranks = [2, 1, 3];
-          const colors = ['bg-slate-500', 'bg-yellow-500', 'bg-amber-700'];
-          return (
-            <motion.div key={p.rank} initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: visualIdx * 0.2 }}
-              className="flex flex-col items-center">
-              <span className="text-white font-bold text-xl mb-2">{p.name}</span>
-              <span className="text-slate-300 text-lg mb-3">{p.score} pts</span>
-              <div className={`w-40 ${heights[visualIdx]} ${colors[visualIdx]} rounded-t-xl flex items-center justify-center`}>
-                <span className="text-4xl font-black text-white">{ranks[visualIdx]}</span>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-    </Screen>
+    <>
+      <LiveBadge />
+      <PodiumView podium={podium} branding={branding} />
+    </>
   );
 
-  // --- RANKING ---
   if (phase === 'RANKING') return (
-    <Screen bg={bg} siteSettings={siteSettings} primary={primary}>
-      <Logo logo={logo} />
-      <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-4xl font-black text-white mb-8">
-        Clasificación
-      </motion.h2>
-      <div className="w-full max-w-lg space-y-3">
-        {ranking.slice(0, 8).map((p, i) => (
-          <motion.div key={p.sessionId || i} initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.06 }}
-            className="flex items-center gap-4 bg-slate-800/70 rounded-2xl px-5 py-3">
-            <span className={`text-2xl font-black w-8 text-center ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-amber-600' : 'text-slate-500'}`}>{i + 1}</span>
-            <span className="flex-1 text-white font-bold text-xl truncate">{p.playerName}</span>
-            <span className="text-indigo-300 font-bold text-lg">{p.totalScore} pts</span>
-          </motion.div>
-        ))}
-      </div>
-    </Screen>
+    <>
+      <LiveBadge />
+      <RankingView ranking={ranking} branding={branding} />
+    </>
   );
 
-  // --- PLAYING ---
   if (!question) return (
-    <Screen bg={bg} siteSettings={siteSettings} primary={primary}>
-      <Logo logo={logo} />
-      <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-    </Screen>
+    <BrandingLayout branding={branding}>
+      <LiveBadge />
+      <div className="flex-1 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    </BrandingLayout>
   );
 
-  const correctOptionId = revealConfig?.type === 'QUIZ'
-    ? revealConfig.config.options?.find((o) => o.isCorrect)?.id
-    : null;
-  const correctAnswer = revealConfig?.type === 'TRUEFALSE' ? revealConfig.config.correctAnswer : null;
+  const slideBg    = resolveSlideBackground(question.config?._slideBackground);
+  const slideImage = question.config?._slideImage || '';
 
   return (
-    <Screen bg={bg} siteSettings={siteSettings} primary={primary}>
-      {/* Top bar */}
-      <div className="w-full flex items-center justify-between mb-6 px-2">
-        <Logo logo={logo} small />
-        <div className="flex items-center gap-3">
-          <span className="text-slate-400 text-sm">{slideIndex + 1} / {totalSlides}</span>
-          <div className="flex gap-1">
-            {Array.from({ length: totalSlides }).map((_, i) => (
-              <div key={i} className={`h-1.5 w-8 rounded-full transition-all ${i < slideIndex ? 'bg-indigo-500' : i === slideIndex ? 'bg-white' : 'bg-slate-700'}`} />
-            ))}
+    <BrandingLayout branding={branding}>
+      <LiveBadge />
+      <div className="flex-1 flex flex-col overflow-hidden min-h-0 relative" style={slideBg || {}}>
+        {slideBg?.backgroundImage && <div className="absolute inset-0 bg-black/40 pointer-events-none" />}
+
+        {/* Progress + Timer */}
+        <div className="relative z-10 flex items-center justify-between px-4 py-2.5 shrink-0"
+          style={{ background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="flex items-center gap-2">
+            <span className="text-white/50 text-xs font-semibold">{slideIndex + 1} / {totalSlides}</span>
+            <div className="flex gap-1">
+              {Array.from({ length: totalSlides }).map((_, i) => (
+                <div key={i} className="h-1.5 rounded-full transition-all duration-300"
+                  style={{ width: i === slideIndex ? '20px' : '6px', background: i <= slideIndex ? primary : 'rgba(255,255,255,0.15)', opacity: i < slideIndex ? 0.45 : 1 }} />
+              ))}
+            </div>
           </div>
-        </div>
-        {!revealConfig && <CountdownRing timeMs={timeMs} totalMs={totalTimeMs} />}
-        {revealConfig && <div className="w-28 h-28 flex items-center justify-center text-4xl">✅</div>}
-      </div>
-
-      {/* Question prompt */}
-      <AnimatePresence mode="wait">
-        <motion.div key={question.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-4xl text-center mb-10 px-4">
-          {question.config._slideBackground && (
-            <div className="absolute inset-0 opacity-15 bg-cover bg-center -z-10 rounded-3xl"
-              style={{ backgroundImage: `url(${question.config._slideBackground})` }} />
+          {!revealConfig && slideStartTs && (
+            <CountdownTimer timeLimit={question.timeLimit} startTimestamp={slideStartTs}
+              initialRemaining={timeRemainingMs} accentColor={primary} />
           )}
-          {question.config._slideImage && (
-            <img src={question.config._slideImage} alt="" className="h-48 object-contain mx-auto mb-6 rounded-2xl" />
-          )}
-          <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight">{question.prompt}</h1>
-        </motion.div>
-      </AnimatePresence>
-
-      {/* QUIZ options */}
-      {question.type === 'QUIZ' && (
-        <div className="grid grid-cols-2 gap-4 w-full max-w-4xl px-4">
-          {question.config.options?.map((opt, i) => {
-            const col = OPTION_COLORS[i] || OPTION_COLORS[0];
-            const isCorrect = revealConfig && correctOptionId === opt.id;
-            const isWrong   = revealConfig && correctOptionId && correctOptionId !== opt.id;
-            return (
-              <motion.div key={opt.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.08 }}
-                className={`rounded-2xl px-6 py-5 border-2 flex items-center gap-4 text-white text-2xl font-bold transition-all
-                  ${isCorrect ? 'bg-green-600 border-green-400 scale-105' : isWrong ? 'opacity-30 bg-slate-800 border-slate-600' : `${col.bg} ${col.border}`}`}>
-                <span className="text-3xl font-black opacity-70">{col.label}</span>
-                <span className="flex-1">{opt.text}</span>
-                {isCorrect && <span className="text-3xl">✓</span>}
-              </motion.div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* TRUEFALSE */}
-      {question.type === 'TRUEFALSE' && (
-        <div className="grid grid-cols-2 gap-6 w-full max-w-2xl px-4">
-          {[true, false].map((val) => {
-            const isCorrect = revealConfig && correctAnswer === val;
-            const isWrong   = revealConfig && correctAnswer !== val;
-            return (
-              <motion.div key={String(val)} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                className={`rounded-2xl py-8 text-center text-4xl font-black border-2 transition-all
-                  ${isCorrect ? 'bg-green-600 border-green-400 text-white' : isWrong ? 'opacity-30 bg-slate-800 border-slate-600 text-slate-400' : val ? 'bg-blue-600 border-blue-400 text-white' : 'bg-red-600 border-red-400 text-white'}`}>
-                {val ? '✓ Verdadero' : '✗ Falso'}
-              </motion.div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* PUZZLE */}
-      {question.type === 'PUZZLE' && (
-        <div className="flex flex-col gap-3 w-full max-w-2xl px-4">
-          {(revealConfig?.config?.items || question.config.items || []).map((item, i) => (
-            <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.08 }}
-              className={`rounded-2xl px-6 py-4 border-2 text-white text-xl font-bold flex items-center gap-4 ${revealConfig ? 'bg-green-700/50 border-green-500' : 'bg-indigo-700/50 border-indigo-400'}`}>
-              <span className="text-2xl font-black opacity-60">{i + 1}</span>
-              <span>{item}</span>
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      {/* PINIMAGE */}
-      {question.type === 'PINIMAGE' && question.config.imageUrl && (
-        <div className="relative max-w-2xl w-full px-4">
-          <img src={question.config.imageUrl} alt="" className="w-full rounded-2xl" />
           {revealConfig && (
-            <div className="absolute" style={{
-              left: `${revealConfig.config.correctX}%`, top: `${revealConfig.config.correctY}%`,
-              transform: 'translate(-50%,-50%)'
-            }}>
-              <div className="w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg animate-pulse" />
+            <div className="text-2xl font-black text-green-400 flex items-center gap-2">✅ Respuesta</div>
+          )}
+        </div>
+
+        {/* Question */}
+        <div className="relative z-10 flex-1 flex flex-col overflow-auto">
+          {slideImage && (
+            <div className="px-4 pt-4 shrink-0">
+              <motion.img initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+                src={slideImage} alt="Imagen del slide"
+                className="mx-auto rounded-xl object-contain shadow-2xl"
+                style={{ maxHeight: '220px', maxWidth: '100%' }} />
             </div>
           )}
+
+          <div className="px-5 pt-4 pb-3 shrink-0">
+            <AnimatePresence mode="wait">
+              <motion.h2 key={question.id} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+                className="text-2xl md:text-4xl font-bold text-white leading-tight text-center drop-shadow">
+                {question.prompt}
+              </motion.h2>
+            </AnimatePresence>
+          </div>
+
+          <div className="flex-1 px-4 pb-6 flex flex-col justify-center">
+            {question.type === 'QUIZ' && (
+              <QuizDisplay options={question.config.options || []} revealConfig={revealConfig} />
+            )}
+            {question.type === 'TRUEFALSE' && (
+              <TrueFalseDisplay revealConfig={revealConfig} />
+            )}
+            {question.type === 'PUZZLE' && (
+              <PuzzleDisplay items={question.config.items} revealConfig={revealConfig} />
+            )}
+            {question.type === 'PINIMAGE' && question.config.imageUrl && (
+              <PinImageDisplay imageUrl={question.config.imageUrl} revealConfig={revealConfig} />
+            )}
+          </div>
         </div>
-      )}
-
-      {/* Bottom: player count */}
-      <div className="absolute bottom-5 right-6 flex items-center gap-2 text-slate-500 text-sm">
-        <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-        {playerCount} jugadores
       </div>
-    </Screen>
+    </BrandingLayout>
   );
-}
-
-function Screen({ bg, siteSettings, primary, children }) {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-6 relative overflow-hidden select-none"
-      style={{ background: bg }}>
-      <PageBackground siteSettings={siteSettings} color={primary} />
-      <div className="relative z-10 flex flex-col items-center w-full gap-6">{children}</div>
-    </div>
-  );
-}
-
-function Logo({ logo, small }) {
-  if (!logo) return null;
-  return <img src={logo} alt="logo" className={`object-contain ${small ? 'h-8' : 'h-14'}`} />;
 }
