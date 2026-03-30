@@ -406,62 +406,62 @@ export default function AdminDashboard() {
   }
 
   async function buildPDFDoc(raffleDataList) {
-    const doc = new jsPDF();
-    let firstPage = true;
-    for (const { data } of raffleDataList) {
-      const branding = data.branding || {};
-      const bg = branding.bgColor || '#080c1a';
-      const primary = branding.primaryColor || '#6366f1';
-      if (!firstPage) doc.addPage();
-      firstPage = false;
+    const bg      = siteSettings.homeBgColor      || '#0f172a';
+    const primary = siteSettings.homeButtonColor  || '#6366f1';
+    const rawLogo = siteSettings.logoUrl          || '';
+    const logoUrl = rawLogo ? (rawLogo.startsWith('/') ? window.location.origin + rawLogo : rawLogo) : null;
 
-      doc.setFillColor(bg);
-      doc.rect(0, 0, 210, 40, 'F');
-
-      const logoUrl = branding.logoUrl ? (branding.logoUrl.startsWith('/') ? window.location.origin + branding.logoUrl : branding.logoUrl) : null;
-
-      const drawSection = (logoDataUrl) => {
-        if (logoDataUrl) {
-          try {
-            const img = new Image(); img.src = logoDataUrl;
-            const logoH = 18; const logoW = Math.min((img.naturalWidth / img.naturalHeight) * logoH || logoH, 50);
-            doc.addImage(logoDataUrl, 'PNG', 196 - logoW, 6, logoW, logoH);
-          } catch {}
-        }
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(18); doc.setFont('helvetica', 'bold');
-        doc.text(data.name, 14, 20);
-        doc.setFontSize(9); doc.setFont('helvetica', 'normal');
-        doc.setTextColor(180, 180, 200);
-        doc.text(`Participantes: ${data.entries?.length || 0}  ·  ${new Date().toLocaleDateString('es-PE')}`, 14, 30);
-        const [r, g, b] = hexToRgb(primary);
-        doc.setDrawColor(r, g, b); doc.setLineWidth(0.8); doc.line(14, 38, 196, 38);
-        autoTable(doc, {
-          startY: 44,
-          head: [['#', 'Nombre', 'Apellido', 'DNI', 'Correo', 'Teléfono', '']],
-          body: (data.entries || []).map((e, i) => [i + 1, e.nombre, e.apellido, e.dni, e.correo, e.telefono, e.isWinner ? 'GANADOR' : '']),
-          headStyles: { fillColor: hexToRgb(primary), textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-          bodyStyles: { fontSize: 8, textColor: [40, 40, 60] },
-          alternateRowStyles: { fillColor: [245, 245, 255] },
-          columnStyles: { 0: { cellWidth: 8 }, 6: { textColor: hexToRgb(primary), fontStyle: 'bold' } },
-          margin: { left: 14, right: 14 },
-        });
-      };
-
-      await new Promise((resolve) => {
-        if (!logoUrl) { drawSection(null); resolve(); return; }
+    // Pre-load logo once for all pages
+    let logoDataUrl = null;
+    if (logoUrl) {
+      logoDataUrl = await new Promise((resolve) => {
         const img = new Image(); img.crossOrigin = 'anonymous';
         img.onload = () => {
           try {
             const canvas = document.createElement('canvas');
             canvas.width = img.width; canvas.height = img.height;
             canvas.getContext('2d').drawImage(img, 0, 0);
-            drawSection(canvas.toDataURL('image/png'));
-          } catch { drawSection(null); }
-          resolve();
+            resolve(canvas.toDataURL('image/png'));
+          } catch { resolve(null); }
         };
-        img.onerror = () => { drawSection(null); resolve(); };
+        img.onerror = () => resolve(null);
         img.src = logoUrl;
+      });
+    }
+
+    const doc = new jsPDF();
+    let firstPage = true;
+    for (const { data } of raffleDataList) {
+      if (!firstPage) doc.addPage();
+      firstPage = false;
+
+      doc.setFillColor(bg);
+      doc.rect(0, 0, 210, 40, 'F');
+
+      if (logoDataUrl) {
+        try {
+          const img = new Image(); img.src = logoDataUrl;
+          const logoH = 18; const logoW = Math.min((img.naturalWidth / img.naturalHeight) * logoH || logoH, 50);
+          doc.addImage(logoDataUrl, 'PNG', 196 - logoW, 6, logoW, logoH);
+        } catch {}
+      }
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18); doc.setFont('helvetica', 'bold');
+      doc.text(data.name, 14, 20);
+      doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+      doc.setTextColor(180, 180, 200);
+      doc.text(`Participantes: ${data.entries?.length || 0}  ·  ${new Date().toLocaleDateString('es-PE')}`, 14, 30);
+      const [pr, pg, pb] = hexToRgb(primary);
+      doc.setDrawColor(pr, pg, pb); doc.setLineWidth(0.8); doc.line(14, 38, 196, 38);
+      autoTable(doc, {
+        startY: 44,
+        head: [['#', 'Nombre', 'Apellido', 'DNI', 'Correo', 'Teléfono', '']],
+        body: (data.entries || []).map((e, i) => [i + 1, e.nombre, e.apellido, e.dni, e.correo, e.telefono, e.isWinner ? 'GANADOR' : '']),
+        headStyles: { fillColor: hexToRgb(primary), textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+        bodyStyles: { fontSize: 8, textColor: [40, 40, 60] },
+        alternateRowStyles: { fillColor: [245, 245, 255] },
+        columnStyles: { 0: { cellWidth: 8 }, 6: { textColor: hexToRgb(primary), fontStyle: 'bold' } },
+        margin: { left: 14, right: 14 },
       });
     }
     return doc;
