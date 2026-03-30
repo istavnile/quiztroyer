@@ -80,7 +80,7 @@ export default function JoinPage() {
 
   const branding = challenge.branding || {};
   const accent  = branding.primaryColor || siteSettings.homeButtonColor || '#6366f1';
-  const bgColor = branding.bgColor      || siteSettings.homeBgColor     || '#0f172a';
+  const bgColor = siteSettings.homeBgColor || '#0f172a';
   const glow    = glowAnim(accent);
 
   return (

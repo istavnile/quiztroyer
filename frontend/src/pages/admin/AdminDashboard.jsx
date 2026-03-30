@@ -937,6 +937,15 @@ export default function AdminDashboard() {
                         <UilChartBar size={16} />
                       </button>
                     )}
+                    {c._count?.sessions > 0 && (
+                      <button
+                        onClick={() => window.open(`/hof/${c.slug}`, '_blank', 'noopener')}
+                        className="bg-yellow-500/15 hover:bg-yellow-500/30 text-yellow-400 p-2 rounded-xl transition-all"
+                        title="Hall of Fame"
+                      >
+                        🏆
+                      </button>
+                    )}
                     <button
                       onClick={() => setQrModal({ url: `${window.location.origin}/join/${c.slug}`, title: c.name, pin: c.pin })}
                       className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">

@@ -50,4 +50,22 @@ router.get('/:slug/leaderboard', async (req, res) => {
   res.json(sessions);
 });
 
+// GET /api/challenges/:slug/hall-of-fame — all-time top 20 across all runs
+router.get('/:slug/hall-of-fame', async (req, res) => {
+  const challenge = await prisma.challenge.findUnique({
+    where: { slug: req.params.slug },
+    select: { id: true, name: true, branding: true, runNumber: true },
+  });
+  if (!challenge) return res.status(404).json({ error: 'No encontrado' });
+
+  const top = await prisma.gameSession.findMany({
+    where: { challengeId: challenge.id, completedAt: { not: null } },
+    orderBy: { totalScore: 'desc' },
+    take: 20,
+    select: { playerName: true, totalScore: true, runNumber: true, completedAt: true },
+  });
+
+  res.json({ challenge, entries: top });
+});
+
 module.exports = router;

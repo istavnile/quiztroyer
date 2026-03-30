@@ -15,6 +15,7 @@ import RaffleJoin from './pages/RaffleJoin';
 import RaffleRoom from './pages/RaffleRoom';
 import RaffleControl from './pages/admin/RaffleControl';
 import QRScreen from './pages/QRScreen';
+import HallOfFame from './pages/HallOfFame';
 import ChallengeDisplay from './pages/display/ChallengeDisplay';
 import RaffleDisplay from './pages/display/RaffleDisplay';
 
@@ -73,6 +74,7 @@ export default function App() {
             />
 
             <Route path="/qr" element={<QRScreen />} />
+            <Route path="/hof/:slug" element={<HallOfFame />} />
             <Route path="/display/challenge/:slug" element={<ChallengeDisplay />} />
             <Route path="/display/raffle/:slug" element={<RaffleDisplay />} />
             <Route path="*" element={<Navigate to="/" replace />} />
