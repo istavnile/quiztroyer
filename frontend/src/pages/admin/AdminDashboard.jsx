@@ -183,6 +183,8 @@ export default function AdminDashboard() {
   const [archivedRaffles, setArchivedRaffles]       = useState([]);
   const [selectedRaffles, setSelectedRaffles]       = useState(new Set());
   const [exportingRaffles, setExportingRaffles]     = useState(false);
+  const [showExportModal, setShowExportModal]       = useState(false);
+  const [exportSelection, setExportSelection]       = useState(new Set());
   const currentUsername = localStorage.getItem('qt_admin_username') || 'admin';
 
   useEffect(() => { loadChallenges(); loadRaffles(); }, []);
@@ -740,6 +742,106 @@ export default function AdminDashboard() {
             </motion.div>
           </motion.div>
         )}
+        {showExportModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)' }}
+            onClick={(e) => e.target === e.currentTarget && setShowExportModal(false)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <UilFileDownloadAlt size={20} />Exportar sorteos
+                </h2>
+                <button onClick={() => setShowExportModal(false)} className="text-slate-500 hover:text-slate-300 text-xl">×</button>
+              </div>
+
+              <p className="text-slate-500 text-xs mb-4">Selecciona los sorteos que quieres exportar:</p>
+
+              {/* Select all */}
+              <div className="flex items-center gap-2 mb-3 pb-3 border-b border-slate-800">
+                <input type="checkbox"
+                  checked={exportSelection.size === raffles.filter(r => r._count?.entries > 0).length && exportSelection.size > 0}
+                  onChange={() => {
+                    const eligible = raffles.filter(r => r._count?.entries > 0).map(r => r.id);
+                    setExportSelection(exportSelection.size === eligible.length ? new Set() : new Set(eligible));
+                  }}
+                  className="accent-amber-500 w-4 h-4 cursor-pointer" />
+                <span className="text-slate-400 text-sm">Seleccionar todos</span>
+              </div>
+
+              {/* Raffle list */}
+              <div className="space-y-2 max-h-64 overflow-y-auto mb-5">
+                {raffles.map((r) => (
+                  <label key={r.id} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
+                    exportSelection.has(r.id) ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-slate-800/50 border border-transparent hover:bg-slate-800'
+                  } ${!r._count?.entries ? 'opacity-40 pointer-events-none' : ''}`}>
+                    <input type="checkbox" checked={exportSelection.has(r.id)}
+                      disabled={!r._count?.entries}
+                      onChange={() => {
+                        setExportSelection(prev => {
+                          const next = new Set(prev);
+                          next.has(r.id) ? next.delete(r.id) : next.add(r.id);
+                          return next;
+                        });
+                      }}
+                      className="accent-amber-500 w-4 h-4 cursor-pointer shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-sm font-semibold truncate">{r.name}</p>
+                      <p className="text-slate-500 text-xs">{r._count?.entries || 0} inscritos · {r.status === 'DONE' ? 'Finalizado' : r.status === 'OPEN' ? 'Abierto' : 'Borrador'}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+
+              {exportSelection.size === 0 && (
+                <p className="text-amber-400 text-xs text-center mb-3">Selecciona al menos un sorteo</p>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  disabled={exportSelection.size === 0 || exportingRaffles}
+                  onClick={async () => {
+                    setExportingRaffles(true);
+                    try {
+                      const list = [];
+                      for (const id of exportSelection) { const r = await api.get(`/raffle/admin/${id}`); list.push(r); }
+                      const blob = buildCSVBlob(list);
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = exportSelection.size === 1
+                        ? `${raffles.find(r => exportSelection.has(r.id))?.name || 'sorteo'}.csv`
+                        : `sorteos-${exportSelection.size}.csv`;
+                      a.click(); URL.revokeObjectURL(url);
+                      setShowExportModal(false);
+                    } finally { setExportingRaffles(false); }
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 bg-emerald-600/20 hover:bg-emerald-600/40 disabled:opacity-40 text-emerald-400 font-bold py-2.5 rounded-xl transition-all text-sm">
+                  <UilFileAlt size={16} />CSV
+                </button>
+                <button
+                  disabled={exportSelection.size === 0 || exportingRaffles}
+                  onClick={async () => {
+                    setExportingRaffles(true);
+                    try {
+                      const list = [];
+                      for (const id of exportSelection) { const r = await api.get(`/raffle/admin/${id}`); list.push(r); }
+                      const doc = await buildPDFDoc(list);
+                      const label = exportSelection.size === 1
+                        ? raffles.find(r => exportSelection.has(r.id))?.name || 'sorteo'
+                        : `sorteos-${exportSelection.size}`;
+                      doc.save(`${label}.pdf`);
+                      setShowExportModal(false);
+                    } finally { setExportingRaffles(false); }
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 bg-red-600/20 hover:bg-red-600/40 disabled:opacity-40 text-red-400 font-bold py-2.5 rounded-xl transition-all text-sm">
+                  <UilFileDownloadAlt size={16} />{exportingRaffles ? 'Exportando...' : 'PDF'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
         {resultsChallenge && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -833,6 +935,11 @@ export default function AdminDashboard() {
                 className={`px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5 ${showArchived ? 'bg-slate-600 text-white' : 'bg-slate-800 hover:bg-slate-700 text-slate-400'}`}
                 title="Mostrar archivados">
                 <UilArchive size={16} />{showArchived ? 'Ocultar archivados' : 'Archivados'}
+              </button>
+              <button onClick={() => { setShowExportModal(true); setExportSelection(new Set()); }}
+                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5"
+                title="Exportar sorteos">
+                <UilFileDownloadAlt size={16} />Exportar
               </button>
               <button onClick={() => { setShowCreate(true); setCreateError(''); setForm({ name: '', slug: '', pin: '' }); }}
                 className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
@@ -1178,11 +1285,11 @@ export default function AdminDashboard() {
                       )}
                     </div>
                     {/* Secondary icon actions */}
-                    <div className="flex gap-2 justify-end">
+                    <div className="flex gap-2">
                       {c._count?.sessions > 0 && (
                         <button
                           onClick={() => { setResultsChallenge({ id: c.id, name: c.name }); loadResults(c.id); }}
-                          className="bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 p-2 rounded-xl transition-all"
+                          className="flex-1 flex items-center justify-center bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 py-2 rounded-xl transition-all"
                           title="Ver resultados"
                         >
                           <UilChartBar size={16} />
@@ -1191,7 +1298,7 @@ export default function AdminDashboard() {
                       {c._count?.sessions > 0 && (
                         <button
                           onClick={() => window.open(`/hof/${c.slug}`, '_blank', 'noopener')}
-                          className="bg-yellow-500/15 hover:bg-yellow-500/30 text-yellow-400 p-2 rounded-xl transition-all"
+                          className="flex-1 flex items-center justify-center bg-yellow-500/15 hover:bg-yellow-500/30 text-yellow-400 py-2 rounded-xl transition-all"
                           title="Hall of Fame"
                         >
                           🏆
@@ -1199,19 +1306,19 @@ export default function AdminDashboard() {
                       )}
                       <button
                         onClick={() => setQrModal({ url: `${window.location.origin}/join/${c.slug}`, title: c.name, pin: c.pin })}
-                        className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">
+                        className="flex-1 flex items-center justify-center bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 rounded-xl transition-all" title="Ver QR">
                         <UilQrcodeScan size={16} />
                       </button>
                       <button
                         onClick={() => handleArchiveChallenge(c.id, true)}
-                        className="bg-slate-700/50 hover:bg-slate-600 text-slate-400 p-2 rounded-xl transition-all"
+                        className="flex-1 flex items-center justify-center bg-slate-700/50 hover:bg-slate-600 text-slate-400 py-2 rounded-xl transition-all"
                         title="Archivar"
                       >
                         <UilArchive size={16} />
                       </button>
                       <button
                         onClick={() => setConfirmDelete({ id: c.id, name: c.name })}
-                        className="bg-red-500/15 hover:bg-red-500/30 text-red-400 p-2 rounded-xl transition-all"
+                        className="flex-1 flex items-center justify-center bg-red-500/15 hover:bg-red-500/30 text-red-400 py-2 rounded-xl transition-all"
                         title="Eliminar"
                       >
                         <UilTrashAlt size={16} />
