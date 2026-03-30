@@ -411,22 +411,23 @@ export default function AdminDashboard() {
     const rawLogo = siteSettings.logoUrl          || '';
     const logoUrl = rawLogo ? (rawLogo.startsWith('/') ? window.location.origin + rawLogo : rawLogo) : null;
 
-    // Pre-load logo once for all pages
+    // Pre-load logo once for all pages — also store natural dimensions
     let logoDataUrl = null;
+    let logoNatW = 0, logoNatH = 1;
     if (logoUrl) {
-      logoDataUrl = await new Promise((resolve) => {
+      ({ dataUrl: logoDataUrl, w: logoNatW, h: logoNatH } = await new Promise((resolve) => {
         const img = new Image(); img.crossOrigin = 'anonymous';
         img.onload = () => {
           try {
             const canvas = document.createElement('canvas');
             canvas.width = img.width; canvas.height = img.height;
             canvas.getContext('2d').drawImage(img, 0, 0);
-            resolve(canvas.toDataURL('image/png'));
-          } catch { resolve(null); }
+            resolve({ dataUrl: canvas.toDataURL('image/png'), w: img.width, h: img.height });
+          } catch { resolve({ dataUrl: null, w: 0, h: 1 }); }
         };
-        img.onerror = () => resolve(null);
+        img.onerror = () => resolve({ dataUrl: null, w: 0, h: 1 });
         img.src = logoUrl;
-      });
+      }));
     }
 
     const doc = new jsPDF();
@@ -438,10 +439,10 @@ export default function AdminDashboard() {
       doc.setFillColor(bg);
       doc.rect(0, 0, 210, 40, 'F');
 
-      if (logoDataUrl) {
+      if (logoDataUrl && logoNatH > 0) {
         try {
-          const img = new Image(); img.src = logoDataUrl;
-          const logoH = 18; const logoW = Math.min((img.naturalWidth / img.naturalHeight) * logoH || logoH, 50);
+          const logoH = 18;
+          const logoW = Math.min((logoNatW / logoNatH) * logoH, 60);
           doc.addImage(logoDataUrl, 'PNG', 196 - logoW, 6, logoW, logoH);
         } catch {}
       }

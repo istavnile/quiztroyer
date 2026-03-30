@@ -122,11 +122,11 @@ export default function RaffleControl() {
     doc.setFillColor(bg);
     doc.rect(0, 0, 210, 40, 'F');
 
-    const drawContent = (logoDataUrl) => {
-      if (logoDataUrl) {
+    const drawContent = (logoDataUrl, logoNatW = 0, logoNatH = 1) => {
+      if (logoDataUrl && logoNatH > 0) {
         try {
-          const img = new Image(); img.src = logoDataUrl;
-          const logoH = 18; const logoW = Math.min((img.naturalWidth / img.naturalHeight) * logoH || logoH, 50);
+          const logoH = 18;
+          const logoW = Math.min((logoNatW / logoNatH) * logoH, 60);
           doc.addImage(logoDataUrl, 'PNG', 196 - logoW, 6, logoW, logoH);
         } catch {}
       }
@@ -159,7 +159,7 @@ export default function RaffleControl() {
           const canvas = document.createElement('canvas');
           canvas.width = img.width; canvas.height = img.height;
           canvas.getContext('2d').drawImage(img, 0, 0);
-          drawContent(canvas.toDataURL('image/png'));
+          drawContent(canvas.toDataURL('image/png'), img.width, img.height);
         } catch { drawContent(null); }
       };
       img.onerror = () => drawContent(null);
