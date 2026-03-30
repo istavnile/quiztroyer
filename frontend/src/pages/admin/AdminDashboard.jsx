@@ -57,9 +57,9 @@ function ScrambledLogo() {
 }
 
 const STATUS_BADGE = {
-  DRAFT:  { label: 'Borrador',     color: 'text-slate-400 bg-slate-700' },
-  LIVE:   { label: '🔴 En vivo',   color: 'text-green-400 bg-green-500/20' },
-  ENDED:  { label: 'Finalizado',   color: 'text-purple-400 bg-purple-500/20' },
+  DRAFT:  { label: 'Borrador',     color: 'text-slate-400 bg-white/5 border border-white/10' },
+  LIVE:   { label: '🔴 En vivo',   color: 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20' },
+  ENDED:  { label: 'Finalizado',   color: 'text-sky-400 bg-sky-500/10 border border-sky-500/20' },
 };
 
 /* ── Modal de confirmación reutilizable ── */
@@ -135,7 +135,7 @@ function QRModal({ url, title, pin, onClose }) {
         )}
         <button
           onClick={openFullscreen}
-          className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
+          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
         >
           <UilExpandAlt size={16} />Proyectar en pantalla
         </button>
@@ -156,7 +156,7 @@ export default function AdminDashboard() {
   const [confirmReset, setConfirmReset]     = useState(null); // { id, name }
   const [deleting, setDeleting]             = useState(false);
   const [showSettings, setShowSettings]   = useState(false);
-  const [siteSettings, setSiteSettings]   = useState({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '', bgEffect: 'blobs' });
+  const [siteSettings, setSiteSettings]   = useState({ blob1Color: '#3b82f6', blob2Color: '#06b6d4', blob3Color: '#6366f1', homeBgColor: '#09090f', homeButtonColor: '#3b82f6', logoUrl: '', bgEffect: 'blobs' });
   const [savingSettings, setSavingSettings] = useState(false);
   const [showAdmins, setShowAdmins]       = useState(false);
   const [adminList, setAdminList]         = useState([]);
@@ -570,7 +570,7 @@ export default function AdminDashboard() {
                         onClick={() => setSiteSettings((s) => ({ ...s, bgEffect: key }))}
                         className={`py-2 px-2 rounded-lg text-xs font-medium transition-all text-center ${
                           (siteSettings.bgEffect || 'blobs') === key
-                            ? 'bg-indigo-600 text-white ring-2 ring-indigo-400'
+                            ? 'bg-blue-600 text-white ring-2 ring-blue-400'
                             : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
                         }`}
                       >
@@ -626,7 +626,7 @@ export default function AdminDashboard() {
                         type="text"
                         value={siteSettings[key] || '#6366f1'}
                         onChange={(e) => setSiteSettings((s) => ({ ...s, [key]: e.target.value }))}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500 mt-0.5"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 mt-0.5"
                       />
                     </div>
                   </div>
@@ -644,7 +644,7 @@ export default function AdminDashboard() {
                   type="button"
                   onClick={saveSiteSettings}
                   disabled={savingSettings}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all text-sm"
+                  className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all text-sm"
                 >
                   {savingSettings ? 'Guardando...' : <span className="flex items-center justify-center gap-1.5"><UilSave size={16} />Guardar</span>}
                 </button>
@@ -665,10 +665,10 @@ export default function AdminDashboard() {
               <form onSubmit={handleChangePassword} className="space-y-3">
                 <input type="password" placeholder="Contraseña actual" value={changePassForm.current}
                   onChange={(e) => setChangePassForm((f) => ({ ...f, current: e.target.value }))}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm" />
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
                 <input type="password" placeholder="Nueva contraseña (mín. 6 chars)" value={changePassForm.next}
                   onChange={(e) => setChangePassForm((f) => ({ ...f, next: e.target.value }))}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm" />
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
                 {changePassError && <p className="text-red-400 text-xs">{changePassError}</p>}
                 {changePassOk    && <p className="text-green-400 text-xs">✓ Contraseña actualizada</p>}
                 <div className="flex gap-3 pt-1">
@@ -677,7 +677,7 @@ export default function AdminDashboard() {
                     Cancelar
                   </button>
                   <button type="submit" disabled={savingPass || !changePassForm.current || changePassForm.next.length < 6}
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all text-sm">
+                    className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all text-sm">
                     {savingPass ? 'Guardando...' : 'Guardar'}
                   </button>
                 </div>
@@ -701,7 +701,7 @@ export default function AdminDashboard() {
               {/* Existing admins */}
               <div className="flex-1 overflow-y-auto space-y-2 mb-4">
                 {loadingAdmins ? (
-                  <div className="flex justify-center py-4"><div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>
+                  <div className="flex justify-center py-4"><div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>
                 ) : adminList.map((a) => (
                   <div key={a.id} className="flex items-center gap-3 bg-slate-800 rounded-xl px-3 py-2.5">
                     <div className="flex-1 min-w-0">
@@ -725,17 +725,17 @@ export default function AdminDashboard() {
                   <div className="flex gap-2">
                     <input type="text" placeholder="Usuario" value={newAdmin.username}
                       onChange={(e) => setNewAdmin((f) => ({ ...f, username: e.target.value }))}
-                      className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm" />
+                      className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
                     <input type="email" placeholder="Email (opc.)" value={newAdmin.email}
                       onChange={(e) => setNewAdmin((f) => ({ ...f, email: e.target.value }))}
-                      className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm" />
+                      className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
                   </div>
                   <input type="password" placeholder="Contraseña" value={newAdmin.password}
                     onChange={(e) => setNewAdmin((f) => ({ ...f, password: e.target.value }))}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm" />
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
                   {adminError && <p className="text-red-400 text-xs">{adminError}</p>}
                   <button type="submit" disabled={creatingAdmin || !newAdmin.username || !newAdmin.password}
-                    className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-2 rounded-xl font-bold transition-all text-sm">
+                    className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-2 rounded-xl font-bold transition-all text-sm">
                     {creatingAdmin ? 'Creando...' : '+ Crear admin'}
                   </button>
                 </form>
@@ -870,7 +870,7 @@ export default function AdminDashboard() {
               <div className="flex-1 overflow-y-auto">
                 {loadingResults ? (
                   <div className="flex justify-center py-10">
-                    <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                   </div>
                 ) : results.length === 0 ? (
                   <div className="text-center py-10 text-slate-600">
@@ -916,39 +916,48 @@ export default function AdminDashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <ScrambledLogo />
-            <p className="text-slate-400 text-sm mt-1">Panel de Administrador</p>
+            <p className="text-slate-500 text-sm mt-0.5 tracking-wide">Panel de Administrador</p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {/* Icon buttons */}
-            <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Utility group */}
+            <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.07] rounded-2xl p-1">
               <button onClick={() => { setShowChangePass(true); setChangePassError(''); setChangePassOk(false); }}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-400 p-2 rounded-xl transition-all" title="Cambiar contraseña"><UilKeySkeleton size={18} /></button>
+                className="text-slate-500 hover:text-slate-200 hover:bg-white/10 p-2 rounded-xl transition-all" title="Cambiar contraseña">
+                <UilKeySkeleton size={17} />
+              </button>
               <button onClick={() => { setShowAdmins(true); loadAdmins(); setAdminError(''); }}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-400 p-2 rounded-xl transition-all" title="Gestionar admins"><UilUsersAlt size={18} /></button>
+                className="text-slate-500 hover:text-slate-200 hover:bg-white/10 p-2 rounded-xl transition-all" title="Gestionar admins">
+                <UilUsersAlt size={17} />
+              </button>
               <button onClick={() => setShowSettings(true)}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-400 p-2 rounded-xl transition-all" title="Personalizar"><UilPalette size={18} /></button>
+                className="text-slate-500 hover:text-slate-200 hover:bg-white/10 p-2 rounded-xl transition-all" title="Personalizar">
+                <UilPalette size={17} />
+              </button>
+              <div className="w-px h-4 bg-white/10 mx-0.5" />
               <button onClick={handleLogout}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5"><UilSignout size={16} />Salir</button>
+                className="text-slate-500 hover:text-slate-200 hover:bg-white/10 px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
+                <UilSignout size={15} />Salir
+              </button>
             </div>
-            {/* Action buttons */}
-            <div className="flex gap-2">
+            {/* Action group */}
+            <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.07] rounded-2xl p-1">
               <button onClick={() => setShowArchived((v) => !v)}
-                className={`px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5 ${showArchived ? 'bg-slate-600 text-white' : 'bg-slate-800 hover:bg-slate-700 text-slate-400'}`}
+                className={`px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5 ${showArchived ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-200 hover:bg-white/10'}`}
                 title="Mostrar archivados">
-                <UilArchive size={16} />{showArchived ? 'Ocultar archivados' : 'Archivados'}
+                <UilArchive size={15} />Archivados
               </button>
               <button onClick={() => { setShowExportModal(true); setExportSelection(new Set()); }}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5"
-                title="Exportar sorteos">
-                <UilFileDownloadAlt size={16} />Exportar
+                className="text-slate-500 hover:text-slate-200 hover:bg-white/10 px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
+                <UilFileDownloadAlt size={15} />Exportar
               </button>
+              <div className="w-px h-4 bg-white/10 mx-0.5" />
               <button onClick={() => { setShowCreate(true); setCreateError(''); setForm({ name: '', slug: '', pin: '' }); }}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
-                <UilPlus size={16} />Desafío
+                className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
+                <UilPlus size={15} />Desafío
               </button>
               <button onClick={() => { setShowCreateRaffle(true); setRaffleError(''); setRaffleForm({ name: '', slug: '', pin: '' }); }}
-                className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
-                <UilTicket size={16} />Sorteo
+                className="bg-amber-500 hover:bg-amber-400 text-white font-semibold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
+                <UilTicket size={15} />Sorteo
               </button>
             </div>
           </div>
@@ -983,7 +992,7 @@ export default function AdminDashboard() {
                         setForm((f) => ({ ...f, name, slug: autoSlug(name) }));
                       }}
                       placeholder="Mi Quiz Épico"
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                       autoFocus
                     />
@@ -997,7 +1006,7 @@ export default function AdminDashboard() {
                         value={form.slug}
                         onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
                         placeholder="mi-quiz-epico"
-                        className="flex-1 bg-slate-800 border border-slate-600 rounded-r-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="flex-1 bg-slate-800 border border-slate-600 rounded-r-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         required
                       />
                     </div>
@@ -1010,7 +1019,7 @@ export default function AdminDashboard() {
                       onChange={(e) => setForm((f) => ({ ...f, pin: e.target.value }))}
                       placeholder="1234"
                       maxLength={8}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 tracking-widest text-center text-xl"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-widest text-center text-xl"
                       required
                     />
                   </div>
@@ -1030,7 +1039,7 @@ export default function AdminDashboard() {
                     <button
                       type="submit"
                       disabled={creating || !form.name || !form.slug || !form.pin}
-                      className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all"
+                      className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all"
                     >
                       {creating ? 'Creando...' : 'Crear →'}
                     </button>
@@ -1139,37 +1148,37 @@ export default function AdminDashboard() {
                     <span className="flex items-center gap-1"><UilUsersAlt size={13} />{r._count?.entries || 0} inscritos</span>
                     <span className="flex items-center gap-1"><UilLock size={13} />{r.pin}</span>
                   </div>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1.5">
                     {/* Primary row */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5">
                       <button onClick={() => navigate(`/admin/raffles/${r.id}/control`)}
-                        className="flex-1 bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5">
-                        <UilDashboard size={16} />Control
+                        className="flex-1 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5">
+                        <UilDashboard size={15} />Control
                       </button>
                       <button
                         onClick={() => setQrModal({ url: `${window.location.origin}/sorteo/${r.slug}`, title: r.name, pin: r.pin })}
-                        className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">
-                        <UilQrcodeScan size={16} />
+                        className="bg-white/5 hover:bg-white/10 text-slate-400 p-2.5 rounded-xl transition-all border border-white/8" title="Ver QR">
+                        <UilQrcodeScan size={15} />
                       </button>
                       <button onClick={() => handleArchiveRaffle(r.id, true)}
-                        className="bg-slate-700/50 hover:bg-slate-600 text-slate-400 p-2 rounded-xl transition-all" title="Archivar">
-                        <UilArchive size={16} />
+                        className="bg-white/5 hover:bg-white/10 text-slate-500 p-2.5 rounded-xl transition-all border border-white/8" title="Archivar">
+                        <UilArchive size={15} />
                       </button>
                       <button onClick={() => handleDeleteRaffle(r.id, r.name)}
-                        className="bg-red-500/15 hover:bg-red-500/30 text-red-400 p-2 rounded-xl transition-all" title="Eliminar">
-                        <UilTrashAlt size={16} />
+                        className="bg-red-500/8 hover:bg-red-500/20 text-red-500 p-2.5 rounded-xl transition-all border border-red-500/10" title="Eliminar">
+                        <UilTrashAlt size={15} />
                       </button>
                     </div>
                     {/* Export row */}
                     {r._count?.entries > 0 && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-1.5">
                         <button onClick={() => exportRaffleCSV(r.id, r.name)}
-                          className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-600/15 hover:bg-emerald-600/30 text-emerald-400 text-xs font-bold py-1.5 rounded-xl transition-all">
-                          <UilFileAlt size={13} />Exportar CSV
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-medium py-2 rounded-xl transition-all border border-emerald-500/10">
+                          <UilFileAlt size={13} />CSV
                         </button>
                         <button onClick={() => exportRafflePDF(r.id, r.name)}
-                          className="flex-1 flex items-center justify-center gap-1.5 bg-red-600/15 hover:bg-red-600/30 text-red-400 text-xs font-bold py-1.5 rounded-xl transition-all">
-                          <UilFileDownloadAlt size={13} />Exportar PDF
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-xs font-medium py-2 rounded-xl transition-all border border-sky-500/10">
+                          <UilFileDownloadAlt size={13} />PDF
                         </button>
                       </div>
                     )}
@@ -1197,7 +1206,7 @@ export default function AdminDashboard() {
                   </div>
                   <button
                     onClick={() => item._type === 'raffle' ? handleArchiveRaffle(item.id, false) : handleArchiveChallenge(item.id, false)}
-                    className="shrink-0 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 text-xs font-bold px-3 py-1.5 rounded-xl transition-all whitespace-nowrap"
+                    className="shrink-0 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 text-xs font-bold px-3 py-1.5 rounded-xl transition-all whitespace-nowrap"
                   >
                     Restaurar
                   </button>
@@ -1212,7 +1221,7 @@ export default function AdminDashboard() {
         {/* Challenges grid */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : challenges.length === 0 ? (
           <motion.div
@@ -1225,7 +1234,7 @@ export default function AdminDashboard() {
             <p className="text-slate-400 mb-6">Crea tu primer quiz para comenzar</p>
             <button
               onClick={() => setShowCreate(true)}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-xl transition-all"
+              className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl transition-all"
             >
               + Crear primer desafío
             </button>
@@ -1258,48 +1267,48 @@ export default function AdminDashboard() {
                     <span className="flex items-center gap-1"><UilLock size={13} />{c.pin}</span>
                   </div>
 
-                  <div className="flex flex-col gap-2 pt-1">
+                  <div className="flex flex-col gap-1.5 pt-1">
                     {/* Primary actions */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5">
                       <button
                         onClick={() => navigate(`/admin/challenges/${c.id}/edit`)}
-                        className="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium py-2 rounded-xl transition-all"
+                        className="flex-1 bg-white/8 hover:bg-white/14 text-slate-300 text-sm font-medium py-2.5 rounded-xl transition-all border border-white/8"
                       >
                         Editar
                       </button>
                       {c.status !== 'ENDED' && (
                         <button
                           onClick={() => navigate(`/admin/challenges/${c.id}/live`)}
-                          className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5"
+                          className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5"
                         >
-                          <UilPlay size={15} />Live
+                          <UilPlay size={14} />Live
                         </button>
                       )}
                       {c.status === 'ENDED' && (
                         <button
                           onClick={() => setConfirmReset({ id: c.id, name: c.name })}
-                          className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5"
+                          className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5"
                           title="Reiniciar para jugar de nuevo"
                         >
-                          <UilRefresh size={15} />Reiniciar
+                          <UilRefresh size={14} />Reiniciar
                         </button>
                       )}
                     </div>
                     {/* Secondary icon actions */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5">
                       {c._count?.sessions > 0 && (
                         <button
                           onClick={() => { setResultsChallenge({ id: c.id, name: c.name }); loadResults(c.id); }}
-                          className="flex-1 flex items-center justify-center bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 py-2 rounded-xl transition-all"
+                          className="flex-1 flex items-center justify-center bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 py-2 rounded-xl transition-all border border-emerald-500/10"
                           title="Ver resultados"
                         >
-                          <UilChartBar size={16} />
+                          <UilChartBar size={15} />
                         </button>
                       )}
                       {c._count?.sessions > 0 && (
                         <button
                           onClick={() => window.open(`/hof/${c.slug}`, '_blank', 'noopener')}
-                          className="flex-1 flex items-center justify-center bg-yellow-500/15 hover:bg-yellow-500/30 text-yellow-400 py-2 rounded-xl transition-all"
+                          className="flex-1 flex items-center justify-center bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 py-2 rounded-xl transition-all border border-amber-500/10"
                           title="Hall of Fame"
                         >
                           🏆
@@ -1307,22 +1316,22 @@ export default function AdminDashboard() {
                       )}
                       <button
                         onClick={() => setQrModal({ url: `${window.location.origin}/join/${c.slug}`, title: c.name, pin: c.pin })}
-                        className="flex-1 flex items-center justify-center bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 rounded-xl transition-all" title="Ver QR">
-                        <UilQrcodeScan size={16} />
+                        className="flex-1 flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-400 py-2 rounded-xl transition-all border border-white/8" title="Ver QR">
+                        <UilQrcodeScan size={15} />
                       </button>
                       <button
                         onClick={() => handleArchiveChallenge(c.id, true)}
-                        className="flex-1 flex items-center justify-center bg-slate-700/50 hover:bg-slate-600 text-slate-400 py-2 rounded-xl transition-all"
+                        className="flex-1 flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-500 py-2 rounded-xl transition-all border border-white/8"
                         title="Archivar"
                       >
-                        <UilArchive size={16} />
+                        <UilArchive size={15} />
                       </button>
                       <button
                         onClick={() => setConfirmDelete({ id: c.id, name: c.name })}
-                        className="flex-1 flex items-center justify-center bg-red-500/15 hover:bg-red-500/30 text-red-400 py-2 rounded-xl transition-all"
+                        className="flex-1 flex items-center justify-center bg-red-500/8 hover:bg-red-500/20 text-red-500 py-2 rounded-xl transition-all border border-red-500/10"
                         title="Eliminar"
                       >
-                        <UilTrashAlt size={16} />
+                        <UilTrashAlt size={15} />
                       </button>
                     </div>
                   </div>
