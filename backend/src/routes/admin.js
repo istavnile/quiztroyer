@@ -49,9 +49,11 @@ router.post('/login', async (req, res) => {
 
 // --- CHALLENGES CRUD ---
 
-// GET /api/admin/challenges
+// GET /api/admin/challenges?archived=true
 router.get('/challenges', requireAdmin, async (req, res) => {
+  const archived = req.query.archived === 'true';
   const challenges = await prisma.challenge.findMany({
+    where: { archived },
     orderBy: { createdAt: 'desc' },
     include: { _count: { select: { questions: true, sessions: true } } },
   });
@@ -112,6 +114,17 @@ router.delete('/challenges/:id', requireAdmin, async (req, res) => {
     console.error('Delete challenge error:', e.message);
     res.status(500).json({ error: e.message });
   }
+});
+
+// PATCH /api/admin/challenges/:id/archive
+router.patch('/challenges/:id/archive', requireAdmin, async (req, res) => {
+  const { archived } = req.body;
+  const updated = await prisma.challenge.update({
+    where: { id: req.params.id },
+    data: { archived: Boolean(archived) },
+    select: { id: true, archived: true },
+  });
+  res.json(updated);
 });
 
 // POST /api/admin/challenges/:id/reset — reset for replay, keep history

@@ -71,13 +71,26 @@ router.post('/:slug/enter', async (req, res) => {
 
 // ── ADMIN ────────────────────────────────────────────────────────────────────
 
-// GET /api/raffle/admin/list
+// GET /api/raffle/admin/list?archived=true
 router.get('/admin/list', requireAdmin, async (req, res) => {
+  const archived = req.query.archived === 'true';
   const raffles = await prisma.raffle.findMany({
+    where: { archived },
     orderBy: { createdAt: 'desc' },
     include: { _count: { select: { entries: true } } },
   });
   res.json(raffles);
+});
+
+// PATCH /api/raffle/admin/:id/archive
+router.patch('/admin/:id/archive', requireAdmin, async (req, res) => {
+  const { archived } = req.body;
+  const updated = await prisma.raffle.update({
+    where: { id: req.params.id },
+    data: { archived: Boolean(archived) },
+    select: { id: true, archived: true },
+  });
+  res.json(updated);
 });
 
 // POST /api/raffle/admin/create

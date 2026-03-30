@@ -8,7 +8,7 @@ import {
   UilKeySkeleton, UilUsersAlt, UilPalette, UilSignout,
   UilPlus, UilTicket, UilBullseye, UilPlay,
   UilTrashAlt, UilChartBar, UilFileAlt, UilSave,
-  UilUpload, UilExclamationTriangle, UilDashboard, UilLock, UilRefresh,
+  UilUpload, UilExclamationTriangle, UilDashboard, UilLock, UilRefresh, UilArchive,
   UilQrcodeScan, UilExpandAlt, UilTimesCircle,
 } from '@iconscout/react-unicons';
 
@@ -176,6 +176,9 @@ export default function AdminDashboard() {
   const [creatingRaffle, setCreatingRaffle] = useState(false);
   const [raffleError, setRaffleError]       = useState('');
   const [qrModal, setQrModal]               = useState(null); // { url, title }
+  const [showArchived, setShowArchived]     = useState(false);
+  const [archivedChallenges, setArchivedChallenges] = useState([]);
+  const [archivedRaffles, setArchivedRaffles]       = useState([]);
   const currentUsername = localStorage.getItem('qt_admin_username') || 'admin';
 
   useEffect(() => { loadChallenges(); loadRaffles(); }, []);
@@ -184,12 +187,40 @@ export default function AdminDashboard() {
     api.get('/settings').then((r) => setSiteSettings(r.data)).catch(() => {});
   }, []);
 
+  useEffect(() => {
+    if (showArchived) {
+      api.get('/admin/challenges?archived=true').then((r) => setArchivedChallenges(r.data)).catch(() => {});
+      api.get('/raffle/admin/list?archived=true').then((r) => setArchivedRaffles(r.data)).catch(() => {});
+    }
+  }, [showArchived]);
+
   async function loadChallenges() {
     try {
       const res = await api.get('/admin/challenges');
       setChallenges(res.data);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleArchiveChallenge(id, archive) {
+    await api.patch(`/admin/challenges/${id}/archive`, { archived: archive });
+    if (archive) {
+      setChallenges((p) => p.filter((c) => c.id !== id));
+      setArchivedChallenges((p) => [...p]); // trigger re-fetch on next open
+    } else {
+      setArchivedChallenges((p) => p.filter((c) => c.id !== id));
+      loadChallenges();
+    }
+  }
+
+  async function handleArchiveRaffle(id, archive) {
+    await api.patch(`/raffle/admin/${id}/archive`, { archived: archive });
+    if (archive) {
+      setRaffles((p) => p.filter((r) => r.id !== id));
+    } else {
+      setArchivedRaffles((p) => p.filter((r) => r.id !== id));
+      loadRaffles();
     }
   }
 
@@ -661,6 +692,11 @@ export default function AdminDashboard() {
             </div>
             {/* Action buttons */}
             <div className="flex gap-2">
+              <button onClick={() => setShowArchived((v) => !v)}
+                className={`px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5 ${showArchived ? 'bg-slate-600 text-white' : 'bg-slate-800 hover:bg-slate-700 text-slate-400'}`}
+                title="Mostrar archivados">
+                <UilArchive size={16} />{showArchived ? 'Ocultar archivados' : 'Archivados'}
+              </button>
               <button onClick={() => { setShowCreate(true); setCreateError(''); setForm({ name: '', slug: '', pin: '' }); }}
                 className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
                 <UilPlus size={16} />Desafío
@@ -844,9 +880,39 @@ export default function AdminDashboard() {
                       className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">
                       <UilQrcodeScan size={16} />
                     </button>
+                    <button onClick={() => handleArchiveRaffle(r.id, true)}
+                      className="bg-slate-700/50 hover:bg-slate-600 text-slate-400 p-2 rounded-xl transition-all" title="Archivar">
+                      <UilArchive size={16} /></button>
                     <button onClick={() => handleDeleteRaffle(r.id, r.name)}
                       className="bg-red-500/15 hover:bg-red-500/30 text-red-400 p-2 rounded-xl transition-all"><UilTrashAlt size={16} /></button>
                   </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Archived section */}
+        {showArchived && (archivedRaffles.length > 0 || archivedChallenges.length > 0) && (
+          <div className="mb-8">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <UilArchive size={14} />Archivados
+            </h2>
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {[...archivedRaffles.map((r) => ({ ...r, _type: 'raffle' })), ...archivedChallenges.map((c) => ({ ...c, _type: 'challenge' }))].map((item, i) => (
+                <motion.div key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+                  className="rounded-2xl p-4 flex items-center justify-between gap-3 border border-slate-700/50"
+                  style={{ background: 'rgba(255,255,255,0.03)' }}>
+                  <div className="min-w-0">
+                    <p className="text-slate-400 font-semibold text-sm truncate">{item.name}</p>
+                    <p className="text-slate-600 text-xs">{item._type === 'raffle' ? '🎟 Sorteo' : '🎯 Desafío'} · {item._type === 'raffle' ? `/sorteo/${item.slug}` : `/${item.slug}`}</p>
+                  </div>
+                  <button
+                    onClick={() => item._type === 'raffle' ? handleArchiveRaffle(item.id, false) : handleArchiveChallenge(item.id, false)}
+                    className="shrink-0 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 text-xs font-bold px-3 py-1.5 rounded-xl transition-all whitespace-nowrap"
+                  >
+                    Restaurar
+                  </button>
                 </motion.div>
               ))}
             </div>
@@ -950,6 +1016,13 @@ export default function AdminDashboard() {
                       onClick={() => setQrModal({ url: `${window.location.origin}/join/${c.slug}`, title: c.name, pin: c.pin })}
                       className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">
                       <UilQrcodeScan size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleArchiveChallenge(c.id, true)}
+                      className="bg-slate-700/50 hover:bg-slate-600 text-slate-400 p-2 rounded-xl transition-all"
+                      title="Archivar"
+                    >
+                      <UilArchive size={16} />
                     </button>
                     <button
                       onClick={() => setConfirmDelete({ id: c.id, name: c.name })}
