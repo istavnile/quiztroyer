@@ -187,7 +187,7 @@ export default function RaffleControl() {
         <span className="font-bold truncate">{raffle.name}</span>
         <button
           onClick={() => window.open(`${window.location.origin}/display/raffle/${raffle.slug}`, '_blank')}
-          className="ml-auto flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm px-3 py-1.5 rounded-xl transition-all"
+          className="ml-auto flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-1.5 rounded-xl transition-all"
           title="Abrir pantalla de proyección"
         >
           <UilDesktop size={15} />Pantalla
@@ -199,7 +199,7 @@ export default function RaffleControl() {
         {/* Status & participant count */}
         <div className="grid grid-cols-2 gap-3">
           <div className="glass rounded-xl p-4 text-center">
-            <p className="text-3xl font-black text-indigo-400">{participantCount}</p>
+            <p className="text-3xl font-black text-blue-400">{participantCount}</p>
             <p className="text-slate-400 text-sm">Participantes</p>
           </div>
           <div className="glass rounded-xl p-4 text-center">
@@ -213,7 +213,7 @@ export default function RaffleControl() {
           <div className="glass rounded-xl p-5 text-center">
             <p className="text-slate-400 text-sm mb-3">El sorteo está cerrado. Ábrelo para que los participantes puedan inscribirse.</p>
             <button onClick={openRaffle}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-xl transition-all">
+              className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl transition-all">
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-400 inline-block" />Abrir sorteo</span>
             </button>
           </div>
@@ -223,7 +223,7 @@ export default function RaffleControl() {
         {raffle.status === 'OPEN' && (
           <div className="glass rounded-xl p-4">
             <p className="text-xs text-slate-500 mb-1">Link de inscripción</p>
-            <p className="text-indigo-400 text-sm break-all font-mono">{window.location.origin}/sorteo/{raffle.slug}</p>
+            <p className="text-blue-400 text-sm break-all font-mono">{window.location.origin}/sorteo/{raffle.slug}</p>
             <p className="text-xs text-slate-500 mt-1">PIN: <span className="text-white font-bold">{raffle.pin}</span></p>
           </div>
         )}
@@ -242,7 +242,7 @@ export default function RaffleControl() {
               disabled={spinning || spinsDone >= 3 || participantCount === 0}
               whileTap={{ scale: 0.95 }}
               className={`w-full py-5 rounded-2xl font-black text-xl transition-all disabled:opacity-40
-                ${spinsDone === 2 ? 'bg-yellow-500 hover:bg-yellow-400 text-black' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}
+                ${spinsDone === 2 ? 'bg-yellow-500 hover:bg-yellow-400 text-black' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}
             >
               {spinning
                 ? <span className="flex items-center justify-center gap-2"><UilRefresh size={18} className="animate-spin" />Girando...</span>
@@ -294,7 +294,7 @@ export default function RaffleControl() {
               {branding.logoUrl && (
                 <img src={branding.logoUrl} alt="logo" className="h-10 object-contain rounded bg-slate-800 p-1" />
               )}
-              <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded-lg transition-all">
+              <label className="cursor-pointer bg-white/5 hover:bg-white/10 text-slate-300 text-xs px-3 py-2 rounded-lg transition-all">
                 <span className="flex items-center gap-1.5"><UilUpload size={13} />Subir logo</span>
                 <input type="file" accept="image/*" className="hidden" onChange={uploadLogo} />
               </label>
@@ -328,7 +328,7 @@ export default function RaffleControl() {
           </div>
 
           <button onClick={saveBranding} disabled={brandingSaving}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-bold py-2 rounded-lg transition-all">
+            className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-bold py-2 rounded-lg transition-all">
             {brandingSaving ? 'Guardando...' : <span className="flex items-center justify-center gap-1.5"><UilSave size={16} />Guardar branding</span>}
           </button>
         </div>

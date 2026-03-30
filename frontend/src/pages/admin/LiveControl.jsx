@@ -52,9 +52,9 @@ export default function LiveControl() {
 
   if (!adminReady) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-slate-400">Conectando al servidor de juego...</p>
         </div>
       </div>
@@ -62,7 +62,7 @@ export default function LiveControl() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-4">
+    <div className="min-h-screen bg-slate-950 p-4">
       {/* Top bar */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -80,14 +80,14 @@ export default function LiveControl() {
         <div className="flex gap-2">
           <button
             onClick={() => window.open(`${window.location.origin}/display/challenge/${challengeData?.slug}`, '_blank')}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm px-3 py-2 rounded-xl transition-all"
+            className="bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-2 rounded-xl transition-all"
             title="Abrir pantalla de proyección"
           >
             <span className="flex items-center gap-1.5"><UilDesktop size={15} />Pantalla</span>
           </button>
           <button
             onClick={copyJoinLink}
-            className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm px-3 py-2 rounded-xl transition-all"
+            className="bg-white/5 hover:bg-white/10 text-slate-300 text-sm px-3 py-2 rounded-xl transition-all"
           >
             <span className="flex items-center gap-1.5"><UilLink size={15} />Copiar link</span>
           </button>
@@ -135,7 +135,7 @@ export default function LiveControl() {
 
                   <div className="bg-slate-800 rounded-xl p-3 mb-6 text-sm font-mono text-slate-300">
                     {window.location.origin}/join/{challengeData?.slug}
-                    <span className="ml-3 text-indigo-400">PIN: {challengeData?.pin}</span>
+                    <span className="ml-3 text-blue-400">PIN: {challengeData?.pin}</span>
                   </div>
 
                   <motion.button
@@ -143,7 +143,7 @@ export default function LiveControl() {
                     whileTap={{ scale: 0.97 }}
                     onClick={hostStart}
                     disabled={totalSlides === 0}
-                    className="bg-green-500 hover:bg-green-400 disabled:opacity-40 text-white font-black text-xl px-10 py-5 rounded-2xl transition-all glow-green shadow-xl"
+                    className="bg-green-500 hover:bg-green-400 disabled:opacity-40 text-white font-bold text-xl px-10 py-5 rounded-2xl transition-all glow-green shadow-xl"
                   >
                     <span className="flex items-center gap-2"><UilRocket size={22} />Iniciar Desafío</span>
                   </motion.button>
@@ -175,9 +175,9 @@ export default function LiveControl() {
                       <span>Respuestas recibidas</span>
                       <span>{answeredCount} / {playerCount}</span>
                     </div>
-                    <div className="bg-slate-800 rounded-full h-3 overflow-hidden">
+                    <div className="bg-white/8 rounded-full h-3 overflow-hidden">
                       <motion.div
-                        className="h-full bg-indigo-500 rounded-full"
+                        className="h-full bg-blue-500 rounded-full"
                         initial={{ width: 0 }}
                         animate={{ width: playerCount > 0 ? `${(answeredCount / playerCount) * 100}%` : '0%' }}
                         transition={{ type: 'spring' }}
@@ -189,14 +189,14 @@ export default function LiveControl() {
                     <motion.button
                       whileTap={{ scale: 0.97 }}
                       onClick={hostRanking}
-                      className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-xl transition-all"
+                      className="flex-1 bg-white/8 hover:bg-white/14 text-white font-bold py-4 rounded-xl transition-all"
                     >
                       <span className="flex items-center justify-center gap-1.5"><UilChartBar size={18} />Ver Ranking</span>
                     </motion.button>
                     <motion.button
                       whileTap={{ scale: 0.97 }}
                       onClick={hostNext}
-                      className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl transition-all text-lg"
+                      className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-4 rounded-xl transition-all text-lg"
                     >
                       {isLastSlide
                         ? <span className="flex items-center justify-center gap-1.5"><UilStopCircle size={20} />Terminar</span>
@@ -216,17 +216,17 @@ export default function LiveControl() {
                   <h2 className="text-xl font-bold text-white mb-4 flex items-center justify-center gap-2"><UilChartBar size={20} />Mostrando Ranking</h2>
                   <div className="space-y-2 mb-6 text-left">
                     {ranking.slice(0, 5).map((p, i) => (
-                      <div key={p.id} className="flex items-center gap-3 bg-slate-800 rounded-xl px-4 py-2">
+                      <div key={p.id} className="flex items-center gap-3 bg-white/5 border border-white/8 rounded-xl px-4 py-2">
                         <span className="text-sm font-black text-slate-400 w-5 text-center">#{i + 1}</span>
                         <span className="flex-1 text-white text-sm font-medium">{p.playerName}</span>
-                        <span className="text-indigo-400 font-bold text-sm">{p.totalScore?.toLocaleString()}</span>
+                        <span className="text-blue-400 font-bold text-sm">{p.totalScore?.toLocaleString()}</span>
                       </div>
                     ))}
                   </div>
                   <motion.button
                     whileTap={{ scale: 0.97 }}
                     onClick={hostNext}
-                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-xl text-lg transition-all"
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-4 rounded-xl text-lg transition-all"
                   >
                     {isLastSlide
                       ? <span className="flex items-center justify-center gap-2"><UilStopCircle size={20} />Finalizar Desafío</span>
@@ -249,13 +249,13 @@ export default function LiveControl() {
                       <div key={i} className="flex items-center gap-3 bg-slate-800 rounded-xl px-4 py-3">
                         <span className="text-sm font-black text-slate-400 w-5 text-center">#{i + 1}</span>
                         <span className="flex-1 text-white font-bold">{p.name}</span>
-                        <span className="text-indigo-400 font-black">{p.score?.toLocaleString()}</span>
+                        <span className="text-blue-400 font-black">{p.score?.toLocaleString()}</span>
                       </div>
                     ))}
                   </div>
                   <button
                     onClick={() => navigate('/admin')}
-                    className="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 rounded-xl transition-all"
+                    className="w-full bg-white/8 hover:bg-white/14 text-white font-medium py-3 rounded-xl transition-all"
                   >
                     ← Volver al panel
                   </button>
@@ -274,7 +274,7 @@ export default function LiveControl() {
                 <div key={p.id} className="flex items-center gap-2 text-sm">
                   <span className="text-slate-500 w-5 text-xs font-bold">#{i + 1}</span>
                   <span className="flex-1 text-white truncate">{p.playerName}</span>
-                  <span className="text-indigo-400 font-bold text-xs">{p.totalScore?.toLocaleString()}</span>
+                  <span className="text-blue-400 font-bold text-xs">{p.totalScore?.toLocaleString()}</span>
                 </div>
               ))}
               {ranking.length === 0 && (
@@ -290,7 +290,7 @@ export default function LiveControl() {
                 <div
                   key={q.id}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-all ${
-                    i === slideIndex ? 'bg-indigo-500/20 text-indigo-400' : 'text-slate-500'
+                    i === slideIndex ? 'bg-blue-500/20 text-blue-400' : 'text-slate-500'
                   }`}
                 >
                   <span>{TYPE_ICONS[q.type]}</span>

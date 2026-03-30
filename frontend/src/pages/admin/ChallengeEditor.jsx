@@ -39,8 +39,8 @@ function SortableQuestion({ q, onEdit, onDelete, isEditing }) {
       style={style}
       onClick={() => onEdit(q)}
       className={`glass rounded-lg p-2.5 flex items-start gap-2 group cursor-pointer transition-all
-        ${isDragging ? 'shadow-xl ring-2 ring-indigo-500' : ''}
-        ${isEditing ? 'ring-2 ring-indigo-500 bg-indigo-500/10' : 'hover:bg-white/5'}
+        ${isDragging ? 'shadow-xl ring-2 ring-blue-500' : ''}
+        ${isEditing ? 'ring-2 ring-blue-500 bg-blue-500/10' : 'hover:bg-white/5'}
       `}
     >
       <div
@@ -136,7 +136,7 @@ function PosSlider({ label, value, onChange }) {
       <span className="text-xs text-slate-500 w-20 shrink-0">{label} <span className="text-slate-400">{value}%</span></span>
       <input type="range" min={0} max={100} value={value}
         onChange={(e) => onChange(parseInt(e.target.value))}
-        className="flex-1 accent-indigo-500" />
+        className="flex-1 accent-blue-500" />
     </div>
   );
 }
@@ -171,11 +171,11 @@ function BannerSection({ title, prefix, branding, setBranding, defaultHeight }) 
         <div className="flex rounded-lg overflow-hidden border border-slate-700 text-xs">
           <button type="button"
             onClick={() => setBranding((b) => ({ ...b, [imageKey]: '' }))}
-            className={`px-3 py-1 transition-all ${mode === 'text' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`px-3 py-1 transition-all ${mode === 'text' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
           >Texto</button>
           <button type="button"
             onClick={() => setBranding((b) => ({ ...b, [imageKey]: b[imageKey] || ' ' }))}
-            className={`px-3 py-1 transition-all ${mode === 'image' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
+            className={`px-3 py-1 transition-all ${mode === 'image' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
           >Imagen</button>
         </div>
       </div>
@@ -185,14 +185,14 @@ function BannerSection({ title, prefix, branding, setBranding, defaultHeight }) 
           <input type="text" value={branding[textKey] || ''}
             onChange={(e) => setBranding((b) => ({ ...b, [textKey]: e.target.value }))}
             placeholder={prefix === 'header' ? 'Nombre del evento' : 'Powered by Quiztroyer'}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
           {prefix === 'header' && (
             <div className="space-y-2">
               <div className="flex gap-2">
                 <input type="text" value={branding.logoUrl || ''}
                   onChange={(e) => setBranding((b) => ({ ...b, logoUrl: e.target.value }))}
                   placeholder="URL del logo (opcional)"
-                  className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                  className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                 <label className="shrink-0 cursor-pointer bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-2 py-1.5 rounded-lg transition-all flex items-center gap-1">
                   📁 Subir
                   <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
@@ -213,12 +213,12 @@ function BannerSection({ title, prefix, branding, setBranding, defaultHeight }) 
                   <div className="flex rounded-lg overflow-hidden border border-slate-700 text-xs">
                     <button type="button"
                       onClick={() => setBranding((b) => ({ ...b, logoPosition: 'left' }))}
-                      className={`px-3 py-1 transition-all ${(branding.logoPosition || 'left') === 'left' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}>
+                      className={`px-3 py-1 transition-all ${(branding.logoPosition || 'left') === 'left' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>
                       ← Izquierda
                     </button>
                     <button type="button"
                       onClick={() => setBranding((b) => ({ ...b, logoPosition: 'right' }))}
-                      className={`px-3 py-1 transition-all ${branding.logoPosition === 'right' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}>
+                      className={`px-3 py-1 transition-all ${branding.logoPosition === 'right' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>
                       Derecha →
                     </button>
                   </div>
@@ -237,8 +237,8 @@ function BannerSection({ title, prefix, branding, setBranding, defaultHeight }) 
           <input type="text" value={branding[imageKey]?.trim() || ''}
             onChange={(e) => setBranding((b) => ({ ...b, [imageKey]: e.target.value }))}
             placeholder={`URL — 1920×${prefix === 'header' ? '160' : '100'}px recomendado`}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-          <label className="flex items-center gap-2 cursor-pointer text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+          <label className="flex items-center gap-2 cursor-pointer text-xs text-blue-400 hover:text-blue-300 transition-colors">
             📁 {uploading ? 'Subiendo...' : 'Subir imagen'}
             <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
           </label>
@@ -260,7 +260,7 @@ function BannerSection({ title, prefix, branding, setBranding, defaultHeight }) 
         <input type="range" min={32} max={200} step={4}
           value={branding[heightKey] || defaultHeight}
           onChange={(e) => setBranding((b) => ({ ...b, [heightKey]: parseInt(e.target.value) }))}
-          className="w-full accent-indigo-500" />
+          className="w-full accent-blue-500" />
       </div>
     </div>
   );
@@ -274,7 +274,7 @@ function ColorField({ label, value, onChange }) {
         <input type="color" value={value} onChange={(e) => onChange(e.target.value)}
           className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 shrink-0" />
         <input type="text" value={value} onChange={(e) => onChange(e.target.value)}
-          className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+          className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-blue-500" />
       </div>
     </div>
   );
@@ -386,17 +386,17 @@ export default function ChallengeEditor() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-slate-950">
 
       {/* ── Top bar ── */}
-      <div className="border-b border-slate-800 px-6 py-4 flex items-center justify-between bg-slate-900/80 backdrop-blur sticky top-0 z-20">
+      <div className="border-b border-slate-800 px-6 py-4 flex items-center justify-between bg-slate-950/80 backdrop-blur sticky top-0 z-20">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate('/admin')} className="text-slate-400 hover:text-white transition-colors">
             ← Admin
@@ -429,7 +429,7 @@ export default function ChallengeEditor() {
             <div className="relative">
               <button
                 onClick={() => setShowAddType(!showAddType)}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all"
+                className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all"
               >
                 + Agregar
               </button>
@@ -490,20 +490,20 @@ export default function ChallengeEditor() {
                   <label className="block text-xs text-slate-400 mb-1">Nombre</label>
                   <input type="text" value={generalForm.name}
                     onChange={(e) => setGeneralForm((f) => ({ ...f, name: e.target.value }))}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div className="flex-1 min-w-[120px]">
                   <label className="block text-xs text-slate-400 mb-1">Slug</label>
                   <input type="text" value={generalForm.slug}
                     onChange={(e) => setGeneralForm((f) => ({ ...f, slug: e.target.value }))}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div className="w-28">
                   <label className="block text-xs text-slate-400 mb-1">PIN</label>
                   <input type="text" value={generalForm.pin}
                     onChange={(e) => setGeneralForm((f) => ({ ...f, pin: e.target.value }))}
                     maxLength={8}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button type="button" onClick={() => setBrandingOpen(true)}
@@ -512,7 +512,7 @@ export default function ChallengeEditor() {
                     <UilPalette size={15} />Branding
                   </button>
                   <button type="submit" disabled={saving}
-                    className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-bold px-3 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5"
+                    className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-bold px-3 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5"
                   >
                     {saving ? '…' : <><UilSave size={15} />Guardar</>}
                   </button>
@@ -578,7 +578,7 @@ export default function ChallengeEditor() {
             <motion.div
               initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 32, stiffness: 320 }}
-              className="fixed right-0 top-0 h-full w-full max-w-md bg-slate-900 border-l border-slate-700 z-50 flex flex-col shadow-2xl"
+              className="fixed right-0 top-0 h-full w-full max-w-md bg-slate-950 border-l border-slate-700 z-50 flex flex-col shadow-2xl"
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700 shrink-0">
                 <h2 className="text-white font-bold flex items-center gap-2"><UilPalette size={18} />Branding</h2>
@@ -603,7 +603,7 @@ export default function ChallengeEditor() {
                     <input type="text" value={branding.logoUrl || ''}
                       onChange={(e) => setBranding((b) => ({ ...b, logoUrl: e.target.value }))}
                       placeholder="https://tu-logo.com/logo.png"
-                      className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                      className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
                     <label className="shrink-0 cursor-pointer bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-2 py-1.5 rounded-lg transition-all flex items-center gap-1 whitespace-nowrap">
                       {uploadingLogo ? '...' : '📁 Subir'}
                       <input type="file" accept="image/*" className="hidden" disabled={uploadingLogo} onChange={async (e) => {
@@ -625,7 +625,7 @@ export default function ChallengeEditor() {
 
               <div className="shrink-0 px-5 py-4 border-t border-slate-700">
                 <button onClick={handleSaveBranding} disabled={saving}
-                  className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
+                  className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
                 >
                   {saving ? 'Guardando...' : <span className="flex items-center justify-center gap-1.5"><UilSave size={16} />Guardar branding</span>}
                 </button>
