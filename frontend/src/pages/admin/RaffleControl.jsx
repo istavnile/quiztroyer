@@ -3,7 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { io } from 'socket.io-client';
 import api from '../../lib/api';
-import { UilCheck, UilRefresh, UilTrophy, UilUpload, UilSave, UilPlay, UilDesktop } from '@iconscout/react-unicons';
+import { UilCheck, UilRefresh, UilTrophy, UilUpload, UilSave, UilPlay, UilDesktop, UilFileAlt, UilFileDownloadAlt } from '@iconscout/react-unicons';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || '';
 
@@ -92,6 +94,95 @@ export default function RaffleControl() {
     fd.append('image', file);
     const res = await api.post('/admin/upload-image', fd);
     setBranding((b) => ({ ...b, logoUrl: res.data.url }));
+  }
+
+  function exportCSV() {
+    if (!raffle?.entries?.length) return;
+    const rows = [
+      ['Nombre', 'Apellido', 'DNI', 'Correo', 'Teléfono', 'Ganador'],
+      ...raffle.entries.map((e) => [e.nombre, e.apellido, e.dni, e.correo, e.telefono, e.isWinner ? 'Sí' : 'No']),
+    ];
+    const csv = rows.map((r) => r.map((v) => `"${v}"`).join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `${raffle.name}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportPDF() {
+    if (!raffle?.entries?.length) return;
+    const doc = new jsPDF();
+    const bg = branding.bgColor || '#080c1a';
+    const primary = branding.primaryColor || '#6366f1';
+
+    // Header background
+    doc.setFillColor(bg);
+    doc.rect(0, 0, 210, 40, 'F');
+
+    // Logo (if exists and is a relative path)
+    const logoUrl = branding.logoUrl ? (branding.logoUrl.startsWith('/') ? window.location.origin + branding.logoUrl : branding.logoUrl) : null;
+
+    const drawContent = () => {
+      // Title
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text(raffle.name, 14, 20);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(180, 180, 200);
+      doc.text(`Participantes: ${raffle.entries.length}  ·  Exportado: ${new Date().toLocaleDateString('es-PE')}`, 14, 30);
+
+      // Accent line
+      const [r, g, b] = hexToRgb(primary);
+      doc.setDrawColor(r, g, b);
+      doc.setLineWidth(0.8);
+      doc.line(14, 38, 196, 38);
+
+      autoTable(doc, {
+        startY: 44,
+        head: [['#', 'Nombre', 'Apellido', 'DNI', 'Correo', 'Teléfono', '']],
+        body: raffle.entries.map((e, i) => [
+          i + 1, e.nombre, e.apellido, e.dni, e.correo, e.telefono,
+          e.isWinner ? 'GANADOR' : '',
+        ]),
+        headStyles: { fillColor: hexToRgb(primary), textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+        bodyStyles: { fontSize: 8, textColor: [40, 40, 60] },
+        alternateRowStyles: { fillColor: [245, 245, 255] },
+        columnStyles: { 0: { cellWidth: 8 }, 6: { textColor: hexToRgb(primary), fontStyle: 'bold' } },
+        margin: { left: 14, right: 14 },
+      });
+
+      doc.save(`${raffle.name}.pdf`);
+    };
+
+    if (logoUrl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width; canvas.height = img.height;
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          const dataUrl = canvas.toDataURL('image/png');
+          const logoH = 18; const logoW = (img.width / img.height) * logoH;
+          doc.addImage(dataUrl, 'PNG', 196 - logoW, 6, logoW, logoH);
+        } catch {}
+        drawContent();
+      };
+      img.onerror = drawContent;
+      img.src = logoUrl;
+    } else {
+      drawContent();
+    }
+  }
+
+  function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return [r, g, b];
   }
 
   if (!raffle) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Cargando...</div>;
@@ -254,9 +345,21 @@ export default function RaffleControl() {
         {/* Entries list */}
         {raffle.entries?.length > 0 && (
           <div className="glass rounded-xl p-4">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-              Participantes ({raffle.entries.length})
-            </p>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Participantes ({raffle.entries.length})
+              </p>
+              <div className="flex gap-2">
+                <button onClick={exportCSV}
+                  className="flex items-center gap-1 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all">
+                  <UilFileAlt size={13} />CSV
+                </button>
+                <button onClick={exportPDF}
+                  className="flex items-center gap-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all">
+                  <UilFileDownloadAlt size={13} />PDF
+                </button>
+              </div>
+            </div>
             <div className="space-y-1 max-h-64 overflow-y-auto">
               {raffle.entries.map((e) => (
                 <div key={e.id} className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm ${e.isWinner ? 'bg-yellow-500/20 border border-yellow-500/30' : 'bg-slate-800/50'}`}>

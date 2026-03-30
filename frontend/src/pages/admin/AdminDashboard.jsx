@@ -4,12 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import api from '../../lib/api';
 import PageBackground from '../../components/PageBackground';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import {
   UilKeySkeleton, UilUsersAlt, UilPalette, UilSignout,
   UilPlus, UilTicket, UilBullseye, UilPlay,
   UilTrashAlt, UilChartBar, UilFileAlt, UilSave,
   UilUpload, UilExclamationTriangle, UilDashboard, UilLock, UilRefresh, UilArchive,
-  UilQrcodeScan, UilExpandAlt, UilTimesCircle,
+  UilQrcodeScan, UilExpandAlt, UilTimesCircle, UilFileDownloadAlt,
 } from '@iconscout/react-unicons';
 
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -179,6 +181,8 @@ export default function AdminDashboard() {
   const [showArchived, setShowArchived]     = useState(false);
   const [archivedChallenges, setArchivedChallenges] = useState([]);
   const [archivedRaffles, setArchivedRaffles]       = useState([]);
+  const [selectedRaffles, setSelectedRaffles]       = useState(new Set());
+  const [exportingRaffles, setExportingRaffles]     = useState(false);
   const currentUsername = localStorage.getItem('qt_admin_username') || 'admin';
 
   useEffect(() => { loadChallenges(); loadRaffles(); }, []);
@@ -371,6 +375,139 @@ export default function AdminDashboard() {
       setChangePassForm({ current: '', next: '' });
     } catch (err) { setChangePassError(err.response?.data?.error || 'Error'); }
     finally { setSavingPass(false); }
+  }
+
+  function toggleSelectRaffle(id) {
+    setSelectedRaffles((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function hexToRgb(hex) {
+    const r = parseInt((hex || '#6366f1').slice(1, 3), 16);
+    const g = parseInt((hex || '#6366f1').slice(3, 5), 16);
+    const b = parseInt((hex || '#6366f1').slice(5, 7), 16);
+    return [r, g, b];
+  }
+
+  function buildCSVBlob(raffleDataList) {
+    const rows = [['Sorteo', 'Nombre', 'Apellido', 'DNI', 'Correo', 'Teléfono', 'Ganador']];
+    raffleDataList.forEach(({ data }) => {
+      (data.entries || []).forEach((e) => {
+        rows.push([data.name, e.nombre, e.apellido, e.dni, e.correo, e.telefono, e.isWinner ? 'Sí' : 'No']);
+      });
+    });
+    const csv = rows.map((r) => r.map((v) => `"${v}"`).join(',')).join('\n');
+    return new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  }
+
+  async function buildPDFDoc(raffleDataList) {
+    const doc = new jsPDF();
+    let firstPage = true;
+    for (const { data } of raffleDataList) {
+      const branding = data.branding || {};
+      const bg = branding.bgColor || '#080c1a';
+      const primary = branding.primaryColor || '#6366f1';
+      if (!firstPage) doc.addPage();
+      firstPage = false;
+
+      doc.setFillColor(bg);
+      doc.rect(0, 0, 210, 40, 'F');
+
+      const logoUrl = branding.logoUrl ? (branding.logoUrl.startsWith('/') ? window.location.origin + branding.logoUrl : branding.logoUrl) : null;
+
+      const drawSection = (logoDataUrl) => {
+        if (logoDataUrl) {
+          try {
+            const img = new Image(); img.src = logoDataUrl;
+            const logoH = 18; const logoW = Math.min((img.naturalWidth / img.naturalHeight) * logoH || logoH, 50);
+            doc.addImage(logoDataUrl, 'PNG', 196 - logoW, 6, logoW, logoH);
+          } catch {}
+        }
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(18); doc.setFont('helvetica', 'bold');
+        doc.text(data.name, 14, 20);
+        doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+        doc.setTextColor(180, 180, 200);
+        doc.text(`Participantes: ${data.entries?.length || 0}  ·  ${new Date().toLocaleDateString('es-PE')}`, 14, 30);
+        const [r, g, b] = hexToRgb(primary);
+        doc.setDrawColor(r, g, b); doc.setLineWidth(0.8); doc.line(14, 38, 196, 38);
+        autoTable(doc, {
+          startY: 44,
+          head: [['#', 'Nombre', 'Apellido', 'DNI', 'Correo', 'Teléfono', '']],
+          body: (data.entries || []).map((e, i) => [i + 1, e.nombre, e.apellido, e.dni, e.correo, e.telefono, e.isWinner ? 'GANADOR' : '']),
+          headStyles: { fillColor: hexToRgb(primary), textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+          bodyStyles: { fontSize: 8, textColor: [40, 40, 60] },
+          alternateRowStyles: { fillColor: [245, 245, 255] },
+          columnStyles: { 0: { cellWidth: 8 }, 6: { textColor: hexToRgb(primary), fontStyle: 'bold' } },
+          margin: { left: 14, right: 14 },
+        });
+      };
+
+      await new Promise((resolve) => {
+        if (!logoUrl) { drawSection(null); resolve(); return; }
+        const img = new Image(); img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width; canvas.height = img.height;
+            canvas.getContext('2d').drawImage(img, 0, 0);
+            drawSection(canvas.toDataURL('image/png'));
+          } catch { drawSection(null); }
+          resolve();
+        };
+        img.onerror = () => { drawSection(null); resolve(); };
+        img.src = logoUrl;
+      });
+    }
+    return doc;
+  }
+
+  async function exportRaffleCSV(id, name) {
+    const { data } = await api.get(`/raffle/admin/${id}`);
+    const blob = buildCSVBlob([{ data }]);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `${name}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function exportRafflePDF(id, name) {
+    const { data } = await api.get(`/raffle/admin/${id}`);
+    const doc = await buildPDFDoc([{ data }]);
+    doc.save(`${name}.pdf`);
+  }
+
+  async function exportSelectedCSV() {
+    if (!selectedRaffles.size) return;
+    setExportingRaffles(true);
+    try {
+      const list = [];
+      for (const id of selectedRaffles) { const r = await api.get(`/raffle/admin/${id}`); list.push(r); }
+      const blob = buildCSVBlob(list);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const label = selectedRaffles.size === 1 ? raffles.find((r) => selectedRaffles.has(r.id))?.name || 'sorteo' : `sorteos-${selectedRaffles.size}`;
+      a.href = url; a.download = `${label}.csv`; a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExportingRaffles(false);
+    }
+  }
+
+  async function exportSelectedPDF() {
+    if (!selectedRaffles.size) return;
+    setExportingRaffles(true);
+    try {
+      const list = [];
+      for (const id of selectedRaffles) { const r = await api.get(`/raffle/admin/${id}`); list.push(r); }
+      const doc = await buildPDFDoc(list);
+      const label = selectedRaffles.size === 1 ? raffles.find((r) => selectedRaffles.has(r.id))?.name || 'sorteo' : `sorteos-${selectedRaffles.size}`;
+      doc.save(`${label}.pdf`);
+    } finally {
+      setExportingRaffles(false);
+    }
   }
 
   const accent = siteSettings.homeButtonColor || '#6366f1';
@@ -849,15 +986,39 @@ export default function AdminDashboard() {
         {/* Raffles section */}
         {raffles.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5"><UilTicket size={14} />Sorteos</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><UilTicket size={14} />Sorteos</h2>
+              {selectedRaffles.size > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-500 text-xs">{selectedRaffles.size} seleccionado{selectedRaffles.size > 1 ? 's' : ''}</span>
+                  <button onClick={exportSelectedCSV} disabled={exportingRaffles}
+                    className="flex items-center gap-1 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all disabled:opacity-50">
+                    <UilFileAlt size={13} />CSV
+                  </button>
+                  <button onClick={exportSelectedPDF} disabled={exportingRaffles}
+                    className="flex items-center gap-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all disabled:opacity-50">
+                    <UilFileDownloadAlt size={13} />{exportingRaffles ? '...' : 'PDF'}
+                  </button>
+                  <button onClick={() => setSelectedRaffles(new Set())}
+                    className="text-slate-500 hover:text-slate-300 text-xs px-2 py-1.5 rounded-lg transition-all">
+                    Limpiar
+                  </button>
+                </div>
+              )}
+            </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {raffles.map((r, i) => (
                 <motion.div key={r.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                  className="glass rounded-2xl p-5 flex flex-col gap-4 border border-amber-500/20">
+                  className={`glass rounded-2xl p-5 flex flex-col gap-4 border transition-all ${selectedRaffles.has(r.id) ? 'border-amber-400/60 ring-1 ring-amber-400/30' : 'border-amber-500/20'}`}>
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-white font-bold text-base truncate">{r.name}</h3>
-                      <p className="text-slate-500 text-xs mt-0.5">/sorteo/{r.slug}</p>
+                    <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                      <input type="checkbox" checked={selectedRaffles.has(r.id)}
+                        onChange={() => toggleSelectRaffle(r.id)}
+                        className="mt-1 accent-amber-500 shrink-0 cursor-pointer w-3.5 h-3.5" />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-white font-bold text-base truncate">{r.name}</h3>
+                        <p className="text-slate-500 text-xs mt-0.5">/sorteo/{r.slug}</p>
+                      </div>
                     </div>
                     <span className={`text-xs font-semibold px-2 py-1 rounded-full shrink-0 ${
                       r.status === 'OPEN' ? 'text-green-400 bg-green-500/20' :
@@ -870,21 +1031,40 @@ export default function AdminDashboard() {
                     <span className="flex items-center gap-1"><UilUsersAlt size={13} />{r._count?.entries || 0} inscritos</span>
                     <span className="flex items-center gap-1"><UilLock size={13} />{r.pin}</span>
                   </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => navigate(`/admin/raffles/${r.id}/control`)}
-                      className="flex-1 bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5">
-                      <UilDashboard size={16} />Control
-                    </button>
-                    <button
-                      onClick={() => setQrModal({ url: `${window.location.origin}/sorteo/${r.slug}`, title: r.name, pin: r.pin })}
-                      className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">
-                      <UilQrcodeScan size={16} />
-                    </button>
-                    <button onClick={() => handleArchiveRaffle(r.id, true)}
-                      className="bg-slate-700/50 hover:bg-slate-600 text-slate-400 p-2 rounded-xl transition-all" title="Archivar">
-                      <UilArchive size={16} /></button>
-                    <button onClick={() => handleDeleteRaffle(r.id, r.name)}
-                      className="bg-red-500/15 hover:bg-red-500/30 text-red-400 p-2 rounded-xl transition-all"><UilTrashAlt size={16} /></button>
+                  <div className="flex flex-col gap-2">
+                    {/* Primary row */}
+                    <div className="flex gap-2">
+                      <button onClick={() => navigate(`/admin/raffles/${r.id}/control`)}
+                        className="flex-1 bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5">
+                        <UilDashboard size={16} />Control
+                      </button>
+                      <button
+                        onClick={() => setQrModal({ url: `${window.location.origin}/sorteo/${r.slug}`, title: r.name, pin: r.pin })}
+                        className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">
+                        <UilQrcodeScan size={16} />
+                      </button>
+                      <button onClick={() => handleArchiveRaffle(r.id, true)}
+                        className="bg-slate-700/50 hover:bg-slate-600 text-slate-400 p-2 rounded-xl transition-all" title="Archivar">
+                        <UilArchive size={16} />
+                      </button>
+                      <button onClick={() => handleDeleteRaffle(r.id, r.name)}
+                        className="bg-red-500/15 hover:bg-red-500/30 text-red-400 p-2 rounded-xl transition-all" title="Eliminar">
+                        <UilTrashAlt size={16} />
+                      </button>
+                    </div>
+                    {/* Export row */}
+                    {r._count?.entries > 0 && (
+                      <div className="flex gap-2">
+                        <button onClick={() => exportRaffleCSV(r.id, r.name)}
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-600/15 hover:bg-emerald-600/30 text-emerald-400 text-xs font-bold py-1.5 rounded-xl transition-all">
+                          <UilFileAlt size={13} />Exportar CSV
+                        </button>
+                        <button onClick={() => exportRafflePDF(r.id, r.name)}
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-red-600/15 hover:bg-red-600/30 text-red-400 text-xs font-bold py-1.5 rounded-xl transition-all">
+                          <UilFileDownloadAlt size={13} />Exportar PDF
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -970,67 +1150,73 @@ export default function AdminDashboard() {
                     <span className="flex items-center gap-1"><UilLock size={13} />{c.pin}</span>
                   </div>
 
-                  <div className="flex gap-2 pt-1">
-                    <button
-                      onClick={() => navigate(`/admin/challenges/${c.id}/edit`)}
-                      className="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium py-2 rounded-xl transition-all"
-                    >
-                      Editar
-                    </button>
-                    {c.status !== 'ENDED' && (
+                  <div className="flex flex-col gap-2 pt-1">
+                    {/* Primary actions */}
+                    <div className="flex gap-2">
                       <button
-                        onClick={() => navigate(`/admin/challenges/${c.id}/live`)}
-                        className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5"
+                        onClick={() => navigate(`/admin/challenges/${c.id}/edit`)}
+                        className="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium py-2 rounded-xl transition-all"
                       >
-                        <UilPlay size={15} />Live
+                        Editar
                       </button>
-                    )}
-                    {c.status === 'ENDED' && (
+                      {c.status !== 'ENDED' && (
+                        <button
+                          onClick={() => navigate(`/admin/challenges/${c.id}/live`)}
+                          className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5"
+                        >
+                          <UilPlay size={15} />Live
+                        </button>
+                      )}
+                      {c.status === 'ENDED' && (
+                        <button
+                          onClick={() => setConfirmReset({ id: c.id, name: c.name })}
+                          className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5"
+                          title="Reiniciar para jugar de nuevo"
+                        >
+                          <UilRefresh size={15} />Reiniciar
+                        </button>
+                      )}
+                    </div>
+                    {/* Secondary icon actions */}
+                    <div className="flex gap-2 justify-end">
+                      {c._count?.sessions > 0 && (
+                        <button
+                          onClick={() => { setResultsChallenge({ id: c.id, name: c.name }); loadResults(c.id); }}
+                          className="bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 p-2 rounded-xl transition-all"
+                          title="Ver resultados"
+                        >
+                          <UilChartBar size={16} />
+                        </button>
+                      )}
+                      {c._count?.sessions > 0 && (
+                        <button
+                          onClick={() => window.open(`/hof/${c.slug}`, '_blank', 'noopener')}
+                          className="bg-yellow-500/15 hover:bg-yellow-500/30 text-yellow-400 p-2 rounded-xl transition-all"
+                          title="Hall of Fame"
+                        >
+                          🏆
+                        </button>
+                      )}
                       <button
-                        onClick={() => setConfirmReset({ id: c.id, name: c.name })}
-                        className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5"
-                        title="Reiniciar para jugar de nuevo"
-                      >
-                        <UilRefresh size={15} />Reiniciar
+                        onClick={() => setQrModal({ url: `${window.location.origin}/join/${c.slug}`, title: c.name, pin: c.pin })}
+                        className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">
+                        <UilQrcodeScan size={16} />
                       </button>
-                    )}
-                    {c._count?.sessions > 0 && (
                       <button
-                        onClick={() => { setResultsChallenge({ id: c.id, name: c.name }); loadResults(c.id); }}
-                        className="bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 p-2 rounded-xl transition-all"
-                        title="Ver resultados"
+                        onClick={() => handleArchiveChallenge(c.id, true)}
+                        className="bg-slate-700/50 hover:bg-slate-600 text-slate-400 p-2 rounded-xl transition-all"
+                        title="Archivar"
                       >
-                        <UilChartBar size={16} />
+                        <UilArchive size={16} />
                       </button>
-                    )}
-                    {c._count?.sessions > 0 && (
                       <button
-                        onClick={() => window.open(`/hof/${c.slug}`, '_blank', 'noopener')}
-                        className="bg-yellow-500/15 hover:bg-yellow-500/30 text-yellow-400 p-2 rounded-xl transition-all"
-                        title="Hall of Fame"
+                        onClick={() => setConfirmDelete({ id: c.id, name: c.name })}
+                        className="bg-red-500/15 hover:bg-red-500/30 text-red-400 p-2 rounded-xl transition-all"
+                        title="Eliminar"
                       >
-                        🏆
+                        <UilTrashAlt size={16} />
                       </button>
-                    )}
-                    <button
-                      onClick={() => setQrModal({ url: `${window.location.origin}/join/${c.slug}`, title: c.name, pin: c.pin })}
-                      className="bg-slate-700 hover:bg-slate-600 text-slate-300 p-2 rounded-xl transition-all" title="Ver QR">
-                      <UilQrcodeScan size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleArchiveChallenge(c.id, true)}
-                      className="bg-slate-700/50 hover:bg-slate-600 text-slate-400 p-2 rounded-xl transition-all"
-                      title="Archivar"
-                    >
-                      <UilArchive size={16} />
-                    </button>
-                    <button
-                      onClick={() => setConfirmDelete({ id: c.id, name: c.name })}
-                      className="bg-red-500/15 hover:bg-red-500/30 text-red-400 p-2 rounded-xl transition-all"
-                      title="Eliminar"
-                    >
-                      <UilTrashAlt size={16} />
-                    </button>
+                    </div>
                   </div>
                 </motion.div>
               );
