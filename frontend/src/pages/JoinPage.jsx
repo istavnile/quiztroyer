@@ -14,23 +14,24 @@ export default function JoinPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
 
-  const [challenge, setChallenge] = useState(null);
-  const [notFound, setNotFound] = useState(false);
-  const [step, setStep] = useState('pin'); // pin | info
-  const [pin, setPin] = useState('');
-  const [name, setName]   = useState('');
-  const [dni, setDni]     = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [pinError, setPinError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [siteSettings, setSiteSettings] = useState({ homeBgColor: '#0f172a', homeButtonColor: '#6366f1', bgEffect: 'blobs' });
+  const [challenge, setChallenge]   = useState(null);
+  const [notFound, setNotFound]     = useState(false);
+  const [settingsReady, setSettingsReady] = useState(false);
+  const [step, setStep]             = useState('pin'); // pin | info
+  const [pin, setPin]               = useState('');
+  const [name, setName]             = useState('');
+  const [dni, setDni]               = useState('');
+  const [email, setEmail]           = useState('');
+  const [phone, setPhone]           = useState('');
+  const [pinError, setPinError]     = useState('');
+  const [loading, setLoading]       = useState(false);
+  const [siteSettings, setSiteSettings] = useState({ homeBgColor: '#0f172a', homeButtonColor: '#6366f1', bgEffect: 'blobs', logoUrl: '' });
 
   useEffect(() => {
-    api.get('/settings').then((r) => setSiteSettings((p) => ({ ...p, ...r.data }))).catch(() => {});
-    api.get(`/challenges/${slug}`)
-      .then((r) => setChallenge(r.data))
-      .catch(() => setNotFound(true));
+    Promise.all([
+      api.get('/settings').then((r) => { setSiteSettings((p) => ({ ...p, ...r.data })); setSettingsReady(true); }).catch(() => setSettingsReady(true)),
+      api.get(`/challenges/${slug}`).then((r) => setChallenge(r.data)).catch(() => setNotFound(true)),
+    ]);
   }, [slug]);
 
   async function handlePin(e) {
@@ -70,17 +71,17 @@ export default function JoinPage() {
     );
   }
 
-  if (!challenge) {
+  if (!challenge || !settingsReady) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0f172a' }}>
         <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   const branding = challenge.branding || {};
-  const accent  = branding.primaryColor || siteSettings.homeButtonColor || '#6366f1';
-  const bgColor = siteSettings.homeBgColor || '#0f172a';
+  const accent  = siteSettings.homeButtonColor || '#6366f1';
+  const bgColor = siteSettings.homeBgColor     || '#0f172a';
   const glow    = glowAnim(accent);
 
   return (
@@ -111,7 +112,8 @@ export default function JoinPage() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 30 }}
-            className="glass rounded-2xl p-8 w-full max-w-sm relative z-10"
+            className="rounded-2xl p-8 w-full max-w-sm relative z-10"
+            style={{ background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(16px)', border: `1px solid ${accent}30` }}
           >
             <h2 className="text-xl font-bold text-center mb-6">🔐 Ingresar PIN</h2>
             <form onSubmit={handlePin} className="space-y-4">
@@ -148,7 +150,8 @@ export default function JoinPage() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
-            className="glass rounded-2xl p-8 w-full max-w-sm relative z-10"
+            className="rounded-2xl p-8 w-full max-w-sm relative z-10"
+            style={{ background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(16px)', border: `1px solid ${accent}30` }}
           >
             <h2 className="text-xl font-bold text-center mb-6">👤 Tus datos</h2>
             <form onSubmit={handleJoin} className="space-y-4">
