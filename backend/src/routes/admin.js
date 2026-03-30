@@ -114,6 +114,22 @@ router.delete('/challenges/:id', requireAdmin, async (req, res) => {
   }
 });
 
+// POST /api/admin/challenges/:id/reset — reset for replay, keep history
+router.post('/challenges/:id/reset', requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await prisma.liveRoom.deleteMany({ where: { challengeId: id } });
+    const updated = await prisma.challenge.update({
+      where: { id },
+      data: { status: 'DRAFT', runNumber: { increment: 1 } },
+      select: { id: true, status: true, runNumber: true },
+    });
+    res.json(updated);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // --- QUESTIONS CRUD ---
 
 // GET /api/admin/challenges/:id/questions

@@ -199,7 +199,7 @@ function setupGameSocket(io) {
     // ─────────────────────────────────────────────
     // PLAYER: join lobby
     // ─────────────────────────────────────────────
-    socket.on('player:join', async ({ slug, name, dni }) => {
+    socket.on('player:join', async ({ slug, name, dni, email, phone }) => {
       const challenge = await prisma.challenge.findUnique({ where: { slug } });
       if (!challenge) {
         socket.emit('error', { message: 'Desafío no encontrado' });
@@ -210,13 +210,15 @@ function setupGameSocket(io) {
         return;
       }
 
-      // Upsert session
+      const runNumber = challenge.runNumber ?? 1;
+
+      // Upsert session scoped to current run
       let session;
       try {
         session = await prisma.gameSession.upsert({
-          where: { challengeId_playerDni: { challengeId: challenge.id, playerDni: dni } },
-          create: { challengeId: challenge.id, playerName: name, playerDni: dni, socketId: socket.id },
-          update: { socketId: socket.id, playerName: name },
+          where: { challengeId_playerDni_runNumber: { challengeId: challenge.id, playerDni: dni, runNumber } },
+          create: { challengeId: challenge.id, playerName: name, playerDni: dni, runNumber, socketId: socket.id, playerEmail: email || null, playerPhone: phone || null },
+          update: { socketId: socket.id, playerName: name, ...(email && { playerEmail: email }), ...(phone && { playerPhone: phone }) },
         });
       } catch (e) {
         socket.emit('error', { message: 'Error al registrar jugador' });

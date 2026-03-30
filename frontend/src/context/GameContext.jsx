@@ -86,7 +86,7 @@ export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const socketRef = useRef(null);
 
-  function connectSocket(slug, playerName, playerDni) {
+  function connectSocket(slug, playerName, playerDni, playerEmail = '', playerPhone = '') {
     if (socketRef.current) {
       socketRef.current.disconnect();
     }
@@ -100,7 +100,7 @@ export function GameProvider({ children }) {
 
     socket.on('connect', () => {
       dispatch({ type: 'CONNECTED' });
-      socket.emit('player:join', { slug, name: playerName, dni: playerDni });
+      socket.emit('player:join', { slug, name: playerName, dni: playerDni, email: playerEmail, phone: playerPhone });
     });
 
     socket.on('disconnect', () => dispatch({ type: 'DISCONNECTED' }));

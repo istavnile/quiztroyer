@@ -14,15 +14,17 @@ export default function GameRoom() {
   const { state, connectSocket, disconnect } = useGame();
 
   useEffect(() => {
-    const name = sessionStorage.getItem('qt_name');
-    const dni = sessionStorage.getItem('qt_dni');
+    const name  = sessionStorage.getItem('qt_name');
+    const dni   = sessionStorage.getItem('qt_dni');
+    const email = sessionStorage.getItem('qt_email') || '';
+    const phone = sessionStorage.getItem('qt_phone') || '';
 
     if (!name || !dni) {
       navigate(`/join/${slug}`, { replace: true });
       return;
     }
 
-    connectSocket(slug, name, dni);
+    connectSocket(slug, name, dni, email, phone);
 
     return () => {
       disconnect();

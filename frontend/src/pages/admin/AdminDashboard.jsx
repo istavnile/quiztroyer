@@ -8,7 +8,7 @@ import {
   UilKeySkeleton, UilUsersAlt, UilPalette, UilSignout,
   UilPlus, UilTicket, UilBullseye, UilPlay,
   UilTrashAlt, UilChartBar, UilFileAlt, UilSave,
-  UilUpload, UilExclamationTriangle, UilDashboard, UilLock,
+  UilUpload, UilExclamationTriangle, UilDashboard, UilLock, UilRefresh,
   UilQrcodeScan, UilExpandAlt, UilTimesCircle,
 } from '@iconscout/react-unicons';
 
@@ -150,8 +150,9 @@ export default function AdminDashboard() {
   const [form, setForm]             = useState({ name: '', slug: '', pin: '' });
   const [creating, setCreating]     = useState(false);
   const [createError, setCreateError] = useState('');
-  const [confirmDelete, setConfirmDelete] = useState(null); // { id, name }
-  const [deleting, setDeleting]     = useState(false);
+  const [confirmDelete, setConfirmDelete]   = useState(null); // { id, name }
+  const [confirmReset, setConfirmReset]     = useState(null); // { id, name }
+  const [deleting, setDeleting]             = useState(false);
   const [showSettings, setShowSettings]   = useState(false);
   const [siteSettings, setSiteSettings]   = useState({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '', bgEffect: 'blobs' });
   const [savingSettings, setSavingSettings] = useState(false);
@@ -217,6 +218,18 @@ export default function AdminDashboard() {
     } finally {
       setDeleting(false);
       setConfirmDelete(null);
+    }
+  }
+
+  async function handleReset() {
+    if (!confirmReset) return;
+    try {
+      await api.post(`/admin/challenges/${confirmReset.id}/reset`);
+      setChallenges((prev) => prev.map((c) => c.id === confirmReset.id ? { ...c, status: 'DRAFT' } : c));
+    } catch (err) {
+      alert(err.response?.data?.error || 'Error al reiniciar');
+    } finally {
+      setConfirmReset(null);
     }
   }
 
@@ -336,6 +349,13 @@ export default function AdminDashboard() {
       <PageBackground siteSettings={siteSettings} color={accent} />
       <AnimatePresence>
         {qrModal && <QRModal url={qrModal.url} title={qrModal.title} pin={qrModal.pin} onClose={() => setQrModal(null)} />}
+        {confirmReset && (
+          <ConfirmModal
+            message={`¿Reiniciar "${confirmReset.name}"? El historial de jugadores se conserva y el desafío vuelve a Borrador listo para jugar de nuevo.`}
+            onConfirm={handleReset}
+            onCancel={() => setConfirmReset(null)}
+          />
+        )}
         {confirmDelete && (
           <ConfirmModal
             message={`¿Eliminar "${confirmDelete.name}" permanentemente? Esta acción no se puede deshacer.`}
@@ -897,6 +917,15 @@ export default function AdminDashboard() {
                         className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5"
                       >
                         <UilPlay size={15} />Live
+                      </button>
+                    )}
+                    {c.status === 'ENDED' && (
+                      <button
+                        onClick={() => setConfirmReset({ id: c.id, name: c.name })}
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5"
+                        title="Reiniciar para jugar de nuevo"
+                      >
+                        <UilRefresh size={15} />Reiniciar
                       </button>
                     )}
                     {c._count?.sessions > 0 && (

@@ -19,6 +19,7 @@ model Challenge {
   questions Question[]
   sessions  GameSession[]
   liveRoom  LiveRoom?
+  runNumber Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -53,6 +54,9 @@ model GameSession {
   challenge   Challenge @relation(fields: [challengeId], references: [id])
   playerName  String
   playerDni   String
+  playerEmail String?
+  playerPhone String?
+  runNumber   Int       @default(1)
   socketId    String?
   totalScore  Int       @default(0)
   answers     Answer[]
@@ -60,7 +64,7 @@ model GameSession {
   completedAt DateTime?
   createdAt   DateTime  @default(now())
 
-  @@unique([challengeId, playerDni])
+  @@unique([challengeId, playerDni, runNumber])
   @@index([challengeId, totalScore])
 }
 

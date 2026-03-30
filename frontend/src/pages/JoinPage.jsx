@@ -18,8 +18,10 @@ export default function JoinPage() {
   const [notFound, setNotFound] = useState(false);
   const [step, setStep] = useState('pin'); // pin | info
   const [pin, setPin] = useState('');
-  const [name, setName] = useState('');
-  const [dni, setDni] = useState('');
+  const [name, setName]   = useState('');
+  const [dni, setDni]     = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [pinError, setPinError] = useState('');
   const [loading, setLoading] = useState(false);
   const [siteSettings, setSiteSettings] = useState({ homeBgColor: '#0f172a', homeButtonColor: '#6366f1', bgEffect: 'blobs' });
@@ -48,8 +50,10 @@ export default function JoinPage() {
   function handleJoin(e) {
     e.preventDefault();
     if (!name.trim() || !dni.trim()) return;
-    sessionStorage.setItem('qt_name', name.trim());
-    sessionStorage.setItem('qt_dni', dni.trim());
+    sessionStorage.setItem('qt_name',  name.trim());
+    sessionStorage.setItem('qt_dni',   dni.trim());
+    sessionStorage.setItem('qt_email', email.trim());
+    sessionStorage.setItem('qt_phone', phone.trim());
     navigate(`/play/${slug}`);
   }
 
@@ -169,6 +173,28 @@ export default function JoinPage() {
                   onChange={(e) => setDni(e.target.value)}
                   placeholder="Tu número de documento"
                   maxLength={20}
+                  className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none"
+                  style={{ border: `2px solid rgb(51 65 85)` }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-400 mb-1">Correo electrónico <span className="text-slate-600">(opcional)</span></label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="tu@correo.com"
+                  className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none"
+                  style={{ border: `2px solid rgb(51 65 85)` }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-400 mb-1">Teléfono <span className="text-slate-600">(opcional)</span></label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+51 999 999 999"
                   className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none"
                   style={{ border: `2px solid rgb(51 65 85)` }}
                 />
