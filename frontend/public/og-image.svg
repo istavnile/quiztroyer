@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#09090f"/>
+      <stop offset="100%" stop-color="#0f1628"/>
+    </linearGradient>
+    <linearGradient id="quiz-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <filter id="blob-blur">
+      <feGaussianBlur stdDeviation="60"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Decorative blobs -->
+  <circle cx="200" cy="150" r="260" fill="#3b82f6" opacity="0.12" filter="url(#blob-blur)"/>
+  <circle cx="1000" cy="480" r="280" fill="#a855f7" opacity="0.10" filter="url(#blob-blur)"/>
+  <circle cx="700" cy="100" r="200" fill="#06b6d4" opacity="0.08" filter="url(#blob-blur)"/>
+
+  <!-- Subtle grid lines -->
+  <line x1="0" y1="314" x2="1200" y2="314" stroke="white" stroke-opacity="0.03" stroke-width="1"/>
+  <line x1="600" y1="0" x2="600" y2="630" stroke="white" stroke-opacity="0.03" stroke-width="1"/>
+
+  <!-- Logo: QUIZ (gradient) + TROYER (white) -->
+  <text x="600" y="290" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="108" letter-spacing="-4">
+    <tspan fill="url(#quiz-grad)">QUIZ</tspan><tspan fill="white">TROYER</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="600" y="360" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-weight="400" font-size="26" fill="white" opacity="0.45" letter-spacing="3">
+    PLATAFORMA DE QUIZZES EN VIVO
+  </text>
+
+  <!-- Bottom accent line -->
+  <rect x="480" y="400" width="240" height="2" rx="1" fill="url(#quiz-grad)" opacity="0.6"/>
+</svg>
