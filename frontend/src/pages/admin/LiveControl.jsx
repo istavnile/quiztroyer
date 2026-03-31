@@ -94,9 +94,9 @@ export default function LiveControl() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="max-w-4xl mx-auto grid gap-4" style={{ gridTemplateColumns: 'minmax(0,1fr) minmax(0,clamp(0px,(100vw - 640px)*2,320px))' }}>
         {/* Left: Controls */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="space-y-4">
           {/* Status cards */}
           <div className="grid grid-cols-3 gap-4">
             <div className="glass rounded-2xl p-4 text-center">
@@ -265,8 +265,8 @@ export default function LiveControl() {
           </div>
         </div>
 
-        {/* Right: Live ranking sidebar */}
-        <div className="space-y-4">
+        {/* Right: Live ranking sidebar — collapses fluidly on small screens */}
+        <div className="space-y-4 overflow-hidden">
           <div className="glass rounded-2xl p-4">
             <h3 className="text-white font-bold text-sm mb-3 flex items-center gap-1.5"><UilMedal size={15} />Top Jugadores</h3>
             <div className="space-y-2">
