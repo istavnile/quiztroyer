@@ -689,29 +689,31 @@ export default function AdminDashboard() {
         {showAdmins && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+            style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(6px)' }}
             onClick={(e) => e.target === e.currentTarget && setShowAdmins(false)}>
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[80vh] flex flex-col">
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-bold text-white flex items-center gap-2"><UilUsersAlt size={20} />Administradores</h2>
-                <button onClick={() => setShowAdmins(false)} className="text-slate-500 hover:text-slate-300 text-xl">×</button>
+              className="bg-slate-950 border border-white/[0.08] rounded-2xl p-5 w-full max-w-sm shadow-2xl max-h-[85vh] flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base font-bold text-white flex items-center gap-2"><UilUsersAlt size={18} />Administradores</h2>
+                <button onClick={() => setShowAdmins(false)} className="text-slate-500 hover:text-slate-300 transition-colors">
+                  <UilTimesCircle size={18} />
+                </button>
               </div>
 
               {/* Existing admins */}
-              <div className="flex-1 overflow-y-auto space-y-2 mb-4">
+              <div className="flex-1 overflow-y-auto space-y-1.5 mb-4">
                 {loadingAdmins ? (
                   <div className="flex justify-center py-4"><div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>
                 ) : adminList.map((a) => (
-                  <div key={a.id} className="flex items-center gap-3 bg-slate-800 rounded-xl px-3 py-2.5">
+                  <div key={a.id} className="flex items-center gap-3 bg-white/[0.05] border border-white/[0.07] rounded-xl px-3 py-2.5">
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-sm font-semibold">{a.username}</p>
                       <p className="text-slate-500 text-xs truncate">{a.email || 'Sin email'}</p>
                     </div>
                     {a.username !== currentUsername && (
                       <button onClick={() => handleDeleteAdmin(a.id)}
-                        className="text-red-500 hover:text-red-400 text-xs px-2 py-1 rounded transition-colors">
-                        ✕
+                        className="text-red-500 hover:text-red-400 transition-colors p-1 rounded">
+                        <UilTrashAlt size={14} />
                       </button>
                     )}
                   </div>
@@ -719,23 +721,21 @@ export default function AdminDashboard() {
               </div>
 
               {/* Create new admin */}
-              <div className="border-t border-slate-700 pt-4">
+              <div className="border-t border-white/[0.07] pt-4">
                 <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-3">Crear nuevo admin</p>
                 <form onSubmit={handleCreateAdmin} className="space-y-2">
-                  <div className="flex gap-2">
-                    <input type="text" placeholder="Usuario" value={newAdmin.username}
-                      onChange={(e) => setNewAdmin((f) => ({ ...f, username: e.target.value }))}
-                      className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
-                    <input type="email" placeholder="Email (opc.)" value={newAdmin.email}
-                      onChange={(e) => setNewAdmin((f) => ({ ...f, email: e.target.value }))}
-                      className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
-                  </div>
+                  <input type="text" placeholder="Usuario" value={newAdmin.username}
+                    onChange={(e) => setNewAdmin((f) => ({ ...f, username: e.target.value }))}
+                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
+                  <input type="email" placeholder="Email (opcional)" value={newAdmin.email}
+                    onChange={(e) => setNewAdmin((f) => ({ ...f, email: e.target.value }))}
+                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
                   <input type="password" placeholder="Contraseña" value={newAdmin.password}
                     onChange={(e) => setNewAdmin((f) => ({ ...f, password: e.target.value }))}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
+                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
                   {adminError && <p className="text-red-400 text-xs">{adminError}</p>}
                   <button type="submit" disabled={creatingAdmin || !newAdmin.username || !newAdmin.password}
-                    className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-2 rounded-xl font-bold transition-all text-sm">
+                    className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all text-sm">
                     {creatingAdmin ? 'Creando...' : '+ Crear admin'}
                   </button>
                 </form>
@@ -941,7 +941,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           {/* Row 2: Action pill */}
-          <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.07] rounded-2xl p-1 w-fit">
+          <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.07] rounded-2xl p-1 overflow-x-auto max-w-full">
             <button onClick={() => setShowArchived((v) => !v)}
               className={`px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5 ${showArchived ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-200 hover:bg-white/10'}`}
               title="Mostrar archivados">
