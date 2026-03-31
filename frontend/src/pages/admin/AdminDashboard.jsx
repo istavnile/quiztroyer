@@ -913,14 +913,14 @@ export default function AdminDashboard() {
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <div>
-            <ScrambledLogo />
-            <p className="text-slate-500 text-sm mt-0.5 tracking-wide">Panel de Administrador</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Utility group */}
-            <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.07] rounded-2xl p-1">
+        <div className="mb-8 space-y-3">
+          {/* Row 1: Logo + utility pill */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <ScrambledLogo />
+              <p className="text-slate-500 text-sm mt-0.5 tracking-wide">Panel de Administrador</p>
+            </div>
+            <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.07] rounded-2xl p-1 shrink-0">
               <button onClick={() => { setShowChangePass(true); setChangePassError(''); setChangePassOk(false); }}
                 className="text-slate-500 hover:text-slate-200 hover:bg-white/10 p-2 rounded-xl transition-all" title="Cambiar contraseña">
                 <UilKeySkeleton size={17} />
@@ -939,27 +939,27 @@ export default function AdminDashboard() {
                 <UilSignout size={15} />Salir
               </button>
             </div>
-            {/* Action group */}
-            <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.07] rounded-2xl p-1">
-              <button onClick={() => setShowArchived((v) => !v)}
-                className={`px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5 ${showArchived ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-200 hover:bg-white/10'}`}
-                title="Mostrar archivados">
-                <UilArchive size={15} />Archivados
-              </button>
-              <button onClick={() => { setShowExportModal(true); setExportSelection(new Set()); }}
-                className="text-slate-500 hover:text-slate-200 hover:bg-white/10 px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
-                <UilFileDownloadAlt size={15} />Exportar
-              </button>
-              <div className="w-px h-4 bg-white/10 mx-0.5" />
-              <button onClick={() => { setShowCreate(true); setCreateError(''); setForm({ name: '', slug: '', pin: '' }); }}
-                className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
-                <UilPlus size={15} />Desafío
-              </button>
-              <button onClick={() => { setShowCreateRaffle(true); setRaffleError(''); setRaffleForm({ name: '', slug: '', pin: '' }); }}
-                className="bg-amber-500 hover:bg-amber-400 text-white font-semibold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
-                <UilTicket size={15} />Sorteo
-              </button>
-            </div>
+          </div>
+          {/* Row 2: Action pill */}
+          <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.07] rounded-2xl p-1 w-fit">
+            <button onClick={() => setShowArchived((v) => !v)}
+              className={`px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5 ${showArchived ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-200 hover:bg-white/10'}`}
+              title="Mostrar archivados">
+              <UilArchive size={15} />Archivados
+            </button>
+            <button onClick={() => { setShowExportModal(true); setExportSelection(new Set()); }}
+              className="text-slate-500 hover:text-slate-200 hover:bg-white/10 px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
+              <UilFileDownloadAlt size={15} />Exportar
+            </button>
+            <div className="w-px h-4 bg-white/10 mx-0.5" />
+            <button onClick={() => { setShowCreate(true); setCreateError(''); setForm({ name: '', slug: '', pin: '' }); }}
+              className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
+              <UilPlus size={15} />Desafío
+            </button>
+            <button onClick={() => { setShowCreateRaffle(true); setRaffleError(''); setRaffleForm({ name: '', slug: '', pin: '' }); }}
+              className="bg-amber-500 hover:bg-amber-400 text-white font-semibold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
+              <UilTicket size={15} />Sorteo
+            </button>
           </div>
         </div>
 

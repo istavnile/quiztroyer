@@ -396,25 +396,25 @@ export default function ChallengeEditor() {
     <div className="min-h-screen bg-slate-950">
 
       {/* ── Top bar ── */}
-      <div className="border-b border-slate-800 px-6 py-4 flex items-center justify-between bg-slate-950/80 backdrop-blur sticky top-0 z-20">
-        <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/admin')} className="text-slate-400 hover:text-white transition-colors">
+      <div className="border-b border-slate-800 px-3 sm:px-6 py-3 flex items-center gap-2 bg-slate-950/80 backdrop-blur sticky top-0 z-20">
+        <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+          <button onClick={() => navigate('/admin')} className="text-slate-400 hover:text-white transition-colors text-sm shrink-0">
             ← Admin
           </button>
-          <span className="text-slate-600">|</span>
-          <h1 className="text-white font-bold truncate max-w-xs">{challenge?.name}</h1>
+          <span className="text-slate-600 shrink-0">|</span>
+          <h1 className="text-white font-bold truncate text-sm sm:text-base">{challenge?.name}</h1>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2 shrink-0">
           <button
             onClick={() => navigate(`/admin/challenges/${id}/live`)}
-            className="bg-green-600 hover:bg-green-500 text-white text-sm font-bold px-4 py-2 rounded-xl transition-all"
+            className="bg-green-600 hover:bg-green-500 text-white text-xs sm:text-sm font-bold px-2.5 sm:px-4 py-2 rounded-xl transition-all"
           >
-            <span className="flex items-center gap-1.5"><UilPlay size={15} />Control Live</span>
+            <span className="flex items-center gap-1"><UilPlay size={13} /><span className="hidden sm:inline">Control </span>Live</span>
           </button>
           <a href={`/join/${challenge?.slug}`} target="_blank" rel="noreferrer"
-            className="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium px-4 py-2 rounded-xl transition-all flex items-center gap-1.5"
+            className="bg-slate-700 hover:bg-slate-600 text-white text-xs sm:text-sm font-medium px-2.5 sm:px-4 py-2 rounded-xl transition-all flex items-center gap-1"
           >
-            <UilEye size={15} />Preview
+            <UilEye size={13} /><span className="hidden sm:inline">Preview</span>
           </a>
         </div>
       </div>
