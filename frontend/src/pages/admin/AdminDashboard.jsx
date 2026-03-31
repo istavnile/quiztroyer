@@ -941,24 +941,27 @@ export default function AdminDashboard() {
             </div>
           </div>
           {/* Row 2: Action pill */}
-          <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.07] rounded-2xl p-1 overflow-x-auto max-w-full">
+          <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.07] rounded-2xl p-1">
             <button onClick={() => setShowArchived((v) => !v)}
-              className={`px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5 ${showArchived ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-200 hover:bg-white/10'}`}
-              title="Mostrar archivados">
-              <UilArchive size={15} />Archivados
+              className={`p-2 sm:px-3 sm:py-2 rounded-xl transition-all text-sm flex items-center gap-1.5 ${showArchived ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-200 hover:bg-white/10'}`}
+              title="Archivados">
+              <UilArchive size={15} /><span className="hidden sm:inline">Archivados</span>
             </button>
             <button onClick={() => { setShowExportModal(true); setExportSelection(new Set()); }}
-              className="text-slate-500 hover:text-slate-200 hover:bg-white/10 px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
-              <UilFileDownloadAlt size={15} />Exportar
+              className="text-slate-500 hover:text-slate-200 hover:bg-white/10 p-2 sm:px-3 sm:py-2 rounded-xl transition-all text-sm flex items-center gap-1.5"
+              title="Exportar">
+              <UilFileDownloadAlt size={15} /><span className="hidden sm:inline">Exportar</span>
             </button>
             <div className="w-px h-4 bg-white/10 mx-0.5" />
             <button onClick={() => { setShowCreate(true); setCreateError(''); setForm({ name: '', slug: '', pin: '' }); }}
-              className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
-              <UilPlus size={15} />Desafío
+              className="bg-blue-600 hover:bg-blue-500 text-white font-semibold p-2 sm:px-3 sm:py-2 rounded-xl transition-all text-sm flex items-center gap-1.5"
+              title="Nuevo desafío">
+              <UilPlus size={15} /><span className="hidden sm:inline">Desafío</span>
             </button>
             <button onClick={() => { setShowCreateRaffle(true); setRaffleError(''); setRaffleForm({ name: '', slug: '', pin: '' }); }}
-              className="bg-amber-500 hover:bg-amber-400 text-white font-semibold px-3 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5">
-              <UilTicket size={15} />Sorteo
+              className="bg-amber-500 hover:bg-amber-400 text-white font-semibold p-2 sm:px-3 sm:py-2 rounded-xl transition-all text-sm flex items-center gap-1.5"
+              title="Nuevo sorteo">
+              <UilTicket size={15} /><span className="hidden sm:inline">Sorteo</span>
             </button>
           </div>
         </div>
