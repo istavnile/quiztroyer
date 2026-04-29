@@ -1014,46 +1014,46 @@ export default function AdminDashboard() {
               <ScrambledLogo />
               <p className="text-slate-500 text-sm mt-0.5 tracking-wide">Panel de Administrador</p>
             </div>
-            <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.07] rounded-2xl p-1 shrink-0">
+            <div className="flex items-center gap-0.5 bg-white/[0.06] border border-white/[0.10] rounded-2xl p-1 shrink-0 backdrop-blur-sm">
               <button onClick={() => { setShowChangePass(true); setChangePassError(''); setChangePassOk(false); }}
-                className="text-slate-500 hover:text-slate-200 hover:bg-white/10 p-2 rounded-xl transition-all" title="Cambiar contraseña">
+                className="text-slate-400 hover:text-white hover:bg-white/[0.10] p-2 rounded-xl transition-all" title="Cambiar contraseña">
                 <UilKeySkeleton size={17} />
               </button>
               <button onClick={() => { setShowAdmins(true); loadAdmins(); setAdminError(''); }}
-                className="text-slate-500 hover:text-slate-200 hover:bg-white/10 p-2 rounded-xl transition-all" title="Gestionar admins">
+                className="text-slate-400 hover:text-white hover:bg-white/[0.10] p-2 rounded-xl transition-all" title="Gestionar admins">
                 <UilUsersAlt size={17} />
               </button>
               <button onClick={() => setShowSettings(true)}
-                className="text-slate-500 hover:text-slate-200 hover:bg-white/10 p-2 rounded-xl transition-all" title="Personalizar">
+                className="text-slate-400 hover:text-white hover:bg-white/[0.10] p-2 rounded-xl transition-all" title="Personalizar">
                 <UilPalette size={17} />
               </button>
-              <div className="w-px h-4 bg-white/10 mx-0.5" />
+              <div className="w-px h-4 bg-white/[0.12] mx-0.5" />
               <button onClick={handleLogout}
-                className="text-slate-500 hover:text-slate-200 hover:bg-white/10 fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5">
+                className="text-slate-400 hover:text-white hover:bg-white/[0.10] fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5">
                 <UilSignout size={15} /><span className="fluid-label">Salir</span>
               </button>
             </div>
           </div>
           {/* Row 2: Action pill */}
-          <div className="flex items-center gap-0.5 bg-white/[0.04] border border-white/[0.07] rounded-2xl p-1">
+          <div className="flex items-center gap-1 bg-white/[0.06] border border-white/[0.10] rounded-2xl p-1 backdrop-blur-sm">
             <button onClick={() => setShowArchived((v) => !v)}
-              className={`fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5 ${showArchived ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-200 hover:bg-white/10'}`}
+              className={`fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5 ${showArchived ? 'bg-white/[0.12] text-white border border-white/[0.15]' : 'text-slate-400 hover:text-white hover:bg-white/[0.08]'}`}
               title="Archivados">
               <UilArchive size={15} /><span className="fluid-label">Archivados</span>
             </button>
             <button onClick={() => { setShowExportModal(true); setExportSelection(new Set()); }}
-              className="text-slate-500 hover:text-slate-200 hover:bg-white/10 fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5"
+              className="text-slate-400 hover:text-white hover:bg-white/[0.08] fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5"
               title="Exportar">
               <UilFileDownloadAlt size={15} /><span className="fluid-label">Exportar</span>
             </button>
-            <div className="w-px h-4 bg-white/10 mx-0.5" />
+            <div className="w-px h-4 bg-white/[0.12] mx-0.5" />
             <button onClick={() => { setShowCreate(true); setCreateError(''); setForm({ name: '', slug: '', pin: '' }); }}
-              className="bg-blue-600 hover:bg-blue-500 text-white font-semibold fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5"
+              className="bg-blue-500/20 hover:bg-blue-500/35 border border-blue-500/40 text-blue-300 hover:text-blue-200 font-semibold fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5"
               title="Nuevo desafío">
               <UilPlus size={15} /><span className="fluid-label">Desafío</span>
             </button>
             <button onClick={() => { setShowCreateRaffle(true); setRaffleError(''); setRaffleForm({ name: '', slug: '', pin: '' }); }}
-              className="bg-amber-500 hover:bg-amber-400 text-white font-semibold fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5"
+              className="bg-amber-500/20 hover:bg-amber-500/35 border border-amber-500/40 text-amber-300 hover:text-amber-200 font-semibold fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5"
               title="Nuevo sorteo">
               <UilTicket size={15} /><span className="fluid-label">Sorteo</span>
             </button>
