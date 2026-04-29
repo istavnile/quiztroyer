@@ -451,7 +451,8 @@ export default function AdminDashboard() {
       doc.text(data.name, 14, 20);
       doc.setFontSize(9); doc.setFont('helvetica', 'normal');
       doc.setTextColor(180, 180, 200);
-      doc.text(`Participantes: ${data.entries?.length || 0}  ·  ${new Date().toLocaleDateString('es-PE')}`, 14, 30);
+      const raffleDate = data.createdAt ? new Date(data.createdAt).toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('es-PE');
+      doc.text(`Participantes: ${data.entries?.length || 0}  ·  Realizado: ${raffleDate}`, 14, 30);
       const [pr, pg, pb] = hexToRgb(primary);
       doc.setDrawColor(pr, pg, pb); doc.setLineWidth(0.8); doc.line(14, 38, 196, 38);
       autoTable(doc, {

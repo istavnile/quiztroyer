@@ -135,7 +135,8 @@ export default function RaffleControl() {
       doc.text(raffle.name, 14, 20);
       doc.setFontSize(9); doc.setFont('helvetica', 'normal');
       doc.setTextColor(180, 180, 200);
-      doc.text(`Participantes: ${raffle.entries.length}  ·  Exportado: ${new Date().toLocaleDateString('es-PE')}`, 14, 30);
+      const raffleDate = raffle.createdAt ? new Date(raffle.createdAt).toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('es-PE');
+      doc.text(`Participantes: ${raffle.entries.length}  ·  Realizado: ${raffleDate}`, 14, 30);
       const [r, g, b] = hexToRgb(primary);
       doc.setDrawColor(r, g, b); doc.setLineWidth(0.8); doc.line(14, 38, 196, 38);
       autoTable(doc, {
