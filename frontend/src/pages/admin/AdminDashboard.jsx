@@ -348,16 +348,14 @@ export default function AdminDashboard() {
   }
 
   function exportCSV() {
-    const rows = [
-      ['Puesto', 'Nombre', 'DNI', 'Puntaje', 'Fecha'],
-      ...results.map((s, i) => [
-        i + 1,
-        s.playerName,
-        s.playerDni,
-        s.totalScore,
-        s.completedAt ? new Date(s.completedAt).toLocaleString('es-PE') : '-',
-      ]),
-    ];
+    const rows = [['Sesión', 'Puesto', 'Nombre', 'DNI', 'Email', 'Puntaje', 'Fecha']];
+    const runs = groupByRun(results);
+    Object.entries(runs).sort(([a],[b]) => Number(a)-Number(b)).forEach(([run, sessions]) => {
+      sessions.sort((a,b) => b.totalScore - a.totalScore).forEach((s, i) => {
+        rows.push([run, i+1, s.playerName, s.playerDni, s.playerEmail||'', s.totalScore,
+          s.completedAt ? new Date(s.completedAt).toLocaleString('es-PE') : '-']);
+      });
+    });
     const csv = rows.map((r) => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -366,6 +364,86 @@ export default function AdminDashboard() {
     a.download = `resultados-${resultsChallenge?.name || 'quiz'}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  function groupByRun(sessions) {
+    return sessions.reduce((acc, s) => {
+      const run = s.runNumber || 1;
+      (acc[run] = acc[run] || []).push(s);
+      return acc;
+    }, {});
+  }
+
+  async function exportResultsPDF() {
+    if (!results.length) return;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const bg = siteSettings.homeBgColor || '#0f172a';
+    const primary = siteSettings.homeButtonColor || '#3b82f6';
+    const [bgR, bgG, bgB] = hexToRgb(bg);
+
+    let logoDataUrl = null, logoNatW = 0, logoNatH = 1;
+    if (siteSettings.logoUrl) {
+      await new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width; canvas.height = img.height;
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          logoDataUrl = canvas.toDataURL('image/png');
+          logoNatW = img.width; logoNatH = img.height;
+          resolve();
+        };
+        img.onerror = resolve;
+        img.src = siteSettings.logoUrl;
+      });
+    }
+
+    const runs = groupByRun(results);
+    Object.entries(runs).sort(([a],[b]) => Number(a)-Number(b)).forEach(([runNum, sessions], idx) => {
+      if (idx > 0) doc.addPage();
+
+      doc.setFillColor(bgR, bgG, bgB);
+      doc.rect(0, 0, 210, 297, 'F');
+
+      if (logoDataUrl) {
+        const logoH = 18;
+        const logoW = Math.min((logoNatW / logoNatH) * logoH, 60);
+        doc.addImage(logoDataUrl, 'PNG', 196 - logoW, 6, logoW, logoH);
+      }
+
+      const sorted = [...sessions].sort((a,b) => b.totalScore - a.totalScore);
+      const runDates = sessions.map(s => s.completedAt ? new Date(s.completedAt) : null).filter(Boolean);
+      const runDate = runDates.length
+        ? new Date(Math.max(...runDates)).toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })
+        : '—';
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18); doc.setFont('helvetica', 'bold');
+      doc.text(resultsChallenge.name, 14, 20);
+      doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+      doc.setTextColor(180, 180, 200);
+      doc.text(`Sesión #${runNum}  ·  ${runDate}  ·  ${sorted.length} participante${sorted.length !== 1 ? 's' : ''}`, 14, 30);
+      const [pr, pg, pb] = hexToRgb(primary);
+      doc.setDrawColor(pr, pg, pb); doc.setLineWidth(0.8); doc.line(14, 38, 196, 38);
+
+      autoTable(doc, {
+        startY: 44,
+        head: [['#', 'Nombre', 'DNI', 'Email', 'Puntaje', 'Completado']],
+        body: sorted.map((s, i) => [
+          i + 1, s.playerName, s.playerDni, s.playerEmail || '—',
+          s.totalScore.toLocaleString(),
+          s.completedAt ? new Date(s.completedAt).toLocaleString('es-PE') : '—',
+        ]),
+        headStyles: { fillColor: hexToRgb(primary), textColor: [255,255,255], fontStyle: 'bold', fontSize: 8 },
+        bodyStyles: { fontSize: 8, textColor: [40, 40, 60] },
+        alternateRowStyles: { fillColor: [245, 245, 255] },
+        columnStyles: { 0: { cellWidth: 8 }, 4: { fontStyle: 'bold', cellWidth: 20 } },
+        margin: { left: 14, right: 14 },
+      });
+    });
+
+    doc.save(`resultados-${resultsChallenge?.name || 'quiz'}.pdf`);
   }
 
   async function handleChangePassword(e) {
@@ -856,15 +934,20 @@ export default function AdminDashboard() {
                   <h2 className="text-lg font-bold text-white flex items-center gap-2"><UilChartBar size={20} />Resultados</h2>
                   <p className="text-slate-500 text-xs mt-0.5">{resultsChallenge.name}</p>
                 </div>
-                <div className="flex gap-2">
-                  {results.length > 0 && (
+                <div className="flex gap-2 items-center">
+                  {results.length > 0 && (<>
                     <button onClick={exportCSV}
-                      className="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">
-                      ⬇ CSV
+                      className="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+                      <UilFileAlt size={13} />CSV
                     </button>
-                  )}
-                  <button onClick={() => setResultsChallenge(null)}
-                    className="text-slate-500 hover:text-slate-300 text-xl px-1">×</button>
+                    <button onClick={exportResultsPDF}
+                      className="bg-red-600/20 hover:bg-red-600/40 text-red-400 text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+                      <UilFileDownloadAlt size={13} />PDF
+                    </button>
+                  </>)}
+                  <button onClick={() => setResultsChallenge(null)} className="text-slate-500 hover:text-slate-300 transition-colors ml-1">
+                    <UilTimesCircle size={18} />
+                  </button>
                 </div>
               </div>
 
@@ -879,32 +962,42 @@ export default function AdminDashboard() {
                     <p>Sin participantes aún</p>
                   </div>
                 ) : (
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="text-left text-slate-500 text-xs uppercase tracking-wider border-b border-slate-700">
-                        <th className="pb-2 pr-3">#</th>
-                        <th className="pb-2 pr-3">Nombre</th>
-                        <th className="pb-2 pr-3">DNI</th>
-                        <th className="pb-2 pr-3 text-right">Puntaje</th>
-                        <th className="pb-2 text-right">Fecha</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800">
-                      {results.map((s, i) => (
-                        <tr key={s.id} className={i === 0 ? 'text-yellow-400' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-amber-600' : 'text-slate-400'}>
-                          <td className="py-2.5 pr-3 font-bold">
-                            {i + 1}
-                          </td>
-                          <td className="py-2.5 pr-3 font-semibold text-white">{s.playerName}</td>
-                          <td className="py-2.5 pr-3 font-mono">{s.playerDni}</td>
-                          <td className="py-2.5 pr-3 text-right font-bold">{s.totalScore.toLocaleString()}</td>
-                          <td className="py-2.5 text-right text-xs text-slate-500">
-                            {s.completedAt ? new Date(s.completedAt).toLocaleString('es-PE') : '—'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <div className="space-y-5">
+                    {Object.entries(groupByRun(results)).sort(([a],[b]) => Number(a)-Number(b)).map(([runNum, sessions]) => {
+                      const sorted = [...sessions].sort((a,b) => b.totalScore - a.totalScore);
+                      const runDates = sessions.map(s => s.completedAt ? new Date(s.completedAt) : null).filter(Boolean);
+                      const runDate = runDates.length ? new Date(Math.max(...runDates)).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }) : null;
+                      return (
+                        <div key={runNum}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xs font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">Sesión #{runNum}</span>
+                            {runDate && <span className="text-xs text-slate-500">{runDate}</span>}
+                            <span className="text-xs text-slate-600">{sorted.length} participantes</span>
+                          </div>
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="text-left text-slate-500 text-xs uppercase tracking-wider border-b border-slate-800">
+                                <th className="pb-1.5 pr-3">#</th>
+                                <th className="pb-1.5 pr-3">Nombre</th>
+                                <th className="pb-1.5 pr-3">DNI</th>
+                                <th className="pb-1.5 text-right">Puntaje</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-800/60">
+                              {sorted.map((s, i) => (
+                                <tr key={s.id} className={i === 0 ? 'text-yellow-400' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-amber-600' : 'text-slate-500'}>
+                                  <td className="py-2 pr-3 font-bold text-xs">{i + 1}</td>
+                                  <td className="py-2 pr-3 font-semibold text-white">{s.playerName}</td>
+                                  <td className="py-2 pr-3 font-mono text-xs">{s.playerDni}</td>
+                                  <td className="py-2 text-right font-bold">{s.totalScore.toLocaleString()}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             </motion.div>
