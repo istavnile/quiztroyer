@@ -1331,7 +1331,7 @@ export default function AdminDashboard() {
             <p className="text-slate-400 mb-6">Crea tu primer quiz para comenzar</p>
             <button
               onClick={() => setShowCreate(true)}
-              className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl transition-all"
+              className="bg-blue-500/20 hover:bg-blue-500/35 border border-blue-500/40 text-blue-300 hover:text-blue-200 font-bold px-6 py-3 rounded-xl transition-all backdrop-blur-sm"
             >
               + Crear primer desafío
             </button>
