@@ -1014,46 +1014,46 @@ export default function AdminDashboard() {
               <ScrambledLogo />
               <p className="text-slate-500 text-sm mt-0.5 tracking-wide">Panel de Administrador</p>
             </div>
-            <div className="flex items-center gap-0.5 bg-white/[0.06] border border-white/[0.10] rounded-2xl p-1 shrink-0 backdrop-blur-sm">
+            <div className="glass-pill flex items-center gap-0.5 rounded-2xl p-1 shrink-0">
               <button onClick={() => { setShowChangePass(true); setChangePassError(''); setChangePassOk(false); }}
-                className="text-slate-400 hover:text-white hover:bg-white/[0.10] p-2 rounded-xl transition-all" title="Cambiar contraseña">
+                className="glass-btn text-slate-400 hover:text-white p-2 rounded-xl" title="Cambiar contraseña">
                 <UilKeySkeleton size={17} />
               </button>
               <button onClick={() => { setShowAdmins(true); loadAdmins(); setAdminError(''); }}
-                className="text-slate-400 hover:text-white hover:bg-white/[0.10] p-2 rounded-xl transition-all" title="Gestionar admins">
+                className="glass-btn text-slate-400 hover:text-white p-2 rounded-xl" title="Gestionar admins">
                 <UilUsersAlt size={17} />
               </button>
               <button onClick={() => setShowSettings(true)}
-                className="text-slate-400 hover:text-white hover:bg-white/[0.10] p-2 rounded-xl transition-all" title="Personalizar">
+                className="glass-btn text-slate-400 hover:text-white p-2 rounded-xl" title="Personalizar">
                 <UilPalette size={17} />
               </button>
-              <div className="w-px h-4 bg-white/[0.12] mx-0.5" />
+              <div className="w-px h-4 bg-white/[0.14] mx-0.5" />
               <button onClick={handleLogout}
-                className="text-slate-400 hover:text-white hover:bg-white/[0.10] fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5">
+                className="glass-btn text-slate-400 hover:text-white fluid-px py-2 rounded-xl fluid-text-sm flex items-center gap-1.5">
                 <UilSignout size={15} /><span className="fluid-label">Salir</span>
               </button>
             </div>
           </div>
           {/* Row 2: Action pill */}
-          <div className="flex items-center gap-1 bg-white/[0.06] border border-white/[0.10] rounded-2xl p-1 backdrop-blur-sm">
+          <div className="glass-pill flex items-center gap-1 rounded-2xl p-1">
             <button onClick={() => setShowArchived((v) => !v)}
-              className={`fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5 ${showArchived ? 'bg-white/[0.12] text-white border border-white/[0.15]' : 'text-slate-400 hover:text-white hover:bg-white/[0.08]'}`}
+              className={`glass-btn fluid-px py-2 rounded-xl fluid-text-sm flex items-center gap-1.5 ${showArchived ? 'bg-white/[0.14] text-white' : 'text-slate-400 hover:text-white'}`}
               title="Archivados">
               <UilArchive size={15} /><span className="fluid-label">Archivados</span>
             </button>
             <button onClick={() => { setShowExportModal(true); setExportSelection(new Set()); }}
-              className="text-slate-400 hover:text-white hover:bg-white/[0.08] fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5"
+              className="glass-btn text-slate-400 hover:text-white fluid-px py-2 rounded-xl fluid-text-sm flex items-center gap-1.5"
               title="Exportar">
               <UilFileDownloadAlt size={15} /><span className="fluid-label">Exportar</span>
             </button>
-            <div className="w-px h-4 bg-white/[0.12] mx-0.5" />
+            <div className="w-px h-4 bg-white/[0.14] mx-0.5" />
             <button onClick={() => { setShowCreate(true); setCreateError(''); setForm({ name: '', slug: '', pin: '' }); }}
-              className="bg-blue-500/20 hover:bg-blue-500/35 border border-blue-500/40 text-blue-300 hover:text-blue-200 font-semibold fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5"
+              className="glass-btn-blue font-semibold fluid-px py-2 rounded-xl fluid-text-sm flex items-center gap-1.5"
               title="Nuevo desafío">
               <UilPlus size={15} /><span className="fluid-label">Desafío</span>
             </button>
             <button onClick={() => { setShowCreateRaffle(true); setRaffleError(''); setRaffleForm({ name: '', slug: '', pin: '' }); }}
-              className="bg-amber-500/20 hover:bg-amber-500/35 border border-amber-500/40 text-amber-300 hover:text-amber-200 font-semibold fluid-px py-2 rounded-xl transition-all fluid-text-sm flex items-center gap-1.5"
+              className="glass-btn-amber font-semibold fluid-px py-2 rounded-xl fluid-text-sm flex items-center gap-1.5"
               title="Nuevo sorteo">
               <UilTicket size={15} /><span className="fluid-label">Sorteo</span>
             </button>
@@ -1223,7 +1223,7 @@ export default function AdminDashboard() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {raffles.map((r, i) => (
                 <motion.div key={r.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                  className={`glass rounded-2xl p-5 flex flex-col gap-4 border transition-all ${selectedRaffles.has(r.id) ? 'border-amber-400/60 ring-1 ring-amber-400/30' : 'border-amber-500/20'}`}>
+                  className={`glass-card rounded-2xl p-5 flex flex-col gap-4 transition-all ${selectedRaffles.has(r.id) ? 'ring-1 ring-amber-400/40' : ''}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-start gap-2.5 flex-1 min-w-0">
                       <input type="checkbox" checked={selectedRaffles.has(r.id)}
@@ -1249,20 +1249,20 @@ export default function AdminDashboard() {
                     {/* Primary row */}
                     <div className="flex gap-1.5">
                       <button onClick={() => navigate(`/admin/raffles/${r.id}/control`)}
-                        className="flex-1 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5">
+                        className="glass-btn-amber flex-1 text-sm font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5">
                         <UilDashboard size={15} />Control
                       </button>
                       <button
                         onClick={() => setQrModal({ url: `${window.location.origin}/sorteo/${r.slug}`, title: r.name, pin: r.pin })}
-                        className="bg-white/5 hover:bg-white/10 text-slate-400 p-2.5 rounded-xl transition-all border border-white/8" title="Ver QR">
+                        className="glass-btn text-slate-400 hover:text-white p-2.5 rounded-xl" title="Ver QR">
                         <UilQrcodeScan size={15} />
                       </button>
                       <button onClick={() => handleArchiveRaffle(r.id, true)}
-                        className="bg-white/5 hover:bg-white/10 text-slate-500 p-2.5 rounded-xl transition-all border border-white/8" title="Archivar">
+                        className="glass-btn text-slate-500 hover:text-white p-2.5 rounded-xl" title="Archivar">
                         <UilArchive size={15} />
                       </button>
                       <button onClick={() => handleDeleteRaffle(r.id, r.name)}
-                        className="bg-red-500/8 hover:bg-red-500/20 text-red-500 p-2.5 rounded-xl transition-all border border-red-500/10" title="Eliminar">
+                        className="glass-btn text-red-500 hover:text-red-400 p-2.5 rounded-xl" title="Eliminar">
                         <UilTrashAlt size={15} />
                       </button>
                     </div>
@@ -1270,11 +1270,11 @@ export default function AdminDashboard() {
                     {r._count?.entries > 0 && (
                       <div className="flex gap-1.5">
                         <button onClick={() => exportRaffleCSV(r.id, r.name)}
-                          className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-medium py-2 rounded-xl transition-all border border-emerald-500/10">
+                          className="glass-btn flex-1 flex items-center justify-center gap-1.5 text-emerald-400 hover:text-emerald-300 text-xs font-medium py-2 rounded-xl">
                           <UilFileAlt size={13} />CSV
                         </button>
                         <button onClick={() => exportRafflePDF(r.id, r.name)}
-                          className="flex-1 flex items-center justify-center gap-1.5 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-xs font-medium py-2 rounded-xl transition-all border border-sky-500/10">
+                          className="glass-btn flex-1 flex items-center justify-center gap-1.5 text-sky-400 hover:text-sky-300 text-xs font-medium py-2 rounded-xl">
                           <UilFileDownloadAlt size={13} />PDF
                         </button>
                       </div>
@@ -1331,7 +1331,7 @@ export default function AdminDashboard() {
             <p className="text-slate-400 mb-6">Crea tu primer quiz para comenzar</p>
             <button
               onClick={() => setShowCreate(true)}
-              className="bg-blue-500/20 hover:bg-blue-500/35 border border-blue-500/40 text-blue-300 hover:text-blue-200 font-bold px-6 py-3 rounded-xl transition-all backdrop-blur-sm"
+              className="glass-btn-blue font-bold px-6 py-3 rounded-xl"
             >
               + Crear primer desafío
             </button>
@@ -1346,7 +1346,7 @@ export default function AdminDashboard() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="glass rounded-2xl p-5 flex flex-col gap-4 group"
+                  className="glass-card rounded-2xl p-5 flex flex-col gap-4 group"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
@@ -1369,14 +1369,14 @@ export default function AdminDashboard() {
                     <div className="flex gap-1.5">
                       <button
                         onClick={() => navigate(`/admin/challenges/${c.id}/edit`)}
-                        className="flex-1 bg-white/8 hover:bg-white/14 text-slate-300 text-sm font-medium py-2.5 rounded-xl transition-all border border-white/8"
+                        className="glass-btn flex-1 text-slate-300 hover:text-white text-sm font-medium py-2.5 rounded-xl"
                       >
                         Editar
                       </button>
                       {c.status !== 'ENDED' && (
                         <button
                           onClick={() => navigate(`/admin/challenges/${c.id}/live`)}
-                          className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5"
+                          className="glass-btn-blue flex-1 text-sm font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5"
                         >
                           <UilPlay size={14} />Live
                         </button>
@@ -1384,7 +1384,7 @@ export default function AdminDashboard() {
                       {c.status === 'ENDED' && (
                         <button
                           onClick={() => setConfirmReset({ id: c.id, name: c.name })}
-                          className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5"
+                          className="glass-btn-blue flex-1 text-sm font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5"
                           title="Reiniciar para jugar de nuevo"
                         >
                           <UilRefresh size={14} />Reiniciar
@@ -1396,7 +1396,7 @@ export default function AdminDashboard() {
                       {c._count?.sessions > 0 && (
                         <button
                           onClick={() => { setResultsChallenge({ id: c.id, name: c.name }); loadResults(c.id); }}
-                          className="flex-1 flex items-center justify-center bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 py-2 rounded-xl transition-all border border-emerald-500/10"
+                          className="glass-btn flex-1 flex items-center justify-center text-emerald-400 hover:text-emerald-300 py-2 rounded-xl"
                           title="Ver resultados"
                         >
                           <UilChartBar size={15} />
@@ -1405,7 +1405,7 @@ export default function AdminDashboard() {
                       {c._count?.sessions > 0 && (
                         <button
                           onClick={() => window.open(`/hof/${c.slug}`, '_blank', 'noopener')}
-                          className="flex-1 flex items-center justify-center bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 py-2 rounded-xl transition-all border border-amber-500/10"
+                          className="glass-btn-amber flex-1 flex items-center justify-center py-2 rounded-xl"
                           title="Hall of Fame"
                         >
                           🏆
@@ -1413,19 +1413,19 @@ export default function AdminDashboard() {
                       )}
                       <button
                         onClick={() => setQrModal({ url: `${window.location.origin}/join/${c.slug}`, title: c.name, pin: c.pin })}
-                        className="flex-1 flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-400 py-2 rounded-xl transition-all border border-white/8" title="Ver QR">
+                        className="glass-btn flex-1 flex items-center justify-center text-slate-400 hover:text-white py-2 rounded-xl" title="Ver QR">
                         <UilQrcodeScan size={15} />
                       </button>
                       <button
                         onClick={() => handleArchiveChallenge(c.id, true)}
-                        className="flex-1 flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-500 py-2 rounded-xl transition-all border border-white/8"
+                        className="glass-btn flex-1 flex items-center justify-center text-slate-500 hover:text-white py-2 rounded-xl"
                         title="Archivar"
                       >
                         <UilArchive size={15} />
                       </button>
                       <button
                         onClick={() => setConfirmDelete({ id: c.id, name: c.name })}
-                        className="flex-1 flex items-center justify-center bg-red-500/8 hover:bg-red-500/20 text-red-500 py-2 rounded-xl transition-all border border-red-500/10"
+                        className="glass-btn flex-1 flex items-center justify-center text-red-500 hover:text-red-400 py-2 rounded-xl"
                         title="Eliminar"
                       >
                         <UilTrashAlt size={15} />

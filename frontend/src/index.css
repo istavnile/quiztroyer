@@ -31,6 +31,162 @@
 }
 
 @layer utilities {
+  /* ── Apple-style liquid glass ──────────────────────────────────────────────
+     Three layers: gradient fill + specular top-edge highlight (::before) +
+     outer depth shadow. Backdrop blur handles the frosting.
+  ── */
+
+  /* Pill containers (toolbar rows) */
+  .glass-pill {
+    position: relative;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    background: linear-gradient(160deg,
+      rgba(255,255,255,0.11) 0%,
+      rgba(255,255,255,0.04) 100%
+    );
+    border: 1px solid rgba(255,255,255,0.14);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.22),
+      inset 0 -1px 0 rgba(0,0,0,0.08),
+      0 6px 24px rgba(0,0,0,0.28),
+      0 1px 4px rgba(0,0,0,0.18);
+  }
+
+  /* Cards */
+  .glass-card {
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: linear-gradient(160deg,
+      rgba(255,255,255,0.09) 0%,
+      rgba(255,255,255,0.03) 60%,
+      rgba(255,255,255,0.01) 100%
+    );
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.18),
+      0 8px 32px rgba(0,0,0,0.32),
+      0 2px 8px rgba(0,0,0,0.20);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 45%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.07), transparent);
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  .glass-card:hover {
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.24),
+      0 12px 40px rgba(0,0,0,0.38),
+      0 2px 8px rgba(0,0,0,0.22);
+    transform: translateY(-1px);
+  }
+
+  /* Neutral button inside a glass pill */
+  .glass-btn {
+    position: relative;
+    overflow: hidden;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .glass-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.10), transparent);
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  .glass-btn:hover {
+    background: rgba(255,255,255,0.10) !important;
+  }
+
+  /* Blue-tinted glass button */
+  .glass-btn-blue {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(150deg,
+      rgba(99,160,255,0.24) 0%,
+      rgba(59,130,246,0.10) 100%
+    );
+    border: 1px solid rgba(99,160,255,0.32);
+    color: rgb(186,219,255);
+    box-shadow:
+      inset 0 1px 0 rgba(147,197,253,0.28),
+      0 0 16px rgba(59,130,246,0.18);
+    transition: all 0.15s ease;
+  }
+
+  .glass-btn-blue::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(147,197,253,0.14), transparent);
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  .glass-btn-blue:hover {
+    background: linear-gradient(150deg,
+      rgba(99,160,255,0.36) 0%,
+      rgba(59,130,246,0.18) 100%
+    ) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(147,197,253,0.36),
+      0 0 24px rgba(59,130,246,0.30);
+    color: #fff;
+  }
+
+  /* Amber-tinted glass button */
+  .glass-btn-amber {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(150deg,
+      rgba(251,191,36,0.24) 0%,
+      rgba(245,158,11,0.10) 100%
+    );
+    border: 1px solid rgba(251,191,36,0.32);
+    color: rgb(253,230,138);
+    box-shadow:
+      inset 0 1px 0 rgba(253,230,138,0.28),
+      0 0 16px rgba(245,158,11,0.18);
+    transition: all 0.15s ease;
+  }
+
+  .glass-btn-amber::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(253,230,138,0.14), transparent);
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  .glass-btn-amber:hover {
+    background: linear-gradient(150deg,
+      rgba(251,191,36,0.36) 0%,
+      rgba(245,158,11,0.18) 100%
+    ) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(253,230,138,0.36),
+      0 0 24px rgba(245,158,11,0.30);
+    color: #fff;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────── */
+
   /* ── Fluid responsive utilities ────────────────────────────────────────────
      These replace hard Tailwind breakpoints with continuously scaling values
      so the layout never "snaps" at a fixed pixel width.
