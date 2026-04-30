@@ -185,14 +185,14 @@ function BannerSection({ title, prefix, branding, setBranding, defaultHeight }) 
           <input type="text" value={branding[textKey] || ''}
             onChange={(e) => setBranding((b) => ({ ...b, [textKey]: e.target.value }))}
             placeholder={prefix === 'header' ? 'Nombre del evento' : 'Powered by Quiztroyer'}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            className="w-full bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/60 transition-all" />
           {prefix === 'header' && (
             <div className="space-y-2">
               <div className="flex gap-2">
                 <input type="text" value={branding.logoUrl || ''}
                   onChange={(e) => setBranding((b) => ({ ...b, logoUrl: e.target.value }))}
                   placeholder="URL del logo (opcional)"
-                  className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                  className="flex-1 bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/60 transition-all" />
                 <label className="shrink-0 cursor-pointer bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-2 py-1.5 rounded-lg transition-all flex items-center gap-1">
                   📁 Subir
                   <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
@@ -237,7 +237,7 @@ function BannerSection({ title, prefix, branding, setBranding, defaultHeight }) 
           <input type="text" value={branding[imageKey]?.trim() || ''}
             onChange={(e) => setBranding((b) => ({ ...b, [imageKey]: e.target.value }))}
             placeholder={`URL — 1920×${prefix === 'header' ? '160' : '100'}px recomendado`}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            className="w-full bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/60 transition-all" />
           <label className="flex items-center gap-2 cursor-pointer text-xs text-blue-400 hover:text-blue-300 transition-colors">
             📁 {uploading ? 'Subiendo...' : 'Subir imagen'}
             <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
@@ -274,7 +274,7 @@ function ColorField({ label, value, onChange }) {
         <input type="color" value={value} onChange={(e) => onChange(e.target.value)}
           className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 shrink-0" />
         <input type="text" value={value} onChange={(e) => onChange(e.target.value)}
-          className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-blue-500" />
+          className="flex-1 bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-blue-500/60 transition-all" />
       </div>
     </div>
   );
@@ -412,7 +412,7 @@ export default function ChallengeEditor() {
             <span className="flex items-center gap-1"><UilPlay size={13} /><span className="fluid-label">Control </span>Live</span>
           </button>
           <a href={`/join/${challenge?.slug}`} target="_blank" rel="noreferrer"
-            className="bg-slate-700 hover:bg-slate-600 text-white fluid-text-sm font-medium fluid-px py-2 rounded-xl transition-all flex items-center gap-1.5"
+            className="glass-btn text-white/70 hover:text-white fluid-text-sm font-medium fluid-px py-2 rounded-xl flex items-center gap-1.5 border border-white/[0.10]"
           >
             <UilEye size={13} /><span className="fluid-label">Preview</span>
           </a>
@@ -483,20 +483,20 @@ export default function ChallengeEditor() {
         <div className="flex-1 min-w-0 space-y-4">
 
           {/* General settings — compact single row */}
-          <section className="glass rounded-2xl p-4">
+          <section className="glass-card rounded-2xl p-4">
             <form onSubmit={handleSaveGeneral}>
               <div className="flex items-end gap-3 flex-wrap">
                 <div className="flex-1 min-w-[140px]">
                   <label className="block text-xs text-slate-400 mb-1">Nombre</label>
                   <input type="text" value={generalForm.name}
                     onChange={(e) => setGeneralForm((f) => ({ ...f, name: e.target.value }))}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 focus:bg-white/[0.09] transition-all" />
                 </div>
                 <div className="flex-1 min-w-[120px]">
                   <label className="block text-xs text-slate-400 mb-1">Slug</label>
                   <input type="text" value={generalForm.slug}
                     onChange={(e) => setGeneralForm((f) => ({ ...f, slug: e.target.value }))}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 focus:bg-white/[0.09] transition-all" />
                 </div>
                 <div className="w-28">
                   <label className="block text-xs text-slate-400 mb-1">PIN</label>
@@ -507,12 +507,12 @@ export default function ChallengeEditor() {
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button type="button" onClick={() => setBrandingOpen(true)}
-                    className="bg-slate-700 hover:bg-slate-600 text-white text-sm px-3 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5"
+                    className="glass-btn text-white/70 hover:text-white text-sm px-3 py-2 rounded-xl whitespace-nowrap flex items-center gap-1.5 border border-white/[0.10]"
                   >
                     <UilPalette size={15} />Branding
                   </button>
                   <button type="submit" disabled={saving}
-                    className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-bold px-3 py-2 rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5"
+                    className="glass-btn-blue disabled:opacity-50 text-sm font-bold px-3 py-2 rounded-xl whitespace-nowrap flex items-center gap-1.5"
                   >
                     {saving ? '…' : <><UilSave size={15} />Guardar</>}
                   </button>
@@ -556,7 +556,7 @@ export default function ChallengeEditor() {
                 key="empty"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="glass rounded-2xl p-8 text-center text-slate-500"
+                className="glass-card rounded-2xl p-8 text-center text-slate-500"
               >
                 <p className="text-4xl mb-3">✏️</p>
                 <p>Selecciona un slide de la izquierda para editarlo</p>
@@ -578,9 +578,9 @@ export default function ChallengeEditor() {
             <motion.div
               initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 32, stiffness: 320 }}
-              className="fixed right-0 top-0 h-full w-full max-w-md bg-slate-950 border-l border-slate-700 z-50 flex flex-col shadow-2xl"
+              className="fixed right-0 top-0 h-full w-full max-w-md bg-slate-950/95 border-l border-white/[0.10] z-50 flex flex-col shadow-2xl backdrop-blur-xl"
             >
-              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700 shrink-0">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08] shrink-0">
                 <h2 className="text-white font-bold flex items-center gap-2"><UilPalette size={18} />Branding</h2>
                 <button onClick={() => setBrandingOpen(false)} className="text-slate-400 hover:text-white text-lg leading-none">✕</button>
               </div>
@@ -603,7 +603,7 @@ export default function ChallengeEditor() {
                     <input type="text" value={branding.logoUrl || ''}
                       onChange={(e) => setBranding((b) => ({ ...b, logoUrl: e.target.value }))}
                       placeholder="https://tu-logo.com/logo.png"
-                      className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                      className="flex-1 bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/60 transition-all" />
                     <label className="shrink-0 cursor-pointer bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-2 py-1.5 rounded-lg transition-all flex items-center gap-1 whitespace-nowrap">
                       {uploadingLogo ? '...' : '📁 Subir'}
                       <input type="file" accept="image/*" className="hidden" disabled={uploadingLogo} onChange={async (e) => {
@@ -623,9 +623,9 @@ export default function ChallengeEditor() {
                 <BannerSection title="Banner Inferior" prefix="footer" branding={branding} setBranding={setBranding} defaultHeight={56} />
               </div>
 
-              <div className="shrink-0 px-5 py-4 border-t border-slate-700">
+              <div className="shrink-0 px-5 py-4 border-t border-white/[0.08]">
                 <button onClick={handleSaveBranding} disabled={saving}
-                  className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
+                  className="w-full glass-btn-blue disabled:opacity-50 text-sm font-bold py-2.5 rounded-xl"
                 >
                   {saving ? 'Guardando...' : <span className="flex items-center justify-center gap-1.5"><UilSave size={16} />Guardar branding</span>}
                 </button>

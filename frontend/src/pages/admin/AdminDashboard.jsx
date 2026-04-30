@@ -77,14 +77,14 @@ function ConfirmModal({ message, onConfirm, onCancel }) {
         initial={{ scale: 0.92, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.92, opacity: 0 }}
-        className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+        className="glass-card rounded-2xl p-6 w-full max-w-sm shadow-2xl"
       >
         <div className="flex justify-center mb-3"><UilExclamationTriangle size={32} className="text-yellow-400" /></div>
         <p className="text-white text-center font-medium mb-6">{message}</p>
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-2.5 rounded-xl transition-all"
+            className="flex-1 glass-btn text-white/70 hover:text-white font-medium py-2.5 rounded-xl border border-white/[0.10]"
           >
             Cancelar
           </button>
@@ -115,7 +115,7 @@ function QRModal({ url, title, pin, onClose }) {
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-xs shadow-2xl flex flex-col items-center gap-4"
+        className="glass-card rounded-2xl p-6 w-full max-w-xs shadow-2xl flex flex-col items-center gap-4"
       >
         <div className="w-full flex items-center justify-between">
           <h3 className="text-white font-bold text-sm truncate max-w-[200px]">{title}</h3>
@@ -135,7 +135,7 @@ function QRModal({ url, title, pin, onClose }) {
         )}
         <button
           onClick={openFullscreen}
-          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
+          className="w-full flex items-center justify-center gap-2 glass-btn-blue text-sm font-bold py-2.5 rounded-xl"
         >
           <UilExpandAlt size={16} />Proyectar en pantalla
         </button>
@@ -626,7 +626,7 @@ export default function AdminDashboard() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+              className="glass-card rounded-2xl p-6 w-full max-w-sm shadow-2xl"
             >
               <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2"><UilPalette size={20} />Pantalla de inicio</h2>
               <div className="space-y-4">
@@ -650,7 +650,7 @@ export default function AdminDashboard() {
                         className={`py-2 px-2 rounded-lg text-xs font-medium transition-all text-center ${
                           (siteSettings.bgEffect || 'blobs') === key
                             ? 'bg-blue-600 text-white ring-2 ring-blue-400'
-                            : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                            : 'glass-btn text-slate-400 hover:text-white border border-white/[0.08]'
                         }`}
                       >
                         {label}
@@ -666,7 +666,7 @@ export default function AdminDashboard() {
                     {siteSettings.logoUrl && (
                       <img src={siteSettings.logoUrl} alt="logo" className="h-10 object-contain rounded bg-slate-800 p-1 shrink-0" />
                     )}
-                    <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded-lg transition-all shrink-0 flex items-center gap-1.5">
+                    <label className="cursor-pointer glass-btn text-slate-300 text-xs px-3 py-2 rounded-lg shrink-0 flex items-center gap-1.5 border border-white/[0.10]">
                       <UilUpload size={13} />Subir logo
                       <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                         const file = e.target.files?.[0];
@@ -705,7 +705,7 @@ export default function AdminDashboard() {
                         type="text"
                         value={siteSettings[key] || '#6366f1'}
                         onChange={(e) => setSiteSettings((s) => ({ ...s, [key]: e.target.value }))}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 mt-0.5"
+                        className="w-full bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1 text-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-blue-500/60 transition-all mt-0.5"
                       />
                     </div>
                   </div>
@@ -715,7 +715,7 @@ export default function AdminDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowSettings(false)}
-                  className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2.5 rounded-xl font-medium transition-all text-sm"
+                  className="flex-1 glass-btn text-white/70 hover:text-white py-2.5 rounded-xl font-medium text-sm border border-white/[0.10]"
                 >
                   Cancelar
                 </button>
@@ -723,7 +723,7 @@ export default function AdminDashboard() {
                   type="button"
                   onClick={saveSiteSettings}
                   disabled={savingSettings}
-                  className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all text-sm"
+                  className="flex-1 glass-btn-blue disabled:opacity-50 py-2.5 rounded-xl font-bold text-sm"
                 >
                   {savingSettings ? 'Guardando...' : <span className="flex items-center justify-center gap-1.5"><UilSave size={16} />Guardar</span>}
                 </button>
@@ -738,25 +738,25 @@ export default function AdminDashboard() {
             style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
             onClick={(e) => e.target === e.currentTarget && setShowChangePass(false)}>
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+              className="glass-card rounded-2xl p-6 w-full max-w-sm shadow-2xl">
               <h2 className="text-lg font-bold text-white mb-1 flex items-center gap-2"><UilKeySkeleton size={20} />Cambiar contraseña</h2>
               <p className="text-slate-500 text-xs mb-5">Usuario: <span className="text-slate-300">{currentUsername}</span></p>
               <form onSubmit={handleChangePassword} className="space-y-3">
                 <input type="password" placeholder="Contraseña actual" value={changePassForm.current}
                   onChange={(e) => setChangePassForm((f) => ({ ...f, current: e.target.value }))}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
+                  className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 focus:bg-white/[0.09] transition-all text-sm" />
                 <input type="password" placeholder="Nueva contraseña (mín. 6 chars)" value={changePassForm.next}
                   onChange={(e) => setChangePassForm((f) => ({ ...f, next: e.target.value }))}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
+                  className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 focus:bg-white/[0.09] transition-all text-sm" />
                 {changePassError && <p className="text-red-400 text-xs">{changePassError}</p>}
                 {changePassOk    && <p className="text-green-400 text-xs">✓ Contraseña actualizada</p>}
                 <div className="flex gap-3 pt-1">
                   <button type="button" onClick={() => setShowChangePass(false)}
-                    className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2.5 rounded-xl font-medium transition-all text-sm">
+                    className="flex-1 glass-btn text-white/70 hover:text-white py-2.5 rounded-xl font-medium text-sm border border-white/[0.10]">
                     Cancelar
                   </button>
                   <button type="submit" disabled={savingPass || !changePassForm.current || changePassForm.next.length < 6}
-                    className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all text-sm">
+                    className="flex-1 glass-btn-blue disabled:opacity-50 py-2.5 rounded-xl font-bold text-sm">
                     {savingPass ? 'Guardando...' : 'Guardar'}
                   </button>
                 </div>
@@ -771,7 +771,7 @@ export default function AdminDashboard() {
             style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(6px)' }}
             onClick={(e) => e.target === e.currentTarget && setShowAdmins(false)}>
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-950 border border-white/[0.08] rounded-2xl p-5 w-full max-w-sm shadow-2xl max-h-[85vh] flex flex-col">
+              className="glass-card rounded-2xl p-5 w-full max-w-sm shadow-2xl max-h-[85vh] flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-bold text-white flex items-center gap-2"><UilUsersAlt size={18} />Administradores</h2>
                 <button onClick={() => setShowAdmins(false)} className="text-slate-500 hover:text-slate-300 transition-colors">
@@ -805,16 +805,16 @@ export default function AdminDashboard() {
                 <form onSubmit={handleCreateAdmin} className="space-y-2">
                   <input type="text" placeholder="Usuario" value={newAdmin.username}
                     onChange={(e) => setNewAdmin((f) => ({ ...f, username: e.target.value }))}
-                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
+                    className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 focus:bg-white/[0.09] transition-all text-sm" />
                   <input type="email" placeholder="Email (opcional)" value={newAdmin.email}
                     onChange={(e) => setNewAdmin((f) => ({ ...f, email: e.target.value }))}
-                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
+                    className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 focus:bg-white/[0.09] transition-all text-sm" />
                   <input type="password" placeholder="Contraseña" value={newAdmin.password}
                     onChange={(e) => setNewAdmin((f) => ({ ...f, password: e.target.value }))}
-                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm" />
+                    className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 focus:bg-white/[0.09] transition-all text-sm" />
                   {adminError && <p className="text-red-400 text-xs">{adminError}</p>}
                   <button type="submit" disabled={creatingAdmin || !newAdmin.username || !newAdmin.password}
-                    className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all text-sm">
+                    className="w-full glass-btn-blue disabled:opacity-50 py-2.5 rounded-xl font-bold text-sm">
                     {creatingAdmin ? 'Creando...' : '+ Crear admin'}
                   </button>
                 </form>
@@ -828,7 +828,7 @@ export default function AdminDashboard() {
             style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)' }}
             onClick={(e) => e.target === e.currentTarget && setShowExportModal(false)}>
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+              className="glass-card rounded-2xl p-6 w-full max-w-md shadow-2xl">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
                   <UilFileDownloadAlt size={20} />Exportar sorteos
@@ -928,7 +928,7 @@ export default function AdminDashboard() {
             style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)' }}
             onClick={(e) => e.target === e.currentTarget && setResultsChallenge(null)}>
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col">
+              className="glass-card rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-lg font-bold text-white flex items-center gap-2"><UilChartBar size={20} />Resultados</h2>
@@ -1075,7 +1075,7 @@ export default function AdminDashboard() {
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl"
+                className="glass-card rounded-2xl p-6 w-full max-w-md shadow-2xl"
               >
                 <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><UilPlus size={22} />Nuevo Desafío</h2>
                 <form onSubmit={handleCreate} className="space-y-4">
@@ -1089,7 +1089,7 @@ export default function AdminDashboard() {
                         setForm((f) => ({ ...f, name, slug: autoSlug(name) }));
                       }}
                       placeholder="Mi Quiz Épico"
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 focus:bg-white/[0.09] transition-all"
                       required
                       autoFocus
                     />
@@ -1097,13 +1097,13 @@ export default function AdminDashboard() {
                   <div>
                     <label className="block text-sm text-slate-400 mb-1">Slug (URL)</label>
                     <div className="flex items-center">
-                      <span className="bg-slate-700 border border-r-0 border-slate-600 rounded-l-xl px-3 py-2.5 text-slate-500 text-sm">/</span>
+                      <span className="bg-white/[0.08] border border-r-0 border-white/[0.10] rounded-l-xl px-3 py-2.5 text-slate-400 text-sm">/</span>
                       <input
                         type="text"
                         value={form.slug}
                         onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
                         placeholder="mi-quiz-epico"
-                        className="flex-1 bg-slate-800 border border-slate-600 rounded-r-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex-1 bg-white/[0.06] border border-white/[0.10] rounded-r-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 focus:bg-white/[0.09] transition-all"
                         required
                       />
                     </div>
@@ -1116,7 +1116,7 @@ export default function AdminDashboard() {
                       onChange={(e) => setForm((f) => ({ ...f, pin: e.target.value }))}
                       placeholder="1234"
                       maxLength={8}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 tracking-widest text-center text-xl"
+                      className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 focus:bg-white/[0.09] transition-all tracking-widest text-center text-xl"
                       required
                     />
                   </div>
@@ -1136,7 +1136,7 @@ export default function AdminDashboard() {
                     <button
                       type="submit"
                       disabled={creating || !form.name || !form.slug || !form.pin}
-                      className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all"
+                      className="flex-1 glass-btn-blue disabled:opacity-50 py-2.5 rounded-xl font-bold"
                     >
                       {creating ? 'Creando...' : 'Crear →'}
                     </button>
@@ -1155,7 +1155,7 @@ export default function AdminDashboard() {
               style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
               onClick={(e) => e.target === e.currentTarget && setShowCreateRaffle(false)}>
               <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                className="glass-card rounded-2xl p-6 w-full max-w-md shadow-2xl">
                 <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><UilTicket size={22} />Nuevo Sorteo</h2>
                 <form onSubmit={handleCreateRaffle} className="space-y-4">
                   <div>
@@ -1163,16 +1163,16 @@ export default function AdminDashboard() {
                     <input type="text" value={raffleForm.name}
                       onChange={(e) => { const name = e.target.value; setRaffleForm((f) => ({ ...f, name, slug: autoSlug(name) })); }}
                       placeholder="Gran Sorteo NVIDIA" required autoFocus
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                      className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500/60 focus:border-amber-500/40 focus:bg-white/[0.09] transition-all" />
                   </div>
                   <div>
                     <label className="block text-sm text-slate-400 mb-1">Slug (URL)</label>
                     <div className="flex items-center">
-                      <span className="bg-slate-700 border border-r-0 border-slate-600 rounded-l-xl px-3 py-2.5 text-slate-500 text-sm">/sorteo/</span>
+                      <span className="bg-white/[0.08] border border-r-0 border-white/[0.10] rounded-l-xl px-3 py-2.5 text-slate-400 text-sm">/sorteo/</span>
                       <input type="text" value={raffleForm.slug}
                         onChange={(e) => setRaffleForm((f) => ({ ...f, slug: e.target.value }))}
                         placeholder="gran-sorteo" required
-                        className="flex-1 bg-slate-800 border border-slate-600 rounded-r-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                        className="flex-1 bg-white/[0.06] border border-white/[0.10] rounded-r-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500/60 focus:border-amber-500/40 focus:bg-white/[0.09] transition-all" />
                     </div>
                   </div>
                   <div>
@@ -1180,14 +1180,14 @@ export default function AdminDashboard() {
                     <input type="text" value={raffleForm.pin}
                       onChange={(e) => setRaffleForm((f) => ({ ...f, pin: e.target.value }))}
                       placeholder="1234" maxLength={8} required
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500 tracking-widest text-center text-xl" />
+                      className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500/60 focus:border-amber-500/40 focus:bg-white/[0.09] transition-all tracking-widest text-center text-xl" />
                   </div>
                   {raffleError && <div className="bg-red-500/20 border border-red-500/40 rounded-xl px-4 py-2"><p className="text-red-400 text-sm">{raffleError}</p></div>}
                   <div className="flex gap-3 pt-1">
                     <button type="button" onClick={() => setShowCreateRaffle(false)}
                       className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2.5 rounded-xl font-medium transition-all">Cancelar</button>
                     <button type="submit" disabled={creatingRaffle || !raffleForm.name || !raffleForm.slug || !raffleForm.pin}
-                      className="flex-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold transition-all">
+                      className="flex-1 glass-btn-amber disabled:opacity-50 py-2.5 rounded-xl font-bold">
                       {creatingRaffle ? 'Creando...' : 'Crear →'}
                     </button>
                   </div>
