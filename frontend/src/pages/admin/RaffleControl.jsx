@@ -182,13 +182,13 @@ export default function RaffleControl() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       {/* Header */}
-      <div className="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center gap-3">
+      <div className="border-b border-white/[0.08] bg-slate-950/80 backdrop-blur px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
         <button onClick={() => navigate('/admin')} className="text-slate-400 hover:text-white transition-colors text-sm">← Admin</button>
         <span className="text-slate-600">/</span>
         <span className="font-bold truncate">{raffle.name}</span>
         <button
           onClick={() => window.open(`${window.location.origin}/display/raffle/${raffle.slug}`, '_blank')}
-          className="ml-auto flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-1.5 rounded-xl transition-all"
+          className="ml-auto glass-btn-blue flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-xl"
           title="Abrir pantalla de proyección"
         >
           <UilDesktop size={15} />Pantalla
@@ -199,11 +199,11 @@ export default function RaffleControl() {
 
         {/* Status & participant count */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="glass rounded-xl p-4 text-center">
+          <div className="glass-card rounded-xl p-4 text-center">
             <p className="text-3xl font-black text-blue-400">{participantCount}</p>
             <p className="text-slate-400 text-sm">Participantes</p>
           </div>
-          <div className="glass rounded-xl p-4 text-center">
+          <div className="glass-card rounded-xl p-4 text-center">
             <p className="text-3xl font-black text-amber-400">{spinsDone}/3</p>
             <p className="text-slate-400 text-sm">Giros realizados</p>
           </div>
@@ -211,10 +211,10 @@ export default function RaffleControl() {
 
         {/* Open raffle */}
         {raffle.status === 'DRAFT' && (
-          <div className="glass rounded-xl p-5 text-center">
+          <div className="glass-card rounded-xl p-5 text-center">
             <p className="text-slate-400 text-sm mb-3">El sorteo está cerrado. Ábrelo para que los participantes puedan inscribirse.</p>
             <button onClick={openRaffle}
-              className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl transition-all">
+              className="glass-btn-blue font-bold px-6 py-3 rounded-xl">
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-400 inline-block" />Abrir sorteo</span>
             </button>
           </div>
@@ -222,7 +222,7 @@ export default function RaffleControl() {
 
         {/* Share link */}
         {raffle.status === 'OPEN' && (
-          <div className="glass rounded-xl p-4">
+          <div className="glass-card rounded-xl p-4">
             <p className="text-xs text-slate-500 mb-1">Link de inscripción</p>
             <p className="text-blue-400 text-sm break-all font-mono">{window.location.origin}/sorteo/{raffle.slug}</p>
             <p className="text-xs text-slate-500 mt-1">PIN: <span className="text-white font-bold">{raffle.pin}</span></p>
@@ -231,7 +231,7 @@ export default function RaffleControl() {
 
         {/* Spin controls */}
         {raffle.status !== 'DRAFT' && phase !== 'done' && (
-          <div className="glass rounded-xl p-6 text-center">
+          <div className="glass-card rounded-xl p-6 text-center">
             <p className="text-slate-400 text-sm mb-4">
               {spinsDone === 0 ? 'Cuando estés listo, realiza el primer giro.' :
                spinsDone === 1 ? 'Buen giro. Uno más antes del definitivo.' :
@@ -269,7 +269,7 @@ export default function RaffleControl() {
         {/* Winner */}
         {phase === 'done' && winner && (
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-            className="glass rounded-2xl p-6 border border-yellow-500/30 text-center">
+            className="glass-card rounded-2xl p-6 border border-yellow-500/30 text-center">
             <div className="flex justify-center mb-3"><UilTrophy size={48} className="text-yellow-400" /></div>
             <p className="text-yellow-400 font-bold uppercase tracking-widest text-xs mb-2">Ganador del sorteo</p>
             <h2 className="text-2xl font-black text-white mb-4">{winner.nombre} {winner.apellido}</h2>
@@ -295,7 +295,7 @@ export default function RaffleControl() {
               {branding.logoUrl && (
                 <img src={branding.logoUrl} alt="logo" className="h-10 object-contain rounded bg-slate-800 p-1" />
               )}
-              <label className="cursor-pointer bg-white/5 hover:bg-white/10 text-slate-300 text-xs px-3 py-2 rounded-lg transition-all">
+              <label className="cursor-pointer glass-btn text-slate-300 text-xs px-3 py-2 rounded-lg border border-white/[0.10]">
                 <span className="flex items-center gap-1.5"><UilUpload size={13} />Subir logo</span>
                 <input type="file" accept="image/*" className="hidden" onChange={uploadLogo} />
               </label>
@@ -329,14 +329,14 @@ export default function RaffleControl() {
           </div>
 
           <button onClick={saveBranding} disabled={brandingSaving}
-            className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-bold py-2 rounded-lg transition-all">
+            className="w-full glass-btn-blue disabled:opacity-50 text-sm font-bold py-2 rounded-lg">
             {brandingSaving ? 'Guardando...' : <span className="flex items-center justify-center gap-1.5"><UilSave size={16} />Guardar branding</span>}
           </button>
         </div>
 
         {/* Entries list */}
         {raffle.entries?.length > 0 && (
-          <div className="glass rounded-xl p-4">
+          <div className="glass-card rounded-xl p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                 Participantes ({raffle.entries.length})

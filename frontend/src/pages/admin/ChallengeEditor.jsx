@@ -119,7 +119,7 @@ function BrandingPreview({ branding }) {
   return (
     <div>
       <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2">Preview en vivo</p>
-      <div className="rounded-xl overflow-hidden border border-slate-700">
+      <div className="rounded-xl overflow-hidden border border-white/[0.10]">
         <div style={{ height: `${hh}px` }} className="w-full overflow-hidden"><HeaderContent /></div>
         <div className="flex items-center justify-center py-3" style={{ background: branding.bgColor || '#0f172a' }}>
           <span className="text-white/20 text-xs">contenido del juego</span>
@@ -165,7 +165,7 @@ function BannerSection({ title, prefix, branding, setBranding, defaultHeight }) 
   }
 
   return (
-    <div className="border border-slate-700 rounded-xl p-3 space-y-3">
+    <div className="border border-white/[0.10] rounded-xl p-3 space-y-3 bg-white/[0.03]">
       <div className="flex items-center justify-between">
         <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">{title}</p>
         <div className="flex rounded-lg overflow-hidden border border-slate-700 text-xs">
@@ -193,7 +193,7 @@ function BannerSection({ title, prefix, branding, setBranding, defaultHeight }) 
                   onChange={(e) => setBranding((b) => ({ ...b, logoUrl: e.target.value }))}
                   placeholder="URL del logo (opcional)"
                   className="flex-1 bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/60 transition-all" />
-                <label className="shrink-0 cursor-pointer bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-2 py-1.5 rounded-lg transition-all flex items-center gap-1">
+                <label className="shrink-0 cursor-pointer glass-btn text-slate-300 text-xs px-2 py-1.5 rounded-lg flex items-center gap-1 border border-white/[0.10]">
                   📁 Subir
                   <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                     const file = e.target.files[0]; if (!file) return;
@@ -210,7 +210,7 @@ function BannerSection({ title, prefix, branding, setBranding, defaultHeight }) 
               {branding.logoUrl && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-slate-500 shrink-0">Posición logo</span>
-                  <div className="flex rounded-lg overflow-hidden border border-slate-700 text-xs">
+                  <div className="flex rounded-lg overflow-hidden border border-white/[0.10] text-xs">
                     <button type="button"
                       onClick={() => setBranding((b) => ({ ...b, logoPosition: 'left' }))}
                       className={`px-3 py-1 transition-all ${(branding.logoPosition || 'left') === 'left' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>
@@ -429,7 +429,7 @@ export default function ChallengeEditor() {
             <div className="relative">
               <button
                 onClick={() => setShowAddType(!showAddType)}
-                className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all"
+                className="glass-btn-blue text-xs font-bold px-2.5 py-1.5 rounded-lg"
               >
                 + Agregar
               </button>
@@ -439,7 +439,7 @@ export default function ChallengeEditor() {
                     initial={{ opacity: 0, scale: 0.95, y: -4 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="absolute left-0 top-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-1.5 flex flex-col gap-0.5 w-44 z-50 shadow-xl"
+                    className="absolute left-0 top-full mt-1 glass-card rounded-xl p-1.5 flex flex-col gap-0.5 w-44 z-50 shadow-xl"
                   >
                     {Object.entries(TYPE_LABELS).map(([type, meta]) => (
                       <button key={type} onClick={() => handleAddQuestion(type)}
@@ -604,7 +604,7 @@ export default function ChallengeEditor() {
                       onChange={(e) => setBranding((b) => ({ ...b, logoUrl: e.target.value }))}
                       placeholder="https://tu-logo.com/logo.png"
                       className="flex-1 bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/60 transition-all" />
-                    <label className="shrink-0 cursor-pointer bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs px-2 py-1.5 rounded-lg transition-all flex items-center gap-1 whitespace-nowrap">
+                    <label className="shrink-0 cursor-pointer glass-btn text-slate-300 text-xs px-2 py-1.5 rounded-lg flex items-center gap-1 whitespace-nowrap border border-white/[0.10]">
                       {uploadingLogo ? '...' : '📁 Subir'}
                       <input type="file" accept="image/*" className="hidden" disabled={uploadingLogo} onChange={async (e) => {
                         const file = e.target.files[0]; if (!file) return;

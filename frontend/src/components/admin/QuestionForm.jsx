@@ -103,7 +103,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
   const slideImageUrl = form.slideImage || '';
 
   return (
-    <div className="glass rounded-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="glass-card rounded-2xl overflow-hidden flex flex-col max-h-[90vh]">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
         <span className="text-xs font-bold text-indigo-400">{TYPE_LABELS[form.type]}</span>
@@ -122,7 +122,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
             onChange={(e) => setForm((f) => ({ ...f, prompt: e.target.value }))}
             maxLength={form.maxChars || 200}
             rows={3}
-            className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-3 py-2 text-white text-sm resize-none focus:outline-none focus:ring-1 focus:ring-indigo-500/60 focus:border-indigo-500/40 focus:bg-white/[0.09] transition-all placeholder-slate-500"
             placeholder="¿Cuál es la pregunta?"
           />
         </div>
@@ -133,18 +133,18 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
             <label className="block text-xs text-slate-400 mb-1">Tiempo (seg)</label>
             <input type="number" min={5} max={120} value={form.timeLimit}
               onChange={(e) => setForm((f) => ({ ...f, timeLimit: parseInt(e.target.value) || 30 }))}
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+              className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/60 focus:border-indigo-500/40 focus:bg-white/[0.09] transition-all" />
           </div>
           <div>
             <label className="block text-xs text-slate-400 mb-1">Máx. chars</label>
             <input type="number" min={50} max={500} value={form.maxChars || 200}
               onChange={(e) => setForm((f) => ({ ...f, maxChars: parseInt(e.target.value) || 200 }))}
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+              className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/60 focus:border-indigo-500/40 focus:bg-white/[0.09] transition-all" />
           </div>
         </div>
 
         {/* ── Imagen central del slide ── */}
-        <div className="border border-slate-700 rounded-xl overflow-hidden">
+        <div className="border border-white/[0.10] rounded-xl overflow-hidden bg-white/[0.03]">
           <button type="button"
             onClick={() => setShowSlideImage((v) => !v)}
             className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-white/5 transition-colors"
@@ -156,14 +156,14 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
             <span className="text-slate-600 text-xs">{showSlideImage ? '▲' : '▼'}</span>
           </button>
           {showSlideImage && (
-            <div className="px-3 pb-3 space-y-2 border-t border-slate-700/60">
+            <div className="px-3 pb-3 space-y-2 border-t border-white/[0.08]">
               <div className="pt-2">
                 <input
                   type="text"
                   value={slideImageUrl}
                   onChange={(e) => setForm((f) => ({ ...f, slideImage: e.target.value }))}
                   placeholder="https://... (aparece sobre el enunciado)"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/60 focus:bg-white/[0.09] transition-all placeholder-slate-500"
                 />
               </div>
               <label className="flex items-center gap-2 text-xs text-indigo-400 hover:text-indigo-300 cursor-pointer transition-colors">
@@ -179,7 +179,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
         </div>
 
         {/* ── Fondo del slide ── */}
-        <div className="border border-slate-700 rounded-xl overflow-hidden">
+        <div className="border border-white/[0.10] rounded-xl overflow-hidden bg-white/[0.03]">
           <button type="button"
             onClick={() => setShowSlideBg((v) => !v)}
             className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-white/5 transition-colors"
@@ -192,9 +192,9 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
             <span className="text-slate-600 text-xs">{showSlideBg ? '▲' : '▼'}</span>
           </button>
           {showSlideBg && (
-          <div className="px-3 pb-3 pt-2 space-y-3 border-t border-slate-700/60">
+          <div className="px-3 pb-3 pt-2 space-y-3 border-t border-white/[0.08]">
           {/* Tab selector */}
-          <div className="flex rounded-lg overflow-hidden border border-slate-700 text-xs">
+          <div className="flex rounded-lg overflow-hidden border border-white/[0.10] text-xs">
             {['color', 'gradient', 'image'].map((tab) => (
               <button key={tab} type="button"
                 onClick={() => { setBgTab(tab); updateBg({ type: tab }); }}
@@ -212,7 +212,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
                 className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 shrink-0" />
               <input type="text" value={bg.color || '#0f172a'}
                 onChange={(e) => updateBg({ color: e.target.value, type: 'color' })}
-                className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                className="flex-1 bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500/60 focus:bg-white/[0.09] transition-all" />
             </div>
           )}
 
@@ -236,7 +236,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
               <input type="text" value={bg.imageUrl || ''}
                 onChange={(e) => updateBg({ imageUrl: e.target.value, type: 'image' })}
                 placeholder="https://... — recomendado: 1920×1080"
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                className="w-full bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/60 focus:bg-white/[0.09] transition-all placeholder-slate-500" />
               <label className="flex items-center gap-2 text-xs text-indigo-400 hover:text-indigo-300 cursor-pointer transition-colors">
                 <span className="flex items-center gap-1.5"><UilUpload size={13} />{uploadingBg ? 'Subiendo...' : 'Subir imagen de fondo'}</span>
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'bg')} disabled={uploadingBg} />
@@ -257,7 +257,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
 
         {/* QUIZ */}
         {form.type === 'QUIZ' && (
-          <div className="border border-slate-700 rounded-xl p-3 space-y-2">
+          <div className="border border-white/[0.10] rounded-xl p-3 space-y-2 bg-white/[0.03]">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Opciones <span className="text-slate-600 font-normal">(selecciona la correcta)</span></p>
             {(form.config.options || []).map((opt, i) => (
               <div key={i} className="flex items-center gap-2">
@@ -265,7 +265,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
                   className="accent-green-400 w-4 h-4 cursor-pointer shrink-0" />
                 <input type="text" value={opt.text} onChange={(e) => updateOption(i, 'text', e.target.value)}
                   placeholder={`Opción ${i + 1}`}
-                  className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                  className="flex-1 bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/60 focus:bg-white/[0.09] transition-all placeholder-slate-500" />
                 {form.config.options.length > 2 && (
                   <button type="button" onClick={() => removeOption(i)} className="text-red-400 hover:text-red-300 text-xs">✕</button>
                 )}
@@ -279,7 +279,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
 
         {/* TRUE/FALSE */}
         {form.type === 'TRUEFALSE' && (
-          <div className="border border-slate-700 rounded-xl p-3">
+          <div className="border border-white/[0.10] rounded-xl p-3 bg-white/[0.03]">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Respuesta correcta</p>
             <div className="flex gap-3">
               {[true, false].map((val) => (
@@ -287,7 +287,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
                   className={`flex-1 py-3 rounded-xl font-bold text-sm border-2 transition-all
                     ${form.config.correctAnswer === val
                       ? val ? 'bg-green-500/30 border-green-500 text-green-400' : 'bg-red-500/30 border-red-500 text-red-400'
-                      : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'}`}
+                      : 'bg-white/[0.04] border-white/[0.10] text-slate-400 hover:border-white/[0.20]'}`}
                 >
                   {val ? '✅ Verdadero' : '❌ Falso'}
                 </button>
@@ -298,14 +298,14 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
 
         {/* PUZZLE */}
         {form.type === 'PUZZLE' && (
-          <div className="border border-slate-700 rounded-xl p-3 space-y-2">
+          <div className="border border-white/[0.10] rounded-xl p-3 space-y-2 bg-white/[0.03]">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ítems en orden correcto</p>
             {(form.config.items || []).map((item, i) => (
               <div key={i} className="flex items-center gap-2">
                 <span className="text-slate-600 text-xs font-bold w-4 shrink-0">{i + 1}</span>
                 <input type="text" value={item} onChange={(e) => updateItem(i, e.target.value)}
                   placeholder={`Ítem ${i + 1}`}
-                  className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                  className="flex-1 bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/60 focus:bg-white/[0.09] transition-all placeholder-slate-500" />
                 {form.config.items.length > 2 && (
                   <button type="button" onClick={() => removeItem(i)} className="text-red-400 text-xs">✕</button>
                 )}
@@ -317,7 +317,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
 
         {/* PIN ON IMAGE */}
         {form.type === 'PINIMAGE' && (
-          <div className="border border-slate-700 rounded-xl p-3 space-y-3">
+          <div className="border border-white/[0.10] rounded-xl p-3 space-y-3 bg-white/[0.03]">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Imagen y zona correcta</p>
             <div className="flex gap-2">
               <input type="text" value={form.config.imageUrl || ''} onChange={(e) => updateConfig('imageUrl', e.target.value)}
@@ -331,7 +331,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
               <div className="space-y-2">
                 <p className="text-xs text-slate-500">Haz clic en la imagen para marcar la zona correcta</p>
                 <div
-                  className="relative rounded-lg overflow-hidden border border-slate-700 cursor-crosshair select-none"
+                  className="relative rounded-lg overflow-hidden border border-white/[0.10] cursor-crosshair select-none"
                   onClick={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -370,7 +370,7 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
                 )}
               </div>
             ) : (
-              <div className="text-center py-6 text-slate-600 text-xs border border-dashed border-slate-700 rounded-lg">
+              <div className="text-center py-6 text-slate-600 text-xs border border-dashed border-white/[0.10] rounded-lg">
                 Sube una imagen para marcar la zona correcta
               </div>
             )}
@@ -378,13 +378,13 @@ export default function QuestionForm({ question, onSave, onCancel, saving, onFor
         )}
 
         {/* ── Actions ── */}
-        <div className="flex gap-2 px-1 pt-3 pb-3 border-t border-slate-700 sticky bottom-0 bg-slate-900 backdrop-blur">
+        <div className="flex gap-2 px-1 pt-3 pb-3 border-t border-white/[0.08] sticky bottom-0 bg-slate-950/80 backdrop-blur-xl">
           <button type="button" onClick={onCancel}
-            className="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium py-2.5 rounded-xl transition-all">
+            className="flex-1 glass-btn text-white/70 hover:text-white text-sm font-medium py-2.5 rounded-xl border border-white/[0.10]">
             Cancelar
           </button>
           <button type="submit" disabled={saving}
-            className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-bold py-2.5 rounded-xl transition-all">
+            className="flex-1 glass-btn-blue disabled:opacity-50 text-sm font-bold py-2.5 rounded-xl">
             {saving ? 'Guardando...' : <span className="flex items-center justify-center gap-1.5"><UilSave size={15} />Guardar</span>}
           </button>
         </div>
