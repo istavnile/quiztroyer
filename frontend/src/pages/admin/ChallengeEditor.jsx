@@ -18,7 +18,7 @@ import { CSS } from '@dnd-kit/utilities';
 import api from '../../lib/api';
 import QuestionForm from '../../components/admin/QuestionForm';
 import SlidePreview from '../../components/admin/SlidePreview';
-import { UilCircle, UilCheck, UilApps, UilMapPin, UilEye, UilPalette, UilLayers, UilPlay, UilSave, UilUpload, UilTrashAlt } from '@iconscout/react-unicons';
+import { UilCircle, UilCheck, UilApps, UilMapPin, UilEye, UilPalette, UilLayers, UilPlay, UilSave, UilUpload, UilTrashAlt, UilEditAlt } from '@iconscout/react-unicons';
 
 const TYPE_LABELS = {
   QUIZ:      { label: 'Quiz',   icon: <UilCircle size={11} />, color: 'bg-blue-500/20 text-blue-400' },
@@ -407,7 +407,7 @@ export default function ChallengeEditor() {
         <div className="flex gap-2 shrink-0">
           <button
             onClick={() => navigate(`/admin/challenges/${id}/live`)}
-            className="bg-green-600 hover:bg-green-500 text-white fluid-text-sm font-bold fluid-px py-2 rounded-xl transition-all"
+            className="glass-btn-green fluid-text-sm font-bold fluid-px py-2 rounded-xl"
           >
             <span className="flex items-center gap-1"><UilPlay size={13} /><span className="fluid-label">Control </span>Live</span>
           </button>
@@ -458,7 +458,7 @@ export default function ChallengeEditor() {
           <div className="flex-1 overflow-y-auto space-y-1.5 px-0.5 pt-0.5 pb-2">
             {questions.length === 0 ? (
               <div className="text-center py-6 text-slate-600 text-xs">
-                <p className="text-2xl mb-1">📝</p>
+                <UilEditAlt size={28} className="mx-auto mb-1.5 opacity-40" />
                 <p>Sin slides aún</p>
               </div>
             ) : (
@@ -558,7 +558,7 @@ export default function ChallengeEditor() {
                 animate={{ opacity: 1 }}
                 className="glass-card rounded-2xl p-8 text-center text-slate-500"
               >
-                <p className="text-4xl mb-3">✏️</p>
+                <UilEditAlt size={48} className="mx-auto mb-3 opacity-40" />
                 <p>Selecciona un slide de la izquierda para editarlo</p>
               </motion.div>
             )}
