@@ -71,24 +71,24 @@ export default function RaffleJoin() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden" style={{ background: bg }}>
         <PageBackground siteSettings={siteSettings} color={primary} />
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-2xl p-8 w-full max-w-sm relative z-10 text-center">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-3xl p-8 w-full max-w-sm relative z-10 text-center">
           {raffle.branding?.logoUrl
             ? <img src={raffle.branding.logoUrl} alt="logo" className="h-14 object-contain mx-auto mb-4" />
             : <div className="text-5xl mb-4">🎟️</div>
           }
           <h1 className="text-2xl font-black text-white mb-1">{raffle.name}</h1>
-          <p className="text-slate-400 text-sm mb-6">Ingresa el PIN para participar</p>
+          <p className="text-white/40 text-sm mb-6">Ingresa el PIN para participar</p>
           <input
             type="text" inputMode="numeric" maxLength={8}
             value={pin} onChange={(e) => setPin(e.target.value)}
             placeholder="PIN del sorteo"
-            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white text-center text-2xl tracking-widest mb-4 focus:outline-none"
-            style={{ border: `2px solid ${primary}` }}
+            className="w-full rounded-xl px-4 py-3 text-white text-center text-2xl tracking-widest placeholder-white/20 mb-4 focus:outline-none transition-all"
+            style={{ background: 'rgba(255,255,255,0.06)', border: `1px solid ${primary}60`, backdropFilter: 'blur(8px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)' }}
           />
           <motion.button
             onClick={() => { if (pin.trim()) setPinOk(true); }}
-            className="w-full text-white font-bold py-3 rounded-xl"
-            style={{ background: primary }}
+            className="w-full text-white font-bold py-3 rounded-xl relative overflow-hidden"
+            style={{ background: `linear-gradient(135deg, ${primary}dd, ${primary}99)`, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20)' }}
             {...glow}
           >
             Continuar →
@@ -103,14 +103,14 @@ export default function RaffleJoin() {
       <PageBackground siteSettings={siteSettings} color={primary} />
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-        className="glass rounded-2xl p-6 w-full max-w-md relative z-10">
+        className="glass-card rounded-3xl p-6 w-full max-w-md relative z-10">
         <div className="text-center mb-6">
           {raffle.branding?.logoUrl
             ? <img src={raffle.branding.logoUrl} alt="logo" className="h-12 object-contain mx-auto mb-2" />
             : <div className="text-4xl mb-2">🎟️</div>
           }
           <h1 className="text-xl font-black text-white">{raffle.name}</h1>
-          <p className="text-slate-400 text-sm">Completa tus datos para participar</p>
+          <p className="text-white/40 text-sm">Completa tus datos para participar</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -122,26 +122,32 @@ export default function RaffleJoin() {
             { key: 'telefono', label: 'Teléfono', type: 'tel', placeholder: '+51 999 999 999' },
           ].map(({ key, label, type, placeholder }) => (
             <div key={key}>
-              <label className="block text-xs text-slate-400 mb-1">{label}</label>
+              <label className="block text-xs text-white/40 mb-1 uppercase tracking-wide">{label}</label>
               <input
                 type={type} value={form[key]} placeholder={placeholder}
                 onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                className={`w-full bg-slate-800 border rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-sm ${errors[key] ? 'border-red-500' : 'border-slate-700'}`}
+                className="w-full rounded-xl px-4 py-2.5 text-white placeholder-white/20 focus:outline-none text-sm transition-all"
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: errors[key] ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,255,255,0.10)',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+                }}
               />
               {errors[key] && <p className="text-red-400 text-xs mt-1">{errors[key]}</p>}
             </div>
           ))}
 
           {serverError && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm text-center">
+            <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm text-center">
               {serverError}
             </div>
           )}
 
           <motion.button
             type="submit" disabled={submitting}
-            className="w-full text-white font-bold py-3 rounded-xl disabled:opacity-50 mt-2"
-            style={{ background: primary }}
+            className="w-full text-white font-bold py-3 rounded-xl disabled:opacity-50 mt-2 relative overflow-hidden"
+            style={{ background: `linear-gradient(135deg, ${primary}dd, ${primary}99)`, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20)' }}
             {...glow}
           >
             {submitting ? 'Registrando...' : '¡Participar en el sorteo!'}

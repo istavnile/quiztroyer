@@ -84,8 +84,8 @@ export default function HallOfFame() {
             {entries.map((p, i) => (
               <motion.div key={i} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 + i * 0.04 }}
-                className="flex items-center gap-4 rounded-xl px-5 py-3"
-                style={{ background: i < 3 ? `${['#ffd700','#c0c0c0','#cd7f32'][i]}12` : 'rgba(255,255,255,0.04)', border: `1px solid ${i < 3 ? ['#ffd70040','#c0c0c040','#cd7f3240'][i] : 'rgba(255,255,255,0.07)'}` }}>
+                className="flex items-center gap-4 rounded-xl px-5 py-3 glass-card"
+                style={{ background: i < 3 ? `${['#ffd700','#c0c0c0','#cd7f32'][i]}14` : undefined, border: i < 3 ? `1px solid ${['#ffd70040','#c0c0c040','#cd7f3240'][i]}` : undefined }}>
                 <span className={`font-black w-8 text-center text-lg ${ROW_COLORS[i] || 'text-white/30'}`}>
                   {i < 3 ? MEDALS[i] : `#${i + 1}`}
                 </span>

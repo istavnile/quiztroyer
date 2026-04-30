@@ -112,8 +112,7 @@ export default function JoinPage() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 30 }}
-            className="rounded-2xl p-8 w-full max-w-sm relative z-10"
-            style={{ background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(16px)', border: `1px solid ${accent}30` }}
+            className="glass-card rounded-3xl p-8 w-full max-w-sm relative z-10"
           >
             <h2 className="text-xl font-bold text-center mb-6">🔐 Ingresar PIN</h2>
             <form onSubmit={handlePin} className="space-y-4">
@@ -124,18 +123,18 @@ export default function JoinPage() {
                 onChange={(e) => setPin(e.target.value)}
                 placeholder="PIN del desafío"
                 maxLength={8}
-                className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white text-center text-2xl tracking-widest placeholder-slate-600 focus:outline-none"
-                style={{ border: `2px solid ${accent}` }}
+                className="w-full rounded-xl px-4 py-3 text-white text-center text-2xl tracking-widest placeholder-white/20 focus:outline-none transition-all"
+                style={{ background: 'rgba(255,255,255,0.06)', border: `1px solid ${accent}60`, backdropFilter: 'blur(8px)', boxShadow: `inset 0 1px 0 rgba(255,255,255,0.08)` }}
                 autoFocus
               />
               {pinError && (
-                <p className="text-red-400 text-sm text-center">{pinError}</p>
+                <p className="text-red-400 text-sm text-center bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">{pinError}</p>
               )}
               <motion.button
                 type="submit"
                 disabled={loading || !pin}
-                className="w-full disabled:opacity-50 text-white font-bold py-3 rounded-xl"
-                style={{ background: accent }}
+                className="w-full disabled:opacity-50 text-white font-bold py-3 rounded-xl relative overflow-hidden"
+                style={{ background: `linear-gradient(135deg, ${accent}dd, ${accent}99)`, boxShadow: `inset 0 1px 0 rgba(255,255,255,0.20)` }}
                 {...glow}
               >
                 {loading ? 'Verificando...' : 'Verificar PIN'}
@@ -150,63 +149,34 @@ export default function JoinPage() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
-            className="rounded-2xl p-8 w-full max-w-sm relative z-10"
-            style={{ background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(16px)', border: `1px solid ${accent}30` }}
+            className="glass-card rounded-3xl p-8 w-full max-w-sm relative z-10"
           >
             <h2 className="text-xl font-bold text-center mb-6">👤 Tus datos</h2>
-            <form onSubmit={handleJoin} className="space-y-4">
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Nombre</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Tu nombre"
-                  maxLength={30}
-                  className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none"
-                  style={{ border: `2px solid rgb(51 65 85)` }}
-                  autoFocus
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">DNI / ID</label>
-                <input
-                  type="text"
-                  value={dni}
-                  onChange={(e) => setDni(e.target.value)}
-                  placeholder="Tu número de documento"
-                  maxLength={20}
-                  className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none"
-                  style={{ border: `2px solid rgb(51 65 85)` }}
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Correo electrónico <span className="text-slate-600">(opcional)</span></label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="tu@correo.com"
-                  className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none"
-                  style={{ border: `2px solid rgb(51 65 85)` }}
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Teléfono <span className="text-slate-600">(opcional)</span></label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+51 999 999 999"
-                  className="w-full bg-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none"
-                  style={{ border: `2px solid rgb(51 65 85)` }}
-                />
-              </div>
+            <form onSubmit={handleJoin} className="space-y-3">
+              {[
+                { val: name, set: setName, label: 'Nombre', ph: 'Tu nombre', type: 'text', maxLen: 30, auto: true },
+                { val: dni,  set: setDni,  label: 'DNI / ID', ph: 'Número de documento', type: 'text', maxLen: 20 },
+                { val: email, set: setEmail, label: 'Correo electrónico', ph: 'tu@correo.com', type: 'email', optional: true },
+                { val: phone, set: setPhone, label: 'Teléfono', ph: '+51 999 999 999', type: 'tel', optional: true },
+              ].map(({ val, set, label, ph, type, maxLen, auto, optional }) => (
+                <div key={label}>
+                  <label className="block text-xs text-white/40 mb-1 uppercase tracking-wide">
+                    {label}{optional && <span className="ml-1 normal-case text-white/20">(opcional)</span>}
+                  </label>
+                  <input
+                    type={type} value={val} placeholder={ph} maxLength={maxLen}
+                    autoFocus={auto}
+                    onChange={(e) => set(e.target.value)}
+                    className="w-full rounded-xl px-4 py-2.5 text-white placeholder-white/20 focus:outline-none transition-all text-sm"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', backdropFilter: 'blur(8px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }}
+                  />
+                </div>
+              ))}
               <motion.button
                 type="submit"
                 disabled={!name.trim() || !dni.trim()}
-                className="w-full font-bold py-3 rounded-xl text-white disabled:opacity-50"
-                style={{ background: accent }}
+                className="w-full font-bold py-3 rounded-xl text-white disabled:opacity-50 mt-1 relative overflow-hidden"
+                style={{ background: `linear-gradient(135deg, ${accent}dd, ${accent}99)`, boxShadow: `inset 0 1px 0 rgba(255,255,255,0.20)` }}
                 {...glow}
               >
                 ¡Entrar al desafío!

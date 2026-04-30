@@ -57,12 +57,12 @@ export default function Home() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="glass rounded-2xl p-8 w-full max-w-md relative z-10"
+        className="glass-card rounded-3xl p-8 w-full max-w-md relative z-10"
       >
-        <h2 className="text-2xl font-bold text-center mb-6">Unirse a un Desafío</h2>
+        <h2 className="text-2xl font-bold text-center mb-6 text-white">Unirse a un Desafío</h2>
         <form onSubmit={handleJoin} className="space-y-4">
           <div>
-            <label className="block text-sm text-slate-400 mb-2">Código del desafío</label>
+            <label className="block text-xs text-white/40 mb-2 uppercase tracking-wide font-medium">Código del desafío</label>
             <input
               type="text"
               value={slug}
@@ -70,25 +70,21 @@ export default function Home() {
               onFocus={() => setInputFocused(true)}
               onBlur={() => setInputFocused(false)}
               placeholder="ej: demo-quiz"
-              className="w-full rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none text-lg transition-all"
+              className="w-full rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none text-lg transition-all"
               style={{
-                background: 'rgba(0,0,0,0.55)',
-                border: `2px solid ${inputFocused ? accent : 'rgba(255,255,255,0.12)'}`,
-                boxShadow: inputFocused ? `0 0 0 3px ${accent}30` : 'none',
+                background: 'rgba(255,255,255,0.06)',
+                border: `1px solid ${inputFocused ? accent + '80' : 'rgba(255,255,255,0.12)'}`,
+                boxShadow: inputFocused ? `0 0 0 3px ${accent}20, inset 0 1px 0 rgba(255,255,255,0.10)` : 'inset 0 1px 0 rgba(255,255,255,0.06)',
+                backdropFilter: 'blur(8px)',
               }}
               autoFocus
             />
           </div>
           <motion.button
             type="submit"
-            className="w-full text-white font-bold py-3 rounded-xl text-lg"
-            style={{ background: accent }}
-            animate={{
-              boxShadow: [
-                `0 0 10px 2px ${accent}50`,
-                `0 0 28px 8px ${accent}bb`,
-              ],
-            }}
+            className="w-full text-white font-bold py-3.5 rounded-xl text-lg relative overflow-hidden"
+            style={{ background: `linear-gradient(135deg, ${accent}dd, ${accent}99)`, boxShadow: `inset 0 1px 0 rgba(255,255,255,0.20)` }}
+            animate={{ boxShadow: [`inset 0 1px 0 rgba(255,255,255,0.20), 0 0 10px 2px ${accent}50`, `inset 0 1px 0 rgba(255,255,255,0.20), 0 0 28px 8px ${accent}bb`] }}
             transition={{ duration: 1.4, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
           >
             Continuar →

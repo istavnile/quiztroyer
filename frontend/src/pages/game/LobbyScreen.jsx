@@ -51,10 +51,7 @@ export default function LobbyScreen() {
             Hola, <span className="text-white font-semibold">{playerName}</span>
           </p>
 
-          <div
-            className="rounded-2xl px-8 py-5 mb-8 inline-block"
-            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
-          >
+          <div className="glass-card rounded-2xl px-8 py-5 mb-8 inline-block">
             <div className="flex items-center gap-3 justify-center">
               <div
                 className={`w-2.5 h-2.5 rounded-full ${connected ? 'animate-pulse' : ''}`}

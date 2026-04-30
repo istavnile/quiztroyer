@@ -330,14 +330,14 @@ export default function RaffleRoom() {
           <div className="text-6xl mb-4">🎟️</div>
           <h1 className="text-2xl sm:text-3xl font-black text-white mb-2">¡Estás registrado!</h1>
           <p className="text-white/60 mb-6">Hola, <span className="text-white font-semibold">{nombre}</span></p>
-          <div className="glass rounded-2xl px-8 py-5 mb-6">
+          <div className="glass-card rounded-2xl px-8 py-5 mb-6">
             <div className="flex items-center gap-3 justify-center mb-1">
               <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: primary }} />
               <p className="text-white font-medium">Conectado</p>
             </div>
             <p className="text-white/50 text-sm">Esperando que el sorteo comience</p>
           </div>
-          <div className="glass rounded-xl px-6 py-3 inline-flex items-center gap-2">
+          <div className="glass-card rounded-xl px-6 py-3 inline-flex items-center gap-2">
             <span className="text-2xl font-black" style={{ color: primary }}>{participantCount}</span>
             <span className="text-white/60 text-sm">participantes registrados</span>
           </div>
@@ -370,14 +370,14 @@ export default function RaffleRoom() {
           {isSpinning ? (
             <motion.div key="spinning-badge"
               initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              className="glass rounded-2xl px-6 py-3 text-center">
+              className="glass-card rounded-2xl px-6 py-3 text-center">
               <p className="text-white font-black text-lg">🎰 Girando #{spinNumber}...</p>
               <p className="text-white/50 text-xs mt-1">
                 {spinNumber === 1 ? 'Primer giro' : spinNumber === 2 ? 'Segundo giro' : '¡Giro final!'}
               </p>
             </motion.div>
           ) : (
-            <div className="glass rounded-2xl px-6 py-3 text-center">
+            <div className="glass-card rounded-2xl px-6 py-3 text-center">
               <div className="flex items-center gap-3 justify-center">
                 <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: primary }} />
                 <p className="text-white/70 text-sm">{participantCount} participantes · Esperando al host</p>
