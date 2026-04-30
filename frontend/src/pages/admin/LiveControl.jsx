@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdmin } from '../../context/AdminContext';
 import api from '../../lib/api';
-import { UilCircle, UilCheck, UilApps, UilMapPin, UilLink, UilRocket, UilChartBar, UilPlay, UilStopCircle, UilTrophy, UilClock, UilMedal, UilDesktop, UilCopy } from '@iconscout/react-unicons';
+import { UilCircle, UilCheck, UilApps, UilMapPin, UilLink, UilRocket, UilChartBar, UilPlay, UilStopCircle, UilTrophy, UilClock, UilMedal, UilDesktop, UilCopy, UilListUl } from '@iconscout/react-unicons';
 
 const TYPE_ICONS = {
   QUIZ:      <UilCircle size={14} />,
@@ -80,14 +80,14 @@ export default function LiveControl() {
         <div className="flex gap-2">
           <button
             onClick={() => window.open(`${window.location.origin}/display/challenge/${challengeData?.slug}`, '_blank')}
-            className="bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-2 rounded-xl transition-all"
+            className="glass-btn-blue text-sm px-3 py-2 rounded-xl"
             title="Abrir pantalla de proyección"
           >
             <span className="flex items-center gap-1.5"><UilDesktop size={15} />Pantalla</span>
           </button>
           <button
             onClick={copyJoinLink}
-            className="bg-white/5 hover:bg-white/10 text-slate-300 text-sm px-3 py-2 rounded-xl transition-all"
+            className="glass-btn text-slate-300 text-sm px-3 py-2 rounded-xl border border-white/[0.10]"
           >
             <span className="flex items-center gap-1.5"><UilLink size={15} />Copiar link</span>
           </button>
@@ -99,24 +99,24 @@ export default function LiveControl() {
         <div className="space-y-4">
           {/* Status cards */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="glass rounded-2xl p-4 text-center">
+            <div className="glass-card rounded-2xl p-4 text-center">
               <p className="text-3xl font-black text-white">{playerCount}</p>
               <p className="text-slate-400 text-xs mt-1">Jugadores</p>
             </div>
-            <div className="glass rounded-2xl p-4 text-center">
+            <div className="glass-card rounded-2xl p-4 text-center">
               <p className="text-3xl font-black text-white">
                 {slideIndex >= 0 ? `${slideIndex + 1}/${totalSlides}` : '—'}
               </p>
               <p className="text-slate-400 text-xs mt-1">Slide actual</p>
             </div>
-            <div className="glass rounded-2xl p-4 text-center">
+            <div className="glass-card rounded-2xl p-4 text-center">
               <p className="text-3xl font-black text-white">{answeredCount}</p>
               <p className="text-slate-400 text-xs mt-1">Respondieron</p>
             </div>
           </div>
 
           {/* Main control */}
-          <div className="glass rounded-2xl p-6">
+          <div className="glass-card rounded-2xl p-6">
             <AnimatePresence mode="wait">
               {phase === 'LOBBY' && (
                 <motion.div
@@ -133,7 +133,7 @@ export default function LiveControl() {
                       : `${playerCount} jugador${playerCount !== 1 ? 'es' : ''} conectado${playerCount !== 1 ? 's' : ''}`}
                   </p>
 
-                  <div className="bg-slate-800 rounded-xl p-3 mb-6 text-sm font-mono text-slate-300">
+                  <div className="bg-white/[0.06] border border-white/[0.10] rounded-xl p-3 mb-6 text-sm font-mono text-slate-300">
                     {window.location.origin}/join/{challengeData?.slug}
                     <span className="ml-3 text-blue-400">PIN: {challengeData?.pin}</span>
                   </div>
@@ -143,7 +143,7 @@ export default function LiveControl() {
                     whileTap={{ scale: 0.97 }}
                     onClick={hostStart}
                     disabled={totalSlides === 0}
-                    className="bg-green-500 hover:bg-green-400 disabled:opacity-40 text-white font-bold text-xl px-10 py-5 rounded-2xl transition-all glow-green shadow-xl"
+                    className="glass-btn-green disabled:opacity-40 font-bold text-xl px-10 py-5 rounded-2xl"
                   >
                     <span className="flex items-center gap-2"><UilRocket size={22} />Iniciar Desafío</span>
                   </motion.button>
@@ -189,14 +189,14 @@ export default function LiveControl() {
                     <motion.button
                       whileTap={{ scale: 0.97 }}
                       onClick={hostRanking}
-                      className="flex-1 bg-white/8 hover:bg-white/14 text-white font-bold py-4 rounded-xl transition-all"
+                      className="flex-1 glass-btn text-white font-bold py-4 rounded-xl border border-white/[0.10]"
                     >
                       <span className="flex items-center justify-center gap-1.5"><UilChartBar size={18} />Ver Ranking</span>
                     </motion.button>
                     <motion.button
                       whileTap={{ scale: 0.97 }}
                       onClick={hostNext}
-                      className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-4 rounded-xl transition-all text-lg"
+                      className="flex-1 glass-btn-blue font-semibold py-4 rounded-xl text-lg"
                     >
                       {isLastSlide
                         ? <span className="flex items-center justify-center gap-1.5"><UilStopCircle size={20} />Terminar</span>
@@ -226,7 +226,7 @@ export default function LiveControl() {
                   <motion.button
                     whileTap={{ scale: 0.97 }}
                     onClick={hostNext}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-4 rounded-xl text-lg transition-all"
+                    className="w-full glass-btn-blue font-semibold py-4 rounded-xl text-lg"
                   >
                     {isLastSlide
                       ? <span className="flex items-center justify-center gap-2"><UilStopCircle size={20} />Finalizar Desafío</span>
@@ -246,7 +246,7 @@ export default function LiveControl() {
                   <h2 className="text-2xl font-bold text-white mb-6">Desafío Finalizado</h2>
                   <div className="space-y-2 mb-6 text-left">
                     {podium.slice(0, 3).map((p, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-slate-800 rounded-xl px-4 py-3">
+                      <div key={i} className="flex items-center gap-3 glass-card rounded-xl px-4 py-3">
                         <span className="text-sm font-black text-slate-400 w-5 text-center">#{i + 1}</span>
                         <span className="flex-1 text-white font-bold">{p.name}</span>
                         <span className="text-blue-400 font-black">{p.score?.toLocaleString()}</span>
@@ -255,7 +255,7 @@ export default function LiveControl() {
                   </div>
                   <button
                     onClick={() => navigate('/admin')}
-                    className="w-full bg-white/8 hover:bg-white/14 text-white font-medium py-3 rounded-xl transition-all"
+                    className="w-full glass-btn text-white font-medium py-3 rounded-xl border border-white/[0.10]"
                   >
                     ← Volver al panel
                   </button>
@@ -267,7 +267,7 @@ export default function LiveControl() {
 
         {/* Right: Live ranking sidebar — collapses fluidly on small screens */}
         <div className="space-y-4 overflow-hidden">
-          <div className="glass rounded-2xl p-4">
+          <div className="glass-card rounded-2xl p-4">
             <h3 className="text-white font-bold text-sm mb-3 flex items-center gap-1.5"><UilMedal size={15} />Top Jugadores</h3>
             <div className="space-y-2">
               {ranking.slice(0, 10).map((p, i) => (
@@ -283,8 +283,8 @@ export default function LiveControl() {
             </div>
           </div>
 
-          <div className="glass rounded-2xl p-4">
-            <h3 className="text-white font-bold text-sm mb-3">📋 Slides</h3>
+          <div className="glass-card rounded-2xl p-4">
+            <h3 className="text-white font-bold text-sm mb-3 flex items-center gap-1.5"><UilListUl size={15} />Slides</h3>
             <div className="space-y-1">
               {(challengeData?.questions || []).map((q, i) => (
                 <div
