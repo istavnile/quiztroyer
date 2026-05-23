@@ -14,7 +14,6 @@ import {
   UilUpload, UilExclamationTriangle, UilDashboard, UilLock, UilRefresh, UilArchive,
   UilQrcodeScan, UilExpandAlt, UilTimesCircle, UilFileDownloadAlt, UilShield,
 } from '@iconscout/react-unicons';
-import { QRCodeSVG } from 'qrcode.react';
 
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -1178,7 +1177,7 @@ export default function AdminDashboard() {
         )}
       </AnimatePresence>
 
-      <div className="max-w-5xl mx-auto relative z-10">
+      <div className="max-w-[90rem] mx-auto px-4 lg:px-10 relative z-10">
         {/* Header */}
         <div className="mb-8 space-y-3">
           {/* Row 1: Logo + utility pill */}
@@ -1379,12 +1378,18 @@ export default function AdminDashboard() {
           )}
         </AnimatePresence>
 
-        {/* Campañas externas */}
-        <div className="mb-8">
-          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-            <UilBullseye size={14} style={{ color: '#76B900' }} />
-            Campañas externas
-          </h2>
+        {/* ── Two-column layout: sidebar + main ── */}
+        <div className="grid gap-8 xl:grid-cols-[360px_1fr]">
+
+          {/* Sidebar */}
+          <div className="space-y-5">
+
+            {/* Campañas externas */}
+            <div>
+              <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <UilBullseye size={14} style={{ color: '#76B900' }} />
+                Campañas externas
+              </h2>
           <Link to={`${ADMIN_PATH}/concurso`} style={{ textDecoration: 'none' }}>
             <motion.div
               whileHover={{ y: -2 }}
@@ -1416,11 +1421,35 @@ export default function AdminDashboard() {
               </div>
             </motion.div>
           </Link>
-        </div>
+            </div>{/* /campaigns */}
+
+            {/* Quick stats widget */}
+            <div className="glass-card rounded-2xl p-5">
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">Resumen</h3>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-xl py-3" style={{ background: 'rgba(251,191,36,0.06)' }}>
+                  <p className="text-2xl font-black text-white">{raffles.length}</p>
+                  <p className="text-[11px] text-amber-400/70 font-semibold mt-0.5">Sorteos</p>
+                </div>
+                <div className="rounded-xl py-3" style={{ background: 'rgba(99,160,255,0.06)' }}>
+                  <p className="text-2xl font-black text-white">{challenges.length}</p>
+                  <p className="text-[11px] text-blue-400/70 font-semibold mt-0.5">Desafíos</p>
+                </div>
+                <div className="rounded-xl py-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                  <p className="text-2xl font-black text-white">{archivedCount}</p>
+                  <p className="text-[11px] text-slate-500/80 font-semibold mt-0.5">Archivados</p>
+                </div>
+              </div>
+            </div>
+
+          </div>{/* /sidebar */}
+
+          {/* ── Main content ── */}
+          <div className="min-w-0 space-y-8">
 
         {/* Raffles section */}
         {raffles.length > 0 && (
-          <div className="mb-8">
+          <div>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><UilTicket size={14} />Sorteos</h2>
               {selectedRaffles.size > 0 && (
@@ -1441,7 +1470,7 @@ export default function AdminDashboard() {
                 </div>
               )}
             </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {raffles.map((r, i) => (
                 <motion.div key={r.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                   className={`glass-card rounded-2xl p-5 flex flex-col gap-4 transition-all ${selectedRaffles.has(r.id) ? 'ring-1 ring-amber-400/40' : ''}`}>
@@ -1509,11 +1538,11 @@ export default function AdminDashboard() {
 
         {/* Archived section */}
         {showArchived && (archivedRaffles.length > 0 || archivedChallenges.length > 0) && (
-          <div className="mb-8">
+          <div>
             <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
               <UilArchive size={14} />Archivados
             </h2>
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {[...archivedRaffles.map((r) => ({ ...r, _type: 'raffle' })), ...archivedChallenges.map((c) => ({ ...c, _type: 'challenge' }))].map((item, i) => (
                 <motion.div key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
                   className="rounded-2xl p-4 flex items-center justify-between gap-3 border border-slate-700/50"
@@ -1563,7 +1592,7 @@ export default function AdminDashboard() {
             </button>
           </motion.div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {challenges.map((c, i) => {
               const badge = STATUS_BADGE[c.status] || STATUS_BADGE.DRAFT;
               return (
@@ -1663,6 +1692,8 @@ export default function AdminDashboard() {
             })}
           </div>
         )}
+          </div>{/* /main */}
+        </div>{/* /grid */}
       </div>
     </div>
   );

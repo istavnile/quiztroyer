@@ -39,55 +39,78 @@
   /* Pill containers (toolbar rows) */
   .glass-pill {
     position: relative;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(48px) saturate(200%);
+    -webkit-backdrop-filter: blur(48px) saturate(200%);
     background: linear-gradient(160deg,
-      rgba(255,255,255,0.11) 0%,
-      rgba(255,255,255,0.04) 100%
+      rgba(255,255,255,0.13) 0%,
+      rgba(255,255,255,0.05) 100%
     );
-    border: 1px solid rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.16);
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.22),
-      inset 0 -1px 0 rgba(0,0,0,0.08),
-      0 6px 24px rgba(0,0,0,0.28),
-      0 1px 4px rgba(0,0,0,0.18);
+      inset 0 1px 0 rgba(255,255,255,0.28),
+      inset 0 -1px 0 rgba(0,0,0,0.10),
+      0 0 0 0.5px rgba(255,255,255,0.05),
+      0 8px 32px rgba(0,0,0,0.36),
+      0 2px 8px rgba(0,0,0,0.22);
   }
 
   /* Cards */
   .glass-card {
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    background: linear-gradient(160deg,
-      rgba(255,255,255,0.09) 0%,
-      rgba(255,255,255,0.03) 60%,
-      rgba(255,255,255,0.01) 100%
+    backdrop-filter: blur(48px) saturate(200%) brightness(1.03);
+    -webkit-backdrop-filter: blur(48px) saturate(200%) brightness(1.03);
+    background: linear-gradient(145deg,
+      rgba(255,255,255,0.10) 0%,
+      rgba(255,255,255,0.04) 45%,
+      rgba(255,255,255,0.015) 100%
     );
-    border: 1px solid rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.14);
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.18),
-      0 8px 32px rgba(0,0,0,0.32),
-      0 2px 8px rgba(0,0,0,0.20);
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
+      inset 0 1px 0 rgba(255,255,255,0.26),
+      inset 0 -1px 0 rgba(0,0,0,0.06),
+      0 0 0 0.5px rgba(255,255,255,0.05),
+      0 16px 48px rgba(0,0,0,0.42),
+      0 4px 14px rgba(0,0,0,0.26),
+      0 1px 4px rgba(0,0,0,0.16);
+    transition: box-shadow 0.3s cubic-bezier(0.23,1,0.32,1), transform 0.3s cubic-bezier(0.23,1,0.32,1);
   }
 
+  /* Top specular edge — thin bright line at the top */
   .glass-card::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 45%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.07), transparent);
+    top: 0; left: 8%; right: 8%;
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent,
+      rgba(255,255,255,0.45) 30%,
+      rgba(255,255,255,0.55) 50%,
+      rgba(255,255,255,0.45) 70%,
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  /* Soft upper-left fill */
+  .glass-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, transparent 52%);
     pointer-events: none;
     border-radius: inherit;
   }
 
   .glass-card:hover {
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.24),
-      0 12px 40px rgba(0,0,0,0.38),
-      0 2px 8px rgba(0,0,0,0.22);
-    transform: translateY(-1px);
+      inset 0 1px 0 rgba(255,255,255,0.34),
+      inset 0 -1px 0 rgba(0,0,0,0.06),
+      0 0 0 0.5px rgba(255,255,255,0.07),
+      0 24px 64px rgba(0,0,0,0.46),
+      0 8px 24px rgba(0,0,0,0.30),
+      0 2px 6px rgba(0,0,0,0.18);
+    transform: translateY(-2px);
   }
 
   /* Neutral button inside a glass pill */
