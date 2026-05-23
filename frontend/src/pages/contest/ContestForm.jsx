@@ -28,6 +28,7 @@ function countWords(text) {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
+// El límite de palabras se valida en onSubmit con el valor dinámico de fs_
 const schema = z.object({
   nombre:           z.string().min(2, 'Nombre requerido'),
   email:            z.string().email('Email inválido'),
@@ -35,9 +36,7 @@ const schema = z.object({
   procesador:       z.string().min(1, 'Selecciona un procesador'),
   graficaActual:    z.string().min(1, 'Selecciona una gráfica'),
   fuentePoderWatts: z.string().min(1, 'Selecciona la fuente de poder'),
-  historia: z.string()
-    .min(20, 'La historia debe tener al menos 20 palabras')
-    .refine((v) => countWords(v) <= (fs_.maxPalabrasHistoria || 150), { message: `Máximo ${fs_.maxPalabrasHistoria || 150} palabras` }),
+  historia:        z.string().min(1, 'La historia es requerida'),
   aceptaTyC:       z.boolean().refine((v) => v === true, { message: 'Debes aceptar los Términos y Condiciones' }),
   aceptaMarketing: z.boolean().optional(),
 });
@@ -192,6 +191,12 @@ export default function ContestForm() {
   };
 
   const onSubmit = async (data) => {
+    const maxWords = fs_.maxPalabrasHistoria || 150;
+    if (countWords(data.historia) > maxWords) {
+      setSubmitState('error');
+      setSubmitError(`La historia no puede superar ${maxWords} palabras.`);
+      return;
+    }
     if (!validateFiles()) return;
     setSubmitState('loading');
     setSubmitError('');
