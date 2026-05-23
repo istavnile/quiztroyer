@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import api from '../../lib/api';
@@ -1196,6 +1196,45 @@ export default function AdminDashboard() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Campañas externas */}
+        <div className="mb-8">
+          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <UilBullseye size={14} style={{ color: '#76B900' }} />
+            Campañas externas
+          </h2>
+          <Link to="/admin/concurso" style={{ textDecoration: 'none' }}>
+            <motion.div
+              whileHover={{ y: -2 }}
+              className="glass-card rounded-2xl p-5 flex items-center justify-between cursor-pointer"
+              style={{ borderLeft: '3px solid #76B900' }}
+            >
+              <div className="flex items-center gap-4">
+                <div style={{
+                  width: '44px', height: '44px', borderRadius: '10px',
+                  background: 'rgba(118,185,0,0.12)', border: '1px solid rgba(118,185,0,0.3)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.3rem',
+                }}>
+                  🏆
+                </div>
+                <div>
+                  <p className="font-bold text-white text-sm">El Gran Upgrade</p>
+                  <p className="text-slate-500 text-xs mt-0.5">NVIDIA · ASUS ROG · ComputerShop &nbsp;·&nbsp; 1–7 jun 2026</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span style={{
+                  background: 'rgba(118,185,0,0.1)', border: '1px solid rgba(118,185,0,0.3)',
+                  color: '#76B900', fontSize: '0.7rem', fontWeight: 700,
+                  padding: '3px 10px', borderRadius: '999px',
+                }}>
+                  Gestionar →
+                </span>
+              </div>
+            </motion.div>
+          </Link>
+        </div>
 
         {/* Raffles section */}
         {raffles.length > 0 && (
