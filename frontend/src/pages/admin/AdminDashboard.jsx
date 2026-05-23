@@ -181,13 +181,15 @@ export default function AdminDashboard() {
   const [showArchived, setShowArchived]     = useState(false);
   const [archivedChallenges, setArchivedChallenges] = useState([]);
   const [archivedRaffles, setArchivedRaffles]       = useState([]);
+  const [archivedCount, setArchivedCount]           = useState(0);
+  const [loadError, setLoadError]                   = useState(false);
   const [selectedRaffles, setSelectedRaffles]       = useState(new Set());
   const [exportingRaffles, setExportingRaffles]     = useState(false);
   const [showExportModal, setShowExportModal]       = useState(false);
   const [exportSelection, setExportSelection]       = useState(new Set());
   const currentUsername = localStorage.getItem('qt_admin_username') || 'admin';
 
-  useEffect(() => { loadChallenges(); loadRaffles(); }, []);
+  useEffect(() => { loadChallenges(); loadRaffles(); loadArchivedCount(); }, []);
 
   useEffect(() => {
     api.get('/settings').then((r) => setSiteSettings(r.data)).catch(() => {});
@@ -204,18 +206,32 @@ export default function AdminDashboard() {
     try {
       const res = await api.get('/admin/challenges');
       setChallenges(res.data);
+      setLoadError(false);
+    } catch {
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
+  }
+
+  async function loadArchivedCount() {
+    try {
+      const [ch, ra] = await Promise.all([
+        api.get('/admin/challenges?archived=true'),
+        api.get('/raffle/admin/list?archived=true'),
+      ]);
+      setArchivedCount((ch.data?.length || 0) + (ra.data?.length || 0));
+    } catch {}
   }
 
   async function handleArchiveChallenge(id, archive) {
     await api.patch(`/admin/challenges/${id}/archive`, { archived: archive });
     if (archive) {
       setChallenges((p) => p.filter((c) => c.id !== id));
-      setArchivedChallenges((p) => [...p]); // trigger re-fetch on next open
+      setArchivedCount((n) => n + 1);
     } else {
       setArchivedChallenges((p) => p.filter((c) => c.id !== id));
+      setArchivedCount((n) => Math.max(0, n - 1));
       loadChallenges();
     }
   }
@@ -224,8 +240,10 @@ export default function AdminDashboard() {
     await api.patch(`/raffle/admin/${id}/archive`, { archived: archive });
     if (archive) {
       setRaffles((p) => p.filter((r) => r.id !== id));
+      setArchivedCount((n) => n + 1);
     } else {
       setArchivedRaffles((p) => p.filter((r) => r.id !== id));
+      setArchivedCount((n) => Math.max(0, n - 1));
       loadRaffles();
     }
   }
@@ -1040,6 +1058,11 @@ export default function AdminDashboard() {
               className={`glass-btn fluid-px py-2 rounded-xl fluid-text-sm flex items-center gap-1.5 ${showArchived ? 'bg-white/[0.14] text-white' : 'text-slate-400 hover:text-white'}`}
               title="Archivados">
               <UilArchive size={15} /><span className="fluid-label">Archivados</span>
+              {archivedCount > 0 && (
+                <span style={{ background: '#ca8a04', color: '#000', borderRadius: '999px', fontSize: '0.65rem', fontWeight: 800, padding: '1px 6px', lineHeight: '1.4', minWidth: '18px', textAlign: 'center' }}>
+                  {archivedCount}
+                </span>
+              )}
             </button>
             <button onClick={() => { setShowExportModal(true); setExportSelection(new Set()); }}
               className="glass-btn text-slate-400 hover:text-white fluid-px py-2 rounded-xl fluid-text-sm flex items-center gap-1.5"
@@ -1358,6 +1381,11 @@ export default function AdminDashboard() {
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : loadError ? (
+          <div className="text-center py-16 border border-red-500/20 rounded-2xl bg-red-500/5">
+            <p className="text-red-400 font-semibold mb-2">Error al cargar los desafíos</p>
+            <button onClick={() => { setLoading(true); setLoadError(false); loadChallenges(); }} className="text-slate-400 hover:text-white text-sm underline">Reintentar</button>
           </div>
         ) : challenges.length === 0 ? (
           <motion.div
