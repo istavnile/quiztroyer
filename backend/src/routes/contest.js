@@ -36,9 +36,7 @@ const DEFAULT_SETTINGS = {
 
   // Premios
   premios: [
-    { posicion: '1er lugar', descripcion: 'NVIDIA GeForce RTX 4080 + ASUS ROG Monitor 4K',              color: '#facc15', imagenUrl: '' },
-    { posicion: '2do lugar', descripcion: 'NVIDIA GeForce RTX 4070 Super + Periféricos ASUS ROG',        color: '#9ca3af', imagenUrl: '' },
-    { posicion: '3er lugar', descripcion: 'NVIDIA GeForce RTX 4060 + Voucher ComputerShop Q500',         color: '#cd7c3e', imagenUrl: '' },
+    { posicion: '1er lugar', descripcion: 'ASUS NVIDIA GeForce RTX 5060 Ti', color: '#76B900', imagenUrl: '' },
   ],
 
   // Formulario — metadatos generales

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const BASE = '/concursos/el-gran-upgrade';
 const API  = import.meta.env.VITE_API_URL || 'http://localhost:4000';
@@ -57,7 +58,9 @@ export default function ContestLayout({ children }) {
       />
 
       {/* Header */}
-      <header
+      <motion.header
+        animate={{ borderColor: [`${accentColor}99`, `${accentColor}ff`, `${accentColor}99`] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         style={{ background: 'rgba(0,0,0,0.85)', borderBottom: `2px solid ${accentColor}` }}
         className="sticky top-0 z-50 backdrop-blur-md"
       >
@@ -119,15 +122,22 @@ export default function ContestLayout({ children }) {
             <NavLink to={`${BASE}/votacion`}        active={pathname.includes('/votacion')}        accent={accentColor}>Votación</NavLink>
           </nav>
         </div>
-      </header>
+      </motion.header>
 
-      {/* Glow superior */}
-      <div
+      {/* Glow superior — animated pulse */}
+      <motion.div
+        animate={{
+          opacity:    [0.7, 1, 0.7],
+          boxShadow:  [`0 0 40px 12px ${accentColor}33`, `0 0 100px 30px ${accentColor}77`, `0 0 40px 12px ${accentColor}33`],
+          scaleX:     [0.9, 1.05, 0.9],
+        }}
+        transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
         style={{
-          position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)',
+          position: 'fixed', top: 0, left: '50%', translateX: '-50%',
           width: '60vw', height: '2px', background: accentColor,
-          boxShadow: `0 0 80px 20px ${accentColor}59`,
           zIndex: 40,
+          transformOrigin: 'center',
+          transform: 'translateX(-50%)',
         }}
       />
 
