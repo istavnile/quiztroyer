@@ -41,15 +41,60 @@ const DEFAULT_SETTINGS = {
     { posicion: '3er lugar', descripcion: 'NVIDIA GeForce RTX 4060 + Voucher ComputerShop Q500',         color: '#cd7c3e', imagenUrl: '' },
   ],
 
-  // Formulario
+  // Formulario — metadatos generales
   tituloFormulario: 'Formulario de inscripción',
   instruccionesFormulario: 'Completa todos los campos. Las inscripciones cierran el 7 de junio a las 23:59.',
-  labelHistoria: '¿Por qué mereces el Gran Upgrade?',
-  placeholderHistoria: 'Comparte tu historia, tu pasión por la tecnología y por qué tu setup necesita un upgrade...',
-  maxPalabrasHistoria: 150,
-  textoTyC: 'Acepto los Términos y Condiciones del concurso',
-  urlTyC: '#tyc',
-  textoMarketing: 'Acepto recibir comunicaciones comerciales de NVIDIA, ASUS y ComputerShop',
+
+  // Campos del formulario (schema dinámico)
+  campos: [
+    { id: 'nombre',    tipo: 'text',  label: 'Nombre completo',      placeholder: 'Tu nombre',            requerido: true,  ancho: 'half',  sistema: true },
+    { id: 'email',     tipo: 'email', label: 'Correo electrónico',   placeholder: 'correo@ejemplo.com',   requerido: true,  ancho: 'half',  sistema: true },
+    { id: 'telefono',  tipo: 'tel',   label: 'Teléfono',             placeholder: '+502 0000-0000',       requerido: true,  ancho: 'half',  sistema: true },
+    { id: 'procesador', tipo: 'select', label: 'Procesador', placeholder: 'Selecciona...', requerido: true, ancho: 'third', sistema: true,
+      opciones: [
+        { valor: 'INTEL_I3_10A_14A', etiqueta: 'Intel Core i3 (10ª–14ª Gen)' },
+        { valor: 'INTEL_I5_10A_14A', etiqueta: 'Intel Core i5 (10ª–14ª Gen)' },
+        { valor: 'INTEL_I7_10A_14A', etiqueta: 'Intel Core i7 (10ª–14ª Gen)' },
+        { valor: 'INTEL_I9_10A_14A', etiqueta: 'Intel Core i9 (10ª–14ª Gen)' },
+        { valor: 'AMD_RYZEN_3', etiqueta: 'AMD Ryzen 3 (Serie 3000–9000)' },
+        { valor: 'AMD_RYZEN_5', etiqueta: 'AMD Ryzen 5 (Serie 3000–9000)' },
+        { valor: 'AMD_RYZEN_7', etiqueta: 'AMD Ryzen 7 (Serie 3000–9000)' },
+        { valor: 'AMD_RYZEN_9', etiqueta: 'AMD Ryzen 9 (Serie 3000–9000)' },
+        { valor: 'OTRO', etiqueta: 'Otro' },
+      ],
+    },
+    { id: 'graficaActual', tipo: 'select', label: 'Gráfica actual', placeholder: 'Selecciona...', requerido: true, ancho: 'third', sistema: true,
+      opciones: [
+        { valor: 'GTX_10_SERIES', etiqueta: 'NVIDIA GeForce GTX 10 Series (1060/1070/1080)' },
+        { valor: 'GTX_16_SERIES', etiqueta: 'NVIDIA GeForce GTX 16 Series (1650/1660)' },
+        { valor: 'RTX_20_SERIES', etiqueta: 'NVIDIA GeForce RTX 20 Series (2060/2070/2080)' },
+        { valor: 'RTX_30_SERIES', etiqueta: 'NVIDIA GeForce RTX 30 Series (3060/3070/3080/3090)' },
+        { valor: 'RTX_40_SERIES', etiqueta: 'NVIDIA GeForce RTX 40 Series (4060/4070/4080/4090)' },
+        { valor: 'AMD_RX_5000',   etiqueta: 'AMD Radeon RX 5000 Series' },
+        { valor: 'AMD_RX_6000',   etiqueta: 'AMD Radeon RX 6000 Series' },
+        { valor: 'AMD_RX_7000',   etiqueta: 'AMD Radeon RX 7000 Series' },
+        { valor: 'INTEL_ARC',     etiqueta: 'Intel Arc' },
+        { valor: 'GPU_INTEGRADA', etiqueta: 'GPU Integrada (sin tarjeta dedicada)' },
+        { valor: 'OTRA',          etiqueta: 'Otra' },
+      ],
+    },
+    { id: 'fuentePoderWatts', tipo: 'select', label: 'Fuente de poder', placeholder: 'Selecciona...', requerido: true, ancho: 'third', sistema: true,
+      opciones: [
+        { valor: 'MENOS_500W', etiqueta: 'Menos de 500W' },
+        { valor: 'W500_649',   etiqueta: '500W – 649W' },
+        { valor: 'W650_749',   etiqueta: '650W – 749W' },
+        { valor: 'W750_849',   etiqueta: '750W – 849W' },
+        { valor: 'W850_999',   etiqueta: '850W – 999W' },
+        { valor: 'MAS_1000W',  etiqueta: '1000W o más' },
+        { valor: 'NO_SE',      etiqueta: 'No sé / No tengo' },
+      ],
+    },
+    { id: 'fotoExterior', tipo: 'file', label: 'Foto exterior (gabinete / setup)', hint: 'Vista frontal o general de tu setup',             requerido: true, ancho: 'half',  sistema: true },
+    { id: 'fotoInterior', tipo: 'file', label: 'Foto interior (componentes)',        hint: 'Interior del gabinete con componentes visibles', requerido: true, ancho: 'half',  sistema: true },
+    { id: 'historia',    tipo: 'textarea', label: '¿Por qué mereces el Gran Upgrade?', placeholder: 'Comparte tu historia, tu pasión por la tecnología y por qué tu setup necesita un upgrade...', requerido: true, ancho: 'full', sistema: true, maxPalabras: 150 },
+    { id: 'aceptaTyC',       tipo: 'checkbox', label: 'Acepto los Términos y Condiciones del concurso', url: '#tyc', requerido: true,  ancho: 'full', sistema: true },
+    { id: 'aceptaMarketing', tipo: 'checkbox', label: 'Acepto recibir comunicaciones comerciales de NVIDIA, ASUS y ComputerShop',          requerido: false, ancho: 'full', sistema: true },
+  ],
 };
 
 function readContestSettings() {
@@ -109,6 +154,13 @@ function countWords(text) {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
+// IDs de campos del sistema que mapean a columnas DB
+const SYSTEM_CAMPO_IDS = new Set([
+  'nombre', 'email', 'telefono', 'procesador', 'graficaActual',
+  'fuentePoderWatts', 'fotoExterior', 'fotoInterior', 'historia',
+  'aceptaTyC', 'aceptaMarketing',
+]);
+
 // ─── POST /api/contest/register ───────────────────────────────────────────────
 router.post(
   '/register',
@@ -118,47 +170,48 @@ router.post(
   ]),
   async (req, res) => {
     if (!isRegistrationOpen()) {
-      // Limpia los archivos subidos si el concurso no está activo
-      if (req.files) {
-        Object.values(req.files).flat().forEach((f) => fs.unlink(f.path, () => {}));
-      }
+      if (req.files) Object.values(req.files).flat().forEach((f) => fs.unlink(f.path, () => {}));
       return res.status(403).json({ error: 'Las inscripciones no están abiertas en este momento.' });
     }
 
-    const {
-      nombre, email, telefono,
-      procesador, graficaActual, fuentePoderWatts,
-      historia, aceptaTyC, aceptaMarketing,
-    } = req.body;
+    const settings = readContestSettings();
+    const camposConfig = settings.campos || [];
 
-    const missingFields = [];
-    if (!nombre?.trim())           missingFields.push('nombre');
-    if (!email?.trim())            missingFields.push('email');
-    if (!telefono?.trim())         missingFields.push('telefono');
-    if (!procesador)               missingFields.push('procesador');
-    if (!graficaActual)            missingFields.push('graficaActual');
-    if (!fuentePoderWatts)         missingFields.push('fuentePoderWatts');
-    if (!historia?.trim())         missingFields.push('historia');
+    const { nombre, email, telefono, procesador, graficaActual, fuentePoderWatts, historia, aceptaTyC, aceptaMarketing } = req.body;
 
-    if (missingFields.length) {
-      return res.status(400).json({ error: `Campos requeridos: ${missingFields.join(', ')}` });
-    }
+    // Validar campos del sistema
+    const missing = [];
+    if (!nombre?.trim())    missing.push('nombre');
+    if (!email?.trim())     missing.push('email');
+    if (!telefono?.trim())  missing.push('telefono');
+    if (!procesador)        missing.push('procesador');
+    if (!graficaActual)     missing.push('graficaActual');
+    if (!fuentePoderWatts)  missing.push('fuentePoderWatts');
+    if (!historia?.trim())  missing.push('historia');
+    if (missing.length) return res.status(400).json({ error: `Campos requeridos: ${missing.join(', ')}` });
 
-    if (aceptaTyC !== 'true' && aceptaTyC !== true) {
+    if (aceptaTyC !== 'true' && aceptaTyC !== true)
       return res.status(400).json({ error: 'Debes aceptar los Términos y Condiciones.' });
-    }
 
-    if (countWords(historia) > 150) {
-      return res.status(400).json({ error: 'La historia no puede superar 150 palabras.' });
-    }
+    const historiaConfig = camposConfig.find((c) => c.id === 'historia');
+    const maxPalabras = historiaConfig?.maxPalabras || 150;
+    if (countWords(historia) > maxPalabras)
+      return res.status(400).json({ error: `La historia no puede superar ${maxPalabras} palabras.` });
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return res.status(400).json({ error: 'Email inválido.' });
-    }
 
-    if (!req.files?.fotoExterior?.[0] || !req.files?.fotoInterior?.[0]) {
+    if (!req.files?.fotoExterior?.[0] || !req.files?.fotoInterior?.[0])
       return res.status(400).json({ error: 'Debes subir la foto exterior e interior de tu PC.' });
+
+    // Validar y recolectar campos extra (no sistema)
+    const camposExtra = {};
+    for (const campo of camposConfig.filter((c) => !c.sistema)) {
+      const val = req.body[campo.id];
+      if (campo.requerido && (!val || (Array.isArray(val) ? val.length === 0 : !String(val).trim()))) {
+        return res.status(400).json({ error: `El campo "${campo.label}" es requerido.` });
+      }
+      if (val !== undefined && val !== null && val !== '') camposExtra[campo.id] = val;
     }
 
     const apiBase = `${req.protocol}://${req.get('host')}`;
@@ -171,25 +224,18 @@ router.post(
           nombre: nombre.trim(),
           email: email.trim().toLowerCase(),
           telefono: telefono.trim(),
-          procesador,
-          graficaActual,
-          fuentePoderWatts,
-          fotoExteriorUrl,
-          fotoInteriorUrl,
+          procesador, graficaActual, fuentePoderWatts,
+          fotoExteriorUrl, fotoInteriorUrl,
           historia: historia.trim(),
           aceptaTyC: true,
           aceptaMarketing: aceptaMarketing === 'true' || aceptaMarketing === true,
+          camposExtra: Object.keys(camposExtra).length ? camposExtra : undefined,
         },
       });
       res.status(201).json({ ok: true, id: lead.id });
     } catch (err) {
-      // Limpia archivos si la inserción falla
-      [req.files.fotoExterior[0], req.files.fotoInterior[0]].forEach((f) =>
-        fs.unlink(f.path, () => {})
-      );
-      if (err.code === 'P2002') {
-        return res.status(409).json({ error: 'Ya existe una inscripción con ese email.' });
-      }
+      [req.files.fotoExterior[0], req.files.fotoInterior[0]].forEach((f) => fs.unlink(f.path, () => {}));
+      if (err.code === 'P2002') return res.status(409).json({ error: 'Ya existe una inscripción con ese email.' });
       throw err;
     }
   }
@@ -250,3 +296,4 @@ router.post('/vote/:id', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.readContestSettings = readContestSettings;

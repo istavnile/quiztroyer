@@ -5,6 +5,7 @@ import api from '../../lib/api';
 import {
   PROCESADOR_LABELS, GRAFICA_LABELS, FUENTE_LABELS,
 } from '../../lib/contestConstants';
+import ContestFormBuilder from './ContestFormBuilder';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
@@ -300,6 +301,7 @@ function FSel({ label, value, onChange, options }) {
 // ─── Tab: Configuración ────────────────────────────────────────────────────────
 const DEFAULTS = {
   titulo: 'El Gran Upgrade', subtitulo: '', badge: '', imagenHero: '',
+  campos: [],
   textoFechaApertura: '1 de junio, 2026', textoFechaCierre: '7 de junio, 23:59', textoFechaFinal: '12 de junio, 2026',
   patrocinadores: [
     { nombre: 'NVIDIA', logoUrl: '', color: '#76B900' },
@@ -443,6 +445,41 @@ function TabConfiguracion() {
         <TextField label="Texto del checkbox de TyC" value={cfg.textoTyC} onChange={(v) => set('textoTyC', v)} placeholder="Acepto los Términos y Condiciones..." />
         <TextField label="URL de los TyC" value={cfg.urlTyC} onChange={(v) => set('urlTyC', v)} placeholder="#tyc o https://..." />
         <TextField label="Texto del checkbox de marketing" value={cfg.textoMarketing} onChange={(v) => set('textoMarketing', v)} multiline placeholder="Acepto recibir comunicaciones..." />
+      </Accordion>
+
+      {/* ── CAMPOS DEL FORMULARIO ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '24px 0 16px' }}>
+        <div style={{ flex: 1, height: '1px', background: '#1f2937' }} />
+        <span style={{ color: '#6b7280', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Campos del formulario</span>
+        <div style={{ flex: 1, height: '1px', background: '#1f2937' }} />
+      </div>
+
+      <Accordion title="Constructor de campos" defaultOpen={false}>
+        <p style={{ color: '#6b7280', fontSize: '0.82rem', marginTop: 0, marginBottom: '12px' }}>
+          Arrastra los campos para reordenarlos. Los campos <span style={{ color: '#9ca3af' }}>SISTEMA</span> son obligatorios y no pueden eliminarse.
+        </p>
+        <ContestFormBuilder
+          campos={cfg.campos || []}
+          onChange={(campos) => set('campos', campos)}
+        />
+        <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid #1f2937' }}>
+          <a
+            href="/concursos/el-gran-upgrade/inscripcion?preview=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              background: 'rgba(250,204,21,0.08)', border: '1px solid #ca8a04',
+              color: '#fbbf24', padding: '7px 16px', borderRadius: '6px',
+              textDecoration: 'none', fontSize: '0.82rem', fontWeight: 700,
+            }}
+          >
+            Vista previa del formulario ↗
+          </a>
+          <span style={{ color: '#4b5563', fontSize: '0.75rem', marginLeft: '10px' }}>
+            (se abre en pestaña nueva con datos ficticios)
+          </span>
+        </div>
       </Accordion>
 
       {/* Guardar */}

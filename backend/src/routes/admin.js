@@ -6,6 +6,7 @@ const { signAdminToken, requireAdmin } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { readContestSettings } = require('./contest');
 
 const prisma = new PrismaClient();
 
@@ -345,11 +346,7 @@ const CONTEST_SETTINGS_PATH = path.join(__dirname, '../../uploads/contest-settin
 
 // GET /api/admin/concurso/settings
 router.get('/concurso/settings', requireAdmin, (req, res) => {
-  try {
-    res.json(JSON.parse(fs.readFileSync(CONTEST_SETTINGS_PATH, 'utf8')));
-  } catch {
-    res.json({});
-  }
+  res.json(readContestSettings());
 });
 
 // PATCH /api/admin/concurso/settings
