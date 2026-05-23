@@ -9,6 +9,7 @@ const fs = require('fs');
 const adminRoutes = require('./routes/admin');
 const challengeRoutes = require('./routes/challenges');
 const raffleRoutes = require('./routes/raffle');
+const contestRoutes = require('./routes/contest');
 const { setupGameSocket } = require('./socket/gameHandler');
 const { setupRaffleSocket } = require('./socket/raffleHandler');
 
@@ -48,6 +49,7 @@ app.get('/api/settings', (req, res) => {
 app.use('/api/admin', adminRoutes);
 app.use('/api/challenges', challengeRoutes);
 app.use('/api/raffle', raffleRoutes);
+app.use('/api/contest', contestRoutes);
 
 // Global error handler (prevents server crash)
 app.use((err, req, res, next) => {

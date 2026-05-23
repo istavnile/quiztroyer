@@ -177,3 +177,76 @@ enum RaffleStatus {
   SPINNING
   DONE
 }
+
+// ─── Módulo de Concurso Externo ("El Gran Upgrade") ─────────────────────────
+
+enum Procesador {
+  INTEL_I3_10A_14A
+  INTEL_I5_10A_14A
+  INTEL_I7_10A_14A
+  INTEL_I9_10A_14A
+  AMD_RYZEN_3
+  AMD_RYZEN_5
+  AMD_RYZEN_7
+  AMD_RYZEN_9
+  OTRO
+}
+
+enum GraficaActual {
+  GTX_10_SERIES
+  GTX_16_SERIES
+  RTX_20_SERIES
+  RTX_30_SERIES
+  RTX_40_SERIES
+  AMD_RX_5000
+  AMD_RX_6000
+  AMD_RX_7000
+  INTEL_ARC
+  GPU_INTEGRADA
+  OTRA
+}
+
+enum FuentePoderWatts {
+  MENOS_500W
+  W500_649
+  W650_749
+  W750_849
+  W850_999
+  MAS_1000W
+  NO_SE
+}
+
+model ContestLead {
+  id               String           @id @default(cuid())
+  nombre           String
+  email            String           @unique
+  telefono         String
+  procesador       Procesador
+  graficaActual    GraficaActual
+  fuentePoderWatts FuentePoderWatts
+  fotoExteriorUrl  String
+  fotoInteriorUrl  String
+  historia         String
+  aceptaTyC        Boolean
+  aceptaMarketing  Boolean
+  isFinalist       Boolean          @default(false)
+  voteCount        Int              @default(0)
+  votes            ContestVote[]
+  createdAt        DateTime         @default(now())
+
+  @@index([isFinalist])
+  @@index([procesador])
+  @@index([graficaActual])
+  @@index([fuentePoderWatts])
+}
+
+model ContestVote {
+  id        String      @id @default(cuid())
+  entryId   String
+  entry     ContestLead @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  voterIp   String
+  createdAt DateTime    @default(now())
+
+  @@unique([voterIp])
+}
+

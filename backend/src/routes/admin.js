@@ -339,4 +339,65 @@ router.patch('/settings', requireAdmin, (req, res) => {
   res.json(updated);
 });
 
+// ─── Concurso Externo ("El Gran Upgrade") ─────────────────────────────────────
+
+// GET /api/admin/concurso?procesador=&graficaActual=&fuentePoderWatts=&search=
+router.get('/concurso', requireAdmin, async (req, res) => {
+  const { procesador, graficaActual, fuentePoderWatts, search, isFinalist } = req.query;
+
+  const where = {};
+  if (procesador)       where.procesador       = procesador;
+  if (graficaActual)    where.graficaActual    = graficaActual;
+  if (fuentePoderWatts) where.fuentePoderWatts = fuentePoderWatts;
+  if (isFinalist === 'true')  where.isFinalist = true;
+  if (isFinalist === 'false') where.isFinalist = false;
+  if (search) {
+    where.OR = [
+      { nombre: { contains: search, mode: 'insensitive' } },
+      { email:  { contains: search, mode: 'insensitive' } },
+    ];
+  }
+
+  const leads = await prisma.contestLead.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true, nombre: true, email: true, telefono: true,
+      procesador: true, graficaActual: true, fuentePoderWatts: true,
+      isFinalist: true, voteCount: true, createdAt: true,
+    },
+  });
+  res.json(leads);
+});
+
+// GET /api/admin/concurso/:id
+router.get('/concurso/:id', requireAdmin, async (req, res) => {
+  const lead = await prisma.contestLead.findUnique({ where: { id: req.params.id } });
+  if (!lead) return res.status(404).json({ error: 'Registro no encontrado' });
+  res.json(lead);
+});
+
+// PATCH /api/admin/concurso/:id/finalist  — toggle isFinalist
+router.patch('/concurso/:id/finalist', requireAdmin, async (req, res) => {
+  const lead = await prisma.contestLead.findUnique({
+    where: { id: req.params.id },
+    select: { isFinalist: true },
+  });
+  if (!lead) return res.status(404).json({ error: 'Registro no encontrado' });
+
+  const updated = await prisma.contestLead.update({
+    where: { id: req.params.id },
+    data: { isFinalist: !lead.isFinalist },
+    select: { id: true, isFinalist: true },
+  });
+  res.json(updated);
+});
+
+// DELETE /api/admin/concurso/:id
+router.delete('/concurso/:id', requireAdmin, async (req, res) => {
+  await prisma.contestLead.delete({ where: { id: req.params.id } });
+  res.json({ ok: true });
+});
+
 module.exports = router;
+

@@ -19,6 +19,12 @@ import HallOfFame from './pages/HallOfFame';
 import ChallengeDisplay from './pages/display/ChallengeDisplay';
 import RaffleDisplay from './pages/display/RaffleDisplay';
 
+// Concurso externo "El Gran Upgrade"
+import ContestLanding from './pages/contest/ContestLanding';
+import ContestForm from './pages/contest/ContestForm';
+import ContestVoting from './pages/contest/ContestVoting';
+import ContestAdmin from './pages/admin/ContestAdmin';
+
 function RequireAdmin({ children }) {
   const token = localStorage.getItem('qt_admin_token');
   if (!token) return <Navigate to="/admin/login" replace />;
@@ -69,6 +75,21 @@ export default function App() {
               element={
                 <RequireAdmin>
                   <RaffleControl />
+                </RequireAdmin>
+              }
+            />
+
+            {/* Concurso externo — rutas públicas */}
+            <Route path="/concursos/el-gran-upgrade" element={<ContestLanding />} />
+            <Route path="/concursos/el-gran-upgrade/inscripcion" element={<ContestForm />} />
+            <Route path="/concursos/el-gran-upgrade/votacion" element={<ContestVoting />} />
+
+            {/* Concurso externo — panel admin */}
+            <Route
+              path="/admin/concurso"
+              element={
+                <RequireAdmin>
+                  <ContestAdmin />
                 </RequireAdmin>
               }
             />
