@@ -1,0 +1,3 @@
+-- Add TOTP 2FA fields to Admin table
+ALTER TABLE "Admin" ADD COLUMN IF NOT EXISTS "totpSecret" TEXT;
+ALTER TABLE "Admin" ADD COLUMN IF NOT EXISTS "totpEnabled" BOOLEAN NOT NULL DEFAULT false;

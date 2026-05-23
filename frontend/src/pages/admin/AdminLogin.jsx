@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../lib/api';
@@ -17,6 +17,13 @@ export default function AdminLogin() {
   const [info, setInfo]         = useState('');
   const [loading, setLoading]   = useState(false);
 
+  // TOTP second-step state
+  const [totpPending, setTotpPending]   = useState(false);
+  const [tempToken, setTempToken]       = useState('');
+  const [pendingUsername, setPendingUsername] = useState('');
+  const [totpCode, setTotpCode]         = useState('');
+  const codeRef = useRef(null);
+
   const resetToken = searchParams.get('token');
 
   async function handleLogin(e) {
@@ -24,12 +31,43 @@ export default function AdminLogin() {
     setLoading(true); setError('');
     try {
       const res = await api.post('/admin/login', { username, password });
-      localStorage.setItem('qt_admin_token', res.data.token);
-      localStorage.setItem('qt_admin_username', res.data.username || username);
-      navigate(ADMIN_PATH);
+      if (res.data.requires_totp) {
+        setTempToken(res.data.tempToken);
+        setPendingUsername(username);
+        setTotpPending(true);
+        setTimeout(() => codeRef.current?.focus(), 80);
+      } else {
+        localStorage.setItem('qt_admin_token', res.data.token);
+        localStorage.setItem('qt_admin_username', res.data.username || username);
+        navigate(ADMIN_PATH);
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Error al iniciar sesión');
     } finally { setLoading(false); }
+  }
+
+  async function handleTotpVerify(e) {
+    e.preventDefault();
+    setLoading(true); setError('');
+    try {
+      const res = await api.post(
+        '/admin/auth/totp/verify-login',
+        { code: totpCode },
+        { headers: { Authorization: `Bearer ${tempToken}` } },
+      );
+      localStorage.setItem('qt_admin_token', res.data.token);
+      localStorage.setItem('qt_admin_username', res.data.username || pendingUsername);
+      navigate(ADMIN_PATH);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Código incorrecto');
+      setTotpCode('');
+      setTimeout(() => codeRef.current?.focus(), 80);
+    } finally { setLoading(false); }
+  }
+
+  function handleTotpCodeChange(e) {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+    setTotpCode(val);
   }
 
   async function handleForgot(e) {
@@ -55,7 +93,6 @@ export default function AdminLogin() {
   }
 
   const activeTab = resetToken ? 'reset' : tab;
-
   const inputClass = "w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 focus:bg-white/[0.09] transition-all text-sm";
 
   return (
@@ -72,17 +109,59 @@ export default function AdminLogin() {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="glass-pill rounded-2xl p-3">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-blue-300">
-                <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-              </svg>
+              {totpPending ? (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-blue-300">
+                  <rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                </svg>
+              ) : (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-blue-300">
+                  <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+                </svg>
+              )}
             </div>
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Panel de Admin</h1>
-          <p className="text-slate-500 text-sm mt-1">Quiztroyer Control Center</p>
+          <h1 className="text-2xl font-black text-white tracking-tight">
+            {totpPending ? 'Verificación 2FA' : 'Panel de Admin'}
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">
+            {totpPending ? `Usuario: ${pendingUsername}` : 'Quiztroyer Control Center'}
+          </p>
         </div>
 
         <AnimatePresence mode="wait">
-          {activeTab === 'login' && (
+          {/* ── TOTP second step ── */}
+          {totpPending && (
+            <motion.form key="totp" onSubmit={handleTotpVerify} className="space-y-4"
+              initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}>
+              <p className="text-slate-400 text-sm text-center">
+                Ingresa el código de 6 dígitos de tu aplicación autenticadora.
+              </p>
+              <input
+                ref={codeRef}
+                type="text"
+                inputMode="numeric"
+                value={totpCode}
+                onChange={handleTotpCodeChange}
+                placeholder="000 000"
+                maxLength={6}
+                className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-4 py-4 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 focus:bg-white/[0.09] transition-all text-2xl font-mono tracking-[0.5em] text-center"
+              />
+              {error && <p className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 text-center">{error}</p>}
+              <button type="submit" disabled={loading || totpCode.length !== 6}
+                className="glass-btn-blue w-full font-bold py-3 rounded-xl disabled:opacity-40 text-sm">
+                {loading ? 'Verificando...' : 'Verificar código'}
+              </button>
+              <p className="text-center">
+                <button type="button" onClick={() => { setTotpPending(false); setTempToken(''); setTotpCode(''); setError(''); }}
+                  className="text-slate-600 hover:text-slate-400 text-xs transition-colors">
+                  ← Volver al login
+                </button>
+              </p>
+            </motion.form>
+          )}
+
+          {/* ── Login ── */}
+          {!totpPending && activeTab === 'login' && (
             <motion.form key="login" onSubmit={handleLogin} className="space-y-3"
               initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}>
               <div>
@@ -111,7 +190,8 @@ export default function AdminLogin() {
             </motion.form>
           )}
 
-          {activeTab === 'forgot' && (
+          {/* ── Forgot ── */}
+          {!totpPending && activeTab === 'forgot' && (
             <motion.form key="forgot" onSubmit={handleForgot} className="space-y-3"
               initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}>
               <p className="text-slate-500 text-sm">Ingresa tu email y te enviaremos un enlace de recuperación.</p>
@@ -134,7 +214,8 @@ export default function AdminLogin() {
             </motion.form>
           )}
 
-          {activeTab === 'reset' && (
+          {/* ── Reset ── */}
+          {!totpPending && activeTab === 'reset' && (
             <motion.form key="reset" onSubmit={handleReset} className="space-y-3"
               initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}>
               <p className="text-slate-500 text-sm">Elige tu nueva contraseña.</p>

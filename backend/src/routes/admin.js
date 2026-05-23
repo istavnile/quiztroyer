@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const { PrismaClient } = require('@prisma/client');
-const { signAdminToken, requireAdmin } = require('../middleware/auth');
+const { signAdminToken, signTotpPendingToken, requireAdmin, requireTotpPending } = require('../middleware/auth');
+const speakeasy = require('speakeasy');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -45,6 +46,93 @@ router.post('/login', async (req, res) => {
   if (!admin) return res.status(401).json({ error: 'Credenciales incorrectas' });
   const valid = await bcrypt.compare(password, admin.passwordHash);
   if (!valid) return res.status(401).json({ error: 'Credenciales incorrectas' });
+
+  if (admin.totpEnabled && admin.totpSecret) {
+    const tempToken = signTotpPendingToken(admin.id, admin.username);
+    return res.json({ requires_totp: true, tempToken });
+  }
+
+  res.json({ token: signAdminToken(admin.id, admin.username), username: admin.username });
+});
+
+// ─── TOTP / 2FA endpoints ──────────────────────────────────────────────────────
+
+// GET /api/admin/auth/totp/status  — estado 2FA del admin actual
+router.get('/auth/totp/status', requireAdmin, async (req, res) => {
+  const admin = await prisma.admin.findUnique({
+    where: { id: req.admin.adminId },
+    select: { totpEnabled: true },
+  });
+  res.json({ totpEnabled: admin?.totpEnabled ?? false });
+});
+
+// POST /api/admin/auth/totp/setup  — genera secret + devuelve URL para QR
+router.post('/auth/totp/setup', requireAdmin, async (req, res) => {
+  const admin = await prisma.admin.findUnique({ where: { id: req.admin.adminId } });
+  const appName = process.env.TOTP_APP_NAME || 'Quiztroyer';
+  const secret = speakeasy.generateSecret({ name: `${appName} (${admin.username})`, length: 20 });
+  // Store the pending secret (not yet enabled) temporarily in totpSecret
+  await prisma.admin.update({
+    where: { id: admin.id },
+    data: { totpSecret: secret.base32, totpEnabled: false },
+  });
+  res.json({ otpauthUrl: secret.otpauth_url, secret: secret.base32 });
+});
+
+// POST /api/admin/auth/totp/verify-setup  — verifica primer código y activa 2FA
+router.post('/auth/totp/verify-setup', requireAdmin, async (req, res) => {
+  const { code } = req.body;
+  if (!code) return res.status(400).json({ error: 'Código requerido' });
+
+  const admin = await prisma.admin.findUnique({ where: { id: req.admin.adminId } });
+  if (!admin?.totpSecret) return res.status(400).json({ error: 'Primero genera el código QR' });
+
+  const valid = speakeasy.totp.verify({
+    secret: admin.totpSecret,
+    encoding: 'base32',
+    token: String(code).replace(/\s/g, ''),
+    window: 1,
+  });
+  if (!valid) return res.status(400).json({ error: 'Código incorrecto. Verifica la hora de tu dispositivo.' });
+
+  await prisma.admin.update({ where: { id: admin.id }, data: { totpEnabled: true } });
+  res.json({ ok: true });
+});
+
+// POST /api/admin/auth/totp/disable  — desactiva 2FA (requiere password actual)
+router.post('/auth/totp/disable', requireAdmin, async (req, res) => {
+  const { password } = req.body;
+  if (!password) return res.status(400).json({ error: 'Contraseña requerida para desactivar 2FA' });
+
+  const admin = await prisma.admin.findUnique({ where: { id: req.admin.adminId } });
+  const valid = await bcrypt.compare(password, admin.passwordHash);
+  if (!valid) return res.status(400).json({ error: 'Contraseña incorrecta' });
+
+  await prisma.admin.update({
+    where: { id: admin.id },
+    data: { totpEnabled: false, totpSecret: null },
+  });
+  res.json({ ok: true });
+});
+
+// POST /api/admin/auth/totp/verify-login  — segundo paso del login con TOTP
+router.post('/auth/totp/verify-login', requireTotpPending, async (req, res) => {
+  const { code } = req.body;
+  if (!code) return res.status(400).json({ error: 'Código requerido' });
+
+  const admin = await prisma.admin.findUnique({ where: { id: req.admin.adminId } });
+  if (!admin?.totpEnabled || !admin?.totpSecret) {
+    return res.status(400).json({ error: '2FA no configurado' });
+  }
+
+  const valid = speakeasy.totp.verify({
+    secret: admin.totpSecret,
+    encoding: 'base32',
+    token: String(code).replace(/\s/g, ''),
+    window: 1,
+  });
+  if (!valid) return res.status(400).json({ error: 'Código incorrecto' });
+
   res.json({ token: signAdminToken(admin.id, admin.username), username: admin.username });
 });
 

@@ -125,6 +125,8 @@ model Admin {
   username     String   @unique
   email        String?  @unique
   passwordHash String
+  totpSecret   String?
+  totpEnabled  Boolean  @default(false)
   createdAt    DateTime @default(now())
 }
 
@@ -231,6 +233,7 @@ model ContestLead {
   aceptaMarketing  Boolean
   isFinalist       Boolean          @default(false)
   voteCount        Int              @default(0)
+  camposExtra      Json?
   votes            ContestVote[]
   createdAt        DateTime         @default(now())
 

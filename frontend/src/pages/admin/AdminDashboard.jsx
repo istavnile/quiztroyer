@@ -12,8 +12,9 @@ import {
   UilPlus, UilTicket, UilBullseye, UilPlay,
   UilTrashAlt, UilChartBar, UilFileAlt, UilSave,
   UilUpload, UilExclamationTriangle, UilDashboard, UilLock, UilRefresh, UilArchive,
-  UilQrcodeScan, UilExpandAlt, UilTimesCircle, UilFileDownloadAlt,
+  UilQrcodeScan, UilExpandAlt, UilTimesCircle, UilFileDownloadAlt, UilShield,
 } from '@iconscout/react-unicons';
+import { QRCodeSVG } from 'qrcode.react';
 
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -184,6 +185,13 @@ export default function AdminDashboard() {
   const [archivedRaffles, setArchivedRaffles]       = useState([]);
   const [archivedCount, setArchivedCount]           = useState(0);
   const [loadError, setLoadError]                   = useState(false);
+  const [show2FA, setShow2FA]                       = useState(false);
+  const [totpEnabled, setTotpEnabled]               = useState(false);
+  const [totpSetupData, setTotpSetupData]           = useState(null); // { otpauthUrl, secret }
+  const [totpVerifyCode, setTotpVerifyCode]         = useState('');
+  const [totpDisablePass, setTotpDisablePass]       = useState('');
+  const [totpMsg, setTotpMsg]                       = useState({ type: '', text: '' });
+  const [totpLoading, setTotpLoading]               = useState(false);
   const [selectedRaffles, setSelectedRaffles]       = useState(new Set());
   const [exportingRaffles, setExportingRaffles]     = useState(false);
   const [showExportModal, setShowExportModal]       = useState(false);
@@ -213,6 +221,43 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function open2FA() {
+    setTotpSetupData(null); setTotpVerifyCode(''); setTotpDisablePass(''); setTotpMsg({ type: '', text: '' });
+    try { const r = await api.get('/admin/auth/totp/status'); setTotpEnabled(r.data.totpEnabled); } catch {}
+    setShow2FA(true);
+  }
+
+  async function startTotpSetup() {
+    setTotpLoading(true); setTotpMsg({ type: '', text: '' });
+    try {
+      const r = await api.post('/admin/auth/totp/setup');
+      setTotpSetupData(r.data);
+      setTotpVerifyCode('');
+    } catch (e) { setTotpMsg({ type: 'error', text: e.response?.data?.error || 'Error' }); }
+    finally { setTotpLoading(false); }
+  }
+
+  async function verifyTotpSetup() {
+    setTotpLoading(true); setTotpMsg({ type: '', text: '' });
+    try {
+      await api.post('/admin/auth/totp/verify-setup', { code: totpVerifyCode });
+      setTotpEnabled(true); setTotpSetupData(null); setTotpVerifyCode('');
+      setTotpMsg({ type: 'ok', text: '✓ Verificación en 2 pasos activada correctamente.' });
+    } catch (e) { setTotpMsg({ type: 'error', text: e.response?.data?.error || 'Código incorrecto' }); }
+    finally { setTotpLoading(false); }
+  }
+
+  async function disableTotp() {
+    if (!totpDisablePass) return;
+    setTotpLoading(true); setTotpMsg({ type: '', text: '' });
+    try {
+      await api.post('/admin/auth/totp/disable', { password: totpDisablePass });
+      setTotpEnabled(false); setTotpDisablePass('');
+      setTotpMsg({ type: 'ok', text: '✓ Verificación en 2 pasos desactivada.' });
+    } catch (e) { setTotpMsg({ type: 'error', text: e.response?.data?.error || 'Error' }); }
+    finally { setTotpLoading(false); }
   }
 
   async function loadArchivedCount() {
@@ -841,6 +886,115 @@ export default function AdminDashboard() {
             </motion.div>
           </motion.div>
         )}
+        {show2FA && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(6px)' }}
+            onClick={(e) => e.target === e.currentTarget && setShow2FA(false)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="glass-card rounded-2xl p-6 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-base font-bold text-white flex items-center gap-2">
+                  <UilShield size={18} className="text-blue-400" />Verificación en 2 pasos
+                </h2>
+                <button onClick={() => setShow2FA(false)} className="text-slate-500 hover:text-slate-300 transition-colors">
+                  <UilTimesCircle size={18} />
+                </button>
+              </div>
+
+              {/* Status badge */}
+              <div className={`flex items-center gap-3 rounded-xl px-4 py-3 mb-5 ${totpEnabled ? 'bg-green-500/10 border border-green-500/20' : 'bg-slate-800/60 border border-white/[0.06]'}`}>
+                <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${totpEnabled ? 'bg-green-400' : 'bg-slate-600'}`} />
+                <div>
+                  <p className={`text-sm font-semibold ${totpEnabled ? 'text-green-400' : 'text-slate-400'}`}>
+                    {totpEnabled ? 'Activo' : 'Inactivo'}
+                  </p>
+                  <p className="text-slate-500 text-xs">
+                    {totpEnabled ? 'Tu cuenta está protegida con 2FA.' : 'Añade una capa extra de seguridad.'}
+                  </p>
+                </div>
+              </div>
+
+              {totpMsg.text && (
+                <p className={`text-xs rounded-lg px-3 py-2 mb-4 ${totpMsg.type === 'ok' ? 'text-green-400 bg-green-500/10 border border-green-500/20' : 'text-red-400 bg-red-500/10 border border-red-500/20'}`}>
+                  {totpMsg.text}
+                </p>
+              )}
+
+              {/* ── Activar 2FA ── */}
+              {!totpEnabled && (
+                <div className="space-y-4">
+                  {!totpSetupData ? (
+                    <button onClick={startTotpSetup} disabled={totpLoading}
+                      className="w-full glass-btn-blue font-bold py-2.5 rounded-xl text-sm disabled:opacity-50">
+                      {totpLoading ? 'Generando...' : 'Activar verificación en 2 pasos'}
+                    </button>
+                  ) : (
+                    <>
+                      <div>
+                        <p className="text-slate-400 text-xs mb-3">
+                          Escanea este código QR con <strong className="text-white">Google Authenticator</strong>, <strong className="text-white">Authy</strong> o cualquier app TOTP.
+                        </p>
+                        <div className="flex justify-center mb-3">
+                          <div className="bg-white p-3 rounded-xl inline-block">
+                            <QRCodeSVG value={totpSetupData.otpauthUrl} size={180} level="H" includeMargin={false} />
+                          </div>
+                        </div>
+                        <details className="mb-3">
+                          <summary className="text-slate-600 text-xs cursor-pointer hover:text-slate-400 transition-colors">
+                            ¿No puedes escanear? Ingresar clave manual
+                          </summary>
+                          <code className="block mt-1.5 text-xs font-mono text-slate-400 bg-slate-800 rounded-lg px-3 py-2 break-all select-all">
+                            {totpSetupData.secret}
+                          </code>
+                        </details>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5 font-medium uppercase tracking-wide">
+                          Código de verificación (6 dígitos)
+                        </label>
+                        <input
+                          type="text" inputMode="numeric" maxLength={6}
+                          value={totpVerifyCode}
+                          onChange={(e) => setTotpVerifyCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                          placeholder="000000"
+                          className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-4 py-2.5 text-white placeholder-slate-600 text-center text-xl font-mono tracking-[0.4em] focus:outline-none focus:ring-1 focus:ring-blue-500/60 focus:border-blue-500/40 transition-all"
+                          autoFocus
+                        />
+                      </div>
+                      <button onClick={verifyTotpSetup} disabled={totpLoading || totpVerifyCode.length !== 6}
+                        className="w-full glass-btn-blue font-bold py-2.5 rounded-xl text-sm disabled:opacity-50">
+                        {totpLoading ? 'Verificando...' : 'Confirmar y activar'}
+                      </button>
+                      <button onClick={() => setTotpSetupData(null)} className="w-full text-slate-600 hover:text-slate-400 text-xs py-1 transition-colors">
+                        Cancelar
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* ── Desactivar 2FA ── */}
+              {totpEnabled && !totpMsg.text && (
+                <div className="space-y-3">
+                  <p className="text-slate-500 text-xs">Para desactivar la verificación en 2 pasos, confirma tu contraseña actual.</p>
+                  <input
+                    type="password"
+                    value={totpDisablePass}
+                    onChange={(e) => setTotpDisablePass(e.target.value)}
+                    placeholder="Contraseña actual"
+                    className="w-full bg-white/[0.06] border border-white/[0.10] rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-red-500/60 focus:border-red-500/40 transition-all text-sm"
+                  />
+                  <button onClick={disableTotp} disabled={totpLoading || !totpDisablePass}
+                    className="w-full bg-red-600/20 hover:bg-red-600/40 text-red-400 font-bold py-2.5 rounded-xl text-sm transition-all disabled:opacity-50">
+                    {totpLoading ? 'Desactivando...' : 'Desactivar 2FA'}
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+
         {showExportModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -1045,6 +1199,10 @@ export default function AdminDashboard() {
               <button onClick={() => setShowSettings(true)}
                 className="glass-btn text-slate-400 hover:text-white p-2 rounded-xl" title="Personalizar">
                 <UilPalette size={17} />
+              </button>
+              <button onClick={open2FA}
+                className="glass-btn text-slate-400 hover:text-white p-2 rounded-xl" title="Verificación 2 pasos">
+                <UilShield size={17} />
               </button>
               <div className="w-px h-4 bg-white/[0.14] mx-0.5" />
               <button onClick={handleLogout}
