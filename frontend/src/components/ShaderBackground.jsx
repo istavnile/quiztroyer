@@ -28,39 +28,44 @@ float fbm(vec2 p){
 
 void main(){
   vec2 uv = gl_FragCoord.xy / u_res;
-  float t  = u_t * 0.08;
+  float t  = u_t * 0.10;
 
-  vec2  p  = uv * 2.2;
-  float n1 = fbm(p + vec2(t,        t * 0.65));
+  vec2  p  = uv * 2.0;
+  float n1 = fbm(p + vec2(t,         t * 0.65));
   float n2 = fbm(p + vec2(-t * 0.75, t * 0.45) + vec2(n1 * 0.9, 0.0));
   float n3 = fbm(p * 1.4 + vec2(t * 0.3, -t * 0.6) + vec2(n2 * 0.6, n2 * 0.4));
 
-  vec3 col = vec3(0.028, 0.032, 0.088);
-  col = mix(col, vec3(0.055, 0.058, 0.22),  smoothstep(0.25, 0.60, n1));
-  col = mix(col, vec3(0.080, 0.022, 0.24),  smoothstep(0.30, 0.68, n2));
-  col = mix(col, vec3(0.018, 0.115, 0.28),  smoothstep(0.38, 0.75, n3));
-  col = mix(col, u_col * 0.32,              smoothstep(0.55, 0.90, n1 * n2));
-  col += vec3(0.03, 0.04, 0.14) * 0.55 *   smoothstep(0.70, 1.00, n1 * n3);
+  // Vibrant, clearly visible dark-space palette
+  vec3 col = vec3(0.04, 0.05, 0.16);
+  col = mix(col, vec3(0.09, 0.11, 0.52),  smoothstep(0.25, 0.60, n1));
+  col = mix(col, vec3(0.28, 0.04, 0.62),  smoothstep(0.30, 0.68, n2));
+  col = mix(col, vec3(0.03, 0.38, 0.68),  smoothstep(0.38, 0.75, n3));
+  col = mix(col, u_col * 0.75,            smoothstep(0.55, 0.90, n1 * n2));
 
-  // vignette
+  // Bright peak — luminous highlights in the aurora bands
+  float peak = smoothstep(0.70, 1.00, n1 * n3);
+  col += vec3(0.10, 0.15, 0.55) * peak;
+  col += u_col * 0.40 * smoothstep(0.80, 1.00, n2 * n3);
+
+  // Soft vignette — keep edges dark, centre bright
   vec2 vp = uv - 0.5;
-  col *= 1.0 - dot(vp, vp) * 1.85;
+  col *= 1.0 - dot(vp, vp) * 1.1;
 
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }
 `;
 
 function hexToRgb(hex) {
-  const n = hex.replace('#', '');
-  const r = parseInt(n.slice(0, 2), 16) / 255;
-  const g = parseInt(n.slice(2, 4), 16) / 255;
-  const b = parseInt(n.slice(4, 6), 16) / 255;
-  return [r, g, b];
+  const n = (hex || '#4f46e5').replace('#', '');
+  return [
+    parseInt(n.slice(0, 2), 16) / 255,
+    parseInt(n.slice(2, 4), 16) / 255,
+    parseInt(n.slice(4, 6), 16) / 255,
+  ];
 }
 
 export default function ShaderBackground({ color = '#4f46e5' }) {
   const canvasRef = useRef(null);
-  const glRef     = useRef(null);
   const rafRef    = useRef(null);
   const colorRef  = useRef(hexToRgb(color));
 
@@ -71,7 +76,6 @@ export default function ShaderBackground({ color = '#4f46e5' }) {
     if (!canvas) return;
     const gl = canvas.getContext('webgl', { antialias: false, alpha: false, powerPreference: 'low-power' });
     if (!gl) return;
-    glRef.current = gl;
 
     function compile(type, src) {
       const s = gl.createShader(type);
@@ -81,7 +85,7 @@ export default function ShaderBackground({ color = '#4f46e5' }) {
     }
 
     const prog = gl.createProgram();
-    gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER,   VERT));
     gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
     gl.linkProgram(prog);
     gl.useProgram(prog);
@@ -101,14 +105,15 @@ export default function ShaderBackground({ color = '#4f46e5' }) {
 
     function resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      canvas.width  = window.innerWidth  * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width  = window.innerWidth  + 'px';
-      canvas.style.height = window.innerHeight + 'px';
+      canvas.width  = canvas.offsetWidth  * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
       gl.viewport(0, 0, canvas.width, canvas.height);
     }
     resize();
-    window.addEventListener('resize', resize);
+
+    // Use ResizeObserver so the canvas tracks its container
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
 
     function frame() {
       const t = (performance.now() - t0) / 1000;
@@ -123,14 +128,21 @@ export default function ShaderBackground({ color = '#4f46e5' }) {
 
     return () => {
       cancelAnimationFrame(rafRef.current);
-      window.removeEventListener('resize', resize);
+      ro.disconnect();
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh', zIndex: 0, display: 'block', pointerEvents: 'none' }}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        display: 'block',
+        pointerEvents: 'none',
+      }}
     />
   );
 }

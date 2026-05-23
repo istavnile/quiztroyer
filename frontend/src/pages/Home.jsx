@@ -6,10 +6,10 @@ import BackgroundEffect from '../components/BackgroundEffect';
 import ShaderBackground from '../components/ShaderBackground';
 
 const BADGES = [
-  { icon: '🎯', label: 'Quiz en vivo',    sub: 'Múltiple opción',   pos: 'top-[26%] left-[6%]',   delay: 0,   dur: 4.2 },
-  { icon: '🏆', label: 'Hall of Fame',    sub: 'Top jugadores',     pos: 'top-[20%] right-[7%]',  delay: 0.6, dur: 3.6 },
-  { icon: '🎟', label: 'Sorteos',         sub: 'Participantes live', pos: 'bottom-[26%] left-[8%]', delay: 1.1, dur: 5.0 },
-  { icon: '⚡', label: 'Tiempo real',     sub: 'WebSocket',         pos: 'bottom-[20%] right-[6%]', delay: 0.3, dur: 3.8 },
+  { icon: '🎯', label: 'Quiz en vivo',    sub: 'Múltiple opción',    pos: { top: '26%', left:  '6%'  }, delay: 0,   dur: 4.2 },
+  { icon: '🏆', label: 'Hall of Fame',    sub: 'Top jugadores',      pos: { top: '20%', right: '7%'  }, delay: 0.6, dur: 3.6 },
+  { icon: '🎟', label: 'Sorteos',         sub: 'Participantes live',  pos: { bottom: '26%', left: '8%'  }, delay: 1.1, dur: 5.0 },
+  { icon: '⚡', label: 'Tiempo real',     sub: 'WebSocket',          pos: { bottom: '20%', right: '6%' }, delay: 0.3, dur: 3.8 },
 ];
 
 export default function Home() {
@@ -25,49 +25,65 @@ export default function Home() {
     api.get('/settings').then((r) => setColors((prev) => ({ ...prev, ...r.data }))).catch(() => {});
   }, []);
 
+  // Sync body background so nothing above the canvas bleeds through
+  useEffect(() => {
+    const prev = document.body.style.background;
+    document.body.style.background = colors.homeBgColor || '#09090f';
+    return () => { document.body.style.background = prev; };
+  }, [colors.homeBgColor]);
+
   function handleJoin(e) {
     e.preventDefault();
     if (slug.trim()) navigate(`/join/${slug.trim().toLowerCase()}`);
   }
 
-  const accent = colors.homeButtonColor || '#4f46e5';
+  const accent   = colors.homeButtonColor || '#4f46e5';
   const isCanvas = colors.bgEffect && colors.bgEffect !== 'blobs';
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ background: colors.homeBgColor || '#09090f' }}>
-
-      {/* Background */}
+    /*
+      position:relative + overflow:hidden so the absolutely-positioned shader
+      canvas fills this div exactly, behind all children.
+    */
+    <div
+      className="min-h-screen relative overflow-hidden"
+      style={{ background: colors.homeBgColor || '#09090f' }}
+    >
+      {/* ── Background layer (z-index auto, painted first) ── */}
       {isCanvas ? (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
           <BackgroundEffect type={colors.bgEffect} color={accent} />
         </div>
       ) : (
+        /* ShaderBackground is now position:absolute so it lives inside this div,
+           guaranteed to be behind all siblings that have z-index set. */
         <ShaderBackground color={accent} />
       )}
 
-      {/* Floating decorative badges — desktop only */}
-      <div className="hidden lg:block absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
-        {BADGES.map(({ icon, label, sub, pos, delay, dur }) => (
-          <motion.div
-            key={label}
-            className={`absolute ${pos}`}
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: dur, repeat: Infinity, ease: 'easeInOut', delay }}
-          >
-            <div className="glass-pill flex items-center gap-3 px-4 py-3 rounded-2xl">
-              <span className="text-xl leading-none">{icon}</span>
-              <div>
-                <p className="text-white text-xs font-bold leading-tight">{label}</p>
-                <p className="text-slate-500 text-[10px] mt-0.5">{sub}</p>
-              </div>
+      {/* ── Floating decorative badges (desktop only) ── */}
+      {BADGES.map(({ icon, label, sub, pos, delay, dur }) => (
+        <motion.div
+          key={label}
+          className="hidden lg:block absolute pointer-events-none"
+          style={{ ...pos, zIndex: 2 }}
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: dur, repeat: Infinity, ease: 'easeInOut', delay }}
+        >
+          <div className="glass-pill flex items-center gap-3 px-4 py-3 rounded-2xl">
+            <span className="text-xl leading-none">{icon}</span>
+            <div>
+              <p className="text-white text-xs font-bold leading-tight">{label}</p>
+              <p className="text-slate-500 text-[10px] mt-0.5">{sub}</p>
             </div>
-          </motion.div>
-        ))}
-      </div>
+          </div>
+        </motion.div>
+      ))}
 
-      {/* Main content */}
-      <div className="relative flex flex-col items-center justify-center min-h-screen p-6" style={{ zIndex: 2 }}>
-
+      {/* ── Main content ── */}
+      <div
+        className="relative flex flex-col items-center justify-center min-h-screen p-6"
+        style={{ zIndex: 3 }}
+      >
         {/* Logo / title */}
         <motion.div
           initial={{ opacity: 0, y: -28 }}
