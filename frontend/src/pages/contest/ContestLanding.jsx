@@ -25,9 +25,7 @@ const DEFAULT = {
     { numero: '03', titulo: 'Vota y comparte',       descripcion: 'Del 8 al 11 de junio, la comunidad vota por sus favoritos. ¡El ganador anunciado en vivo el 12 de junio!' },
   ],
   premios: [
-    { posicion: '1er lugar', descripcion: 'NVIDIA GeForce RTX 4080 + ASUS ROG Monitor 4K',         color: '#facc15', imagenUrl: '' },
-    { posicion: '2do lugar', descripcion: 'NVIDIA GeForce RTX 4070 Super + Periféricos ASUS ROG',   color: '#9ca3af', imagenUrl: '' },
-    { posicion: '3er lugar', descripcion: 'NVIDIA GeForce RTX 4060 + Voucher ComputerShop Q500',    color: '#cd7c3e', imagenUrl: '' },
+    { posicion: '1er lugar', descripcion: 'ASUS NVIDIA GeForce RTX 5060 Ti', color: '#76B900', imagenUrl: '' },
   ],
 };
 
@@ -190,20 +188,29 @@ export default function ContestLanding() {
           variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} transition={{ duration: 0.5 }}
           className="mt-20"
         >
-          <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '2rem', textAlign: 'center' }}>Premios</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '2rem', textAlign: 'center' }}>Premio</h2>
+          <div className="flex flex-col gap-6 max-w-2xl mx-auto">
             {s.premios.map(({ posicion, descripcion, color, imagenUrl }) => (
               <div key={posicion} style={{
                 background: 'linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))',
-                border: `1px solid ${color}44`, borderRadius: '12px', overflow: 'hidden', textAlign: 'center',
+                border: `1px solid ${color}44`, borderRadius: '16px', overflow: 'hidden',
+                display: 'flex', alignItems: 'center', gap: 0,
               }}>
-                {imagenUrl && (
-                  <img src={imagenUrl} alt={posicion} style={{ width: '100%', height: '140px', objectFit: 'cover' }} />
-                )}
-                <div style={{ padding: '24px' }}>
-                  <div style={{ color, fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '12px' }}>{posicion}</div>
-                  <p style={{ color: '#e5e7eb', fontSize: '1rem', fontWeight: 600, lineHeight: 1.5 }}>{descripcion}</p>
+                {/* Text */}
+                <div style={{ flex: 1, padding: '32px 28px' }}>
+                  <div style={{ color, fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '10px' }}>{posicion}</div>
+                  <p style={{ color: '#e5e7eb', fontSize: '1.25rem', fontWeight: 700, lineHeight: 1.4, margin: 0 }}>{descripcion}</p>
                 </div>
+                {/* Product image — contains without cropping */}
+                {imagenUrl && (
+                  <div style={{ flexShrink: 0, width: '220px', height: '180px', background: 'rgba(255,255,255,0.02)', borderLeft: `1px solid ${color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+                    <img
+                      src={imagenUrl}
+                      alt={descripcion}
+                      style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'contain', display: 'block' }}
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>

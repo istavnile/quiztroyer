@@ -54,7 +54,7 @@ function ImageUploader({ label, value, onChange }) {
       <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
         {value && (
           <div style={{ position: 'relative' }}>
-            <img src={value} alt="preview" style={{ height: '72px', width: '120px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #374151' }} />
+            <img src={value} alt="preview" style={{ height: '72px', width: '120px', objectFit: 'contain', background: '#111', borderRadius: '6px', border: '1px solid #374151' }} />
             <button onClick={() => onChange('')} style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#e61f30', border: 'none', color: '#fff', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
           </div>
         )}
@@ -315,9 +315,7 @@ const DEFAULTS = {
     { numero: '03', titulo: 'Vota y comparte', descripcion: '' },
   ],
   premios: [
-    { posicion: '1er lugar', descripcion: '', color: '#facc15', imagenUrl: '' },
-    { posicion: '2do lugar', descripcion: '', color: '#9ca3af', imagenUrl: '' },
-    { posicion: '3er lugar', descripcion: '', color: '#cd7c3e', imagenUrl: '' },
+    { posicion: '1er lugar', descripcion: 'ASUS NVIDIA GeForce RTX 5060 Ti', color: '#76B900', imagenUrl: '' },
   ],
   tituloFormulario: 'Formulario de inscripción', instruccionesFormulario: '',
   labelHistoria: '¿Por qué mereces el Gran Upgrade?', placeholderHistoria: '',
