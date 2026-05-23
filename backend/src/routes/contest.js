@@ -5,6 +5,64 @@ const path = require('path');
 const fs = require('fs');
 const { PrismaClient } = require('@prisma/client');
 
+// ─── Contest Settings ─────────────────────────────────────────────────────────
+const SETTINGS_PATH = path.join(__dirname, '../../uploads/contest-settings.json');
+
+const DEFAULT_SETTINGS = {
+  // Hero
+  titulo: 'El Gran Upgrade',
+  subtitulo: 'Muéstranos tu PC y cuéntanos tu historia. Los mejores setups ganarán un upgrade épico con hardware NVIDIA y ASUS ROG.',
+  badge: 'CONCURSO PATROCINADO POR NVIDIA · ASUS ROG · COMPUTERSHOP',
+  imagenHero: '',
+
+  // Fechas (solo texto display)
+  textoFechaApertura: '1 de junio, 2026',
+  textoFechaCierre: '7 de junio, 23:59',
+  textoFechaFinal: '12 de junio, 2026',
+
+  // Patrocinadores
+  patrocinadores: [
+    { nombre: 'NVIDIA',       logoUrl: '', color: '#76B900' },
+    { nombre: 'ASUS ROG',     logoUrl: '', color: '#e61f30' },
+    { nombre: 'ComputerShop', logoUrl: '', color: '#ffffff' },
+  ],
+
+  // Pasos
+  pasos: [
+    { numero: '01', titulo: 'Inscríbete',            descripcion: 'Llena el formulario con los datos de tu PC, sube fotos y cuenta tu historia en máximo 150 palabras.' },
+    { numero: '02', titulo: 'Espera los finalistas', descripcion: 'Nuestro equipo revisará todas las participaciones y seleccionará los mejores setups.' },
+    { numero: '03', titulo: 'Vota y comparte',       descripcion: 'Del 8 al 11 de junio, la comunidad vota por sus favoritos. ¡El ganador anunciado en vivo el 12 de junio!' },
+  ],
+
+  // Premios
+  premios: [
+    { posicion: '1er lugar', descripcion: 'NVIDIA GeForce RTX 4080 + ASUS ROG Monitor 4K',              color: '#facc15', imagenUrl: '' },
+    { posicion: '2do lugar', descripcion: 'NVIDIA GeForce RTX 4070 Super + Periféricos ASUS ROG',        color: '#9ca3af', imagenUrl: '' },
+    { posicion: '3er lugar', descripcion: 'NVIDIA GeForce RTX 4060 + Voucher ComputerShop Q500',         color: '#cd7c3e', imagenUrl: '' },
+  ],
+
+  // Formulario
+  tituloFormulario: 'Formulario de inscripción',
+  instruccionesFormulario: 'Completa todos los campos. Las inscripciones cierran el 7 de junio a las 23:59.',
+  labelHistoria: '¿Por qué mereces el Gran Upgrade?',
+  placeholderHistoria: 'Comparte tu historia, tu pasión por la tecnología y por qué tu setup necesita un upgrade...',
+  maxPalabrasHistoria: 150,
+  textoTyC: 'Acepto los Términos y Condiciones del concurso',
+  urlTyC: '#tyc',
+  textoMarketing: 'Acepto recibir comunicaciones comerciales de NVIDIA, ASUS y ComputerShop',
+};
+
+function readContestSettings() {
+  try {
+    return { ...DEFAULT_SETTINGS, ...JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8')) };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+// GET /api/contest/settings  (pública)
+router.get('/settings', (req, res) => res.json(readContestSettings()));
+
 const prisma = new PrismaClient();
 
 // Fechas del concurso (UTC-6 / hora Guatemala)

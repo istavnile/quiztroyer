@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,10 +7,21 @@ import { Link } from 'react-router-dom';
 import ContestLayout from './ContestLayout';
 import {
   PROCESADOR_LABELS, GRAFICA_LABELS, FUENTE_LABELS,
-  isRegistrationOpen, CONTEST_CLOSE_DATE,
+  isRegistrationOpen,
 } from '../../lib/contestConstants';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
+const FORM_DEFAULTS = {
+  tituloFormulario: 'Formulario de inscripción',
+  instruccionesFormulario: 'Completa todos los campos. Las inscripciones cierran el 7 de junio a las 23:59.',
+  labelHistoria: '¿Por qué mereces el Gran Upgrade?',
+  placeholderHistoria: 'Comparte tu historia, tu pasión por la tecnología y por qué tu setup necesita un upgrade...',
+  maxPalabrasHistoria: 150,
+  textoTyC: 'Acepto los Términos y Condiciones del concurso',
+  urlTyC: '#tyc',
+  textoMarketing: 'Acepto recibir comunicaciones comerciales de NVIDIA, ASUS y ComputerShop',
+};
 
 // ─── Zod schema ───────────────────────────────────────────────────────────────
 function countWords(text) {
@@ -26,7 +37,7 @@ const schema = z.object({
   fuentePoderWatts: z.string().min(1, 'Selecciona la fuente de poder'),
   historia: z.string()
     .min(20, 'La historia debe tener al menos 20 palabras')
-    .refine((v) => countWords(v) <= 150, { message: 'Máximo 150 palabras' }),
+    .refine((v) => countWords(v) <= (fs_.maxPalabrasHistoria || 150), { message: `Máximo ${fs_.maxPalabrasHistoria || 150} palabras` }),
   aceptaTyC:       z.boolean().refine((v) => v === true, { message: 'Debes aceptar los Términos y Condiciones' }),
   aceptaMarketing: z.boolean().optional(),
 });
@@ -149,8 +160,16 @@ export default function ContestForm() {
   const [submitState, setSubmitState] = useState('idle'); // idle | loading | success | error
   const [submitError, setSubmitError] = useState('');
   const [wordCount, setWordCount] = useState(0);
+  const [fs_, setFs] = useState(FORM_DEFAULTS);
 
   const open = isRegistrationOpen();
+
+  useEffect(() => {
+    fetch(`${API}/api/contest/settings`)
+      .then((r) => r.json())
+      .then((data) => setFs({ ...FORM_DEFAULTS, ...data }))
+      .catch(() => {});
+  }, []);
 
   const { register, handleSubmit, formState: { errors }, watch } = useForm({
     resolver: zodResolver(schema),
@@ -255,11 +274,10 @@ export default function ContestForm() {
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <h1 style={{ fontSize: '2.2rem', fontWeight: 900, marginBottom: '6px' }}>
-            Formulario de inscripción
+            {fs_.tituloFormulario}
           </h1>
           <p style={{ color: '#9ca3af', marginBottom: '40px', fontSize: '0.95rem' }}>
-            Completa todos los campos. Las inscripciones cierran el{' '}
-            <strong style={{ color: '#e61f30' }}>7 de junio a las 23:59</strong>.
+            {fs_.instruccionesFormulario}
           </p>
         </motion.div>
 
@@ -317,13 +335,13 @@ export default function ContestForm() {
           {/* Sección: Historia */}
           <SectionTitle>Tu historia</SectionTitle>
           <Field
-            label="Cuéntanos por qué mereces el Gran Upgrade *"
+            label={`${fs_.labelHistoria} *`}
             error={errors.historia?.message}
           >
             <div style={{ position: 'relative' }}>
               <textarea
                 {...register('historia')}
-                placeholder="Comparte tu historia, tu pasión por la tecnología y por qué tu setup necesita un upgrade..."
+                placeholder={fs_.placeholderHistoria}
                 rows={7}
                 style={{
                   ...inputStyle,
@@ -336,7 +354,7 @@ export default function ContestForm() {
                 color: wordCount > 140 ? (wordCount > 150 ? '#e61f30' : '#facc15') : '#4b5563',
                 fontSize: '0.75rem',
               }}>
-                {wordCount}/150 palabras
+                {wordCount}/{fs_.maxPalabrasHistoria || 150} palabras
               </span>
             </div>
           </Field>
@@ -344,12 +362,10 @@ export default function ContestForm() {
           {/* Checkboxes */}
           <div className="mt-6 space-y-3">
             <CheckboxField register={register} name="aceptaTyC" error={errors.aceptaTyC?.message}>
-              Acepto los{' '}
-              <a href="#tyc" style={{ color: '#76B900' }}>Términos y Condiciones</a>{' '}
-              del concurso *
+              <a href={fs_.urlTyC || '#tyc'} style={{ color: '#76B900' }}>{fs_.textoTyC}</a>{' '}*
             </CheckboxField>
             <CheckboxField register={register} name="aceptaMarketing">
-              Acepto recibir comunicaciones comerciales de NVIDIA, ASUS y ComputerShop
+              {fs_.textoMarketing}
             </CheckboxField>
           </div>
 

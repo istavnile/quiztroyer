@@ -341,6 +341,30 @@ router.patch('/settings', requireAdmin, (req, res) => {
 
 // ─── Concurso Externo ("El Gran Upgrade") ─────────────────────────────────────
 
+const CONTEST_SETTINGS_PATH = path.join(__dirname, '../../uploads/contest-settings.json');
+
+// GET /api/admin/concurso/settings
+router.get('/concurso/settings', requireAdmin, (req, res) => {
+  try {
+    res.json(JSON.parse(fs.readFileSync(CONTEST_SETTINGS_PATH, 'utf8')));
+  } catch {
+    res.json({});
+  }
+});
+
+// PATCH /api/admin/concurso/settings
+router.patch('/concurso/settings', requireAdmin, (req, res) => {
+  try {
+    let current = {};
+    try { current = JSON.parse(fs.readFileSync(CONTEST_SETTINGS_PATH, 'utf8')); } catch {}
+    const updated = { ...current, ...req.body };
+    fs.writeFileSync(CONTEST_SETTINGS_PATH, JSON.stringify(updated, null, 2));
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/admin/concurso?procesador=&graficaActual=&fuentePoderWatts=&search=
 router.get('/concurso', requireAdmin, async (req, res) => {
   const { procesador, graficaActual, fuentePoderWatts, search, isFinalist } = req.query;
