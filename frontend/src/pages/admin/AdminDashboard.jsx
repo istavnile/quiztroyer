@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { ADMIN_PATH } from '../../lib/adminPath';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import api from '../../lib/api';
@@ -254,7 +255,7 @@ export default function AdminDashboard() {
     setCreateError('');
     try {
       const res = await api.post('/admin/challenges', form);
-      navigate(`/admin/challenges/${res.data.id}/edit`);
+      navigate(`${ADMIN_PATH}/challenges/${res.data.id}/edit`);
     } catch (err) {
       setCreateError(err.response?.data?.error || 'Error al crear el desafío');
     } finally {
@@ -296,7 +297,7 @@ export default function AdminDashboard() {
 
   function handleLogout() {
     localStorage.removeItem('qt_admin_token');
-    navigate('/admin/login');
+    navigate(`${ADMIN_PATH}/login`);
   }
 
   async function saveSiteSettings() {
@@ -342,7 +343,7 @@ export default function AdminDashboard() {
     setCreatingRaffle(true); setRaffleError('');
     try {
       const res = await api.post('/raffle/admin/create', raffleForm);
-      navigate(`/admin/raffles/${res.data.id}/control`);
+      navigate(`${ADMIN_PATH}/raffles/${res.data.id}/control`);
     } catch (err) {
       setRaffleError(err.response?.data?.error || 'Error al crear el sorteo');
     } finally { setCreatingRaffle(false); }
@@ -1226,7 +1227,7 @@ export default function AdminDashboard() {
             <UilBullseye size={14} style={{ color: '#76B900' }} />
             Campañas externas
           </h2>
-          <Link to="/admin/concurso" style={{ textDecoration: 'none' }}>
+          <Link to={`${ADMIN_PATH}/concurso`} style={{ textDecoration: 'none' }}>
             <motion.div
               whileHover={{ y: -2 }}
               className="glass-card rounded-2xl p-5 flex items-center justify-between cursor-pointer"
@@ -1435,14 +1436,14 @@ export default function AdminDashboard() {
                     {/* Primary actions */}
                     <div className="flex gap-1.5">
                       <button
-                        onClick={() => navigate(`/admin/challenges/${c.id}/edit`)}
+                        onClick={() => navigate(`${ADMIN_PATH}/challenges/${c.id}/edit`)}
                         className="glass-btn flex-1 text-slate-300 hover:text-white text-sm font-medium py-2.5 rounded-xl"
                       >
                         Editar
                       </button>
                       {c.status !== 'ENDED' && (
                         <button
-                          onClick={() => navigate(`/admin/challenges/${c.id}/live`)}
+                          onClick={() => navigate(`${ADMIN_PATH}/challenges/${c.id}/live`)}
                           className="glass-btn-blue flex-1 text-sm font-semibold py-2.5 rounded-xl flex items-center justify-center gap-1.5"
                         >
                           <UilPlay size={14} />Live

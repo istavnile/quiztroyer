@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ADMIN_PATH } from '../../lib/adminPath';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdmin } from '../../context/AdminContext';
 import api from '../../lib/api';
@@ -66,7 +67,7 @@ export default function LiveControl() {
       {/* Top bar */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/admin')} className="text-slate-400 hover:text-white text-sm">
+          <button onClick={() => navigate(ADMIN_PATH)} className="text-slate-400 hover:text-white text-sm">
             ← Admin
           </button>
           <div>
@@ -254,7 +255,7 @@ export default function LiveControl() {
                     ))}
                   </div>
                   <button
-                    onClick={() => navigate('/admin')}
+                    onClick={() => navigate(ADMIN_PATH)}
                     className="w-full glass-btn text-white font-medium py-3 rounded-xl border border-white/[0.10]"
                   >
                     ← Volver al panel

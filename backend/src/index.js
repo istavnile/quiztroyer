@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const rateLimit = require('express-rate-limit');
 
 const adminRoutes = require('./routes/admin');
 const challengeRoutes = require('./routes/challenges');
@@ -22,6 +23,31 @@ const io = new Server(server, {
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
   },
+});
+
+// ─── Rate limiters ─────────────────────────────────────────────────────────────
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiados intentos. Espera 15 minutos.' },
+});
+
+const contestRegisterLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas inscripciones desde esta IP. Intenta más tarde.' },
+});
+
+const voteLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiados intentos de voto. Intenta más tarde.' },
 });
 
 // Middlewares
@@ -46,6 +72,9 @@ app.get('/api/settings', (req, res) => {
 });
 
 // REST Routes
+app.use('/api/admin/login', authLimiter);
+app.use('/api/contest/register', contestRegisterLimiter);
+app.use('/api/contest/vote', voteLimiter);
 app.use('/api/admin', adminRoutes);
 app.use('/api/challenges', challengeRoutes);
 app.use('/api/raffle', raffleRoutes);

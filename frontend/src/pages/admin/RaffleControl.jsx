@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ADMIN_PATH } from '../../lib/adminPath';
 import { motion, AnimatePresence } from 'framer-motion';
 import { io } from 'socket.io-client';
 import api from '../../lib/api';
@@ -183,7 +184,7 @@ export default function RaffleControl() {
     <div className="min-h-screen bg-slate-950 text-white">
       {/* Header */}
       <div className="border-b border-white/[0.08] bg-slate-950/80 backdrop-blur px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
-        <button onClick={() => navigate('/admin')} className="text-slate-400 hover:text-white transition-colors text-sm">← Admin</button>
+        <button onClick={() => navigate(ADMIN_PATH)} className="text-slate-400 hover:text-white transition-colors text-sm">← Admin</button>
         <span className="text-slate-600">/</span>
         <span className="font-bold truncate">{raffle.name}</span>
         <button

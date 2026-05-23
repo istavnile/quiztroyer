@@ -6,6 +6,7 @@ import {
   PROCESADOR_LABELS, GRAFICA_LABELS, FUENTE_LABELS,
 } from '../../lib/contestConstants';
 import ContestFormBuilder from './ContestFormBuilder';
+import { ADMIN_PATH } from '../../lib/adminPath';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
@@ -508,7 +509,7 @@ export default function ContestAdmin() {
       {/* Header */}
       <div style={{ background: '#0a0a0a', borderBottom: '1px solid #1f2937', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <Link to="/admin" style={{ color: '#6b7280', textDecoration: 'none', fontSize: '0.85rem' }}>← Admin</Link>
+          <Link to={ADMIN_PATH} style={{ color: '#6b7280', textDecoration: 'none', fontSize: '0.85rem' }}>← Admin</Link>
           <h1 style={{ fontWeight: 800, fontSize: '1.1rem', color: '#fff' }}>Concurso · El Gran Upgrade</h1>
         </div>
       </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { GameProvider } from './context/GameContext';
 import { AdminProvider } from './context/AdminContext';
+import { ADMIN_PATH } from './lib/adminPath';
 
 // Pages
 import Home from './pages/Home';
@@ -27,7 +28,7 @@ import ContestAdmin from './pages/admin/ContestAdmin';
 
 function RequireAdmin({ children }) {
   const token = localStorage.getItem('qt_admin_token');
-  if (!token) return <Navigate to="/admin/login" replace />;
+  if (!token) return <Navigate to={`${ADMIN_PATH}/login`} replace />;
   return children;
 }
 
@@ -43,10 +44,10 @@ export default function App() {
             <Route path="/sorteo/:slug" element={<RaffleJoin />} />
             <Route path="/sorteo/:slug/lobby" element={<RaffleRoom />} />
 
-            {/* Admin routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
+            {/* Admin routes — path prefix configurable via VITE_ADMIN_PATH */}
+            <Route path={`${ADMIN_PATH}/login`} element={<AdminLogin />} />
             <Route
-              path="/admin"
+              path={ADMIN_PATH}
               element={
                 <RequireAdmin>
                   <AdminDashboard />
@@ -54,7 +55,7 @@ export default function App() {
               }
             />
             <Route
-              path="/admin/challenges/:id/edit"
+              path={`${ADMIN_PATH}/challenges/:id/edit`}
               element={
                 <RequireAdmin>
                   <ChallengeEditor />
@@ -62,16 +63,15 @@ export default function App() {
               }
             />
             <Route
-              path="/admin/challenges/:id/live"
+              path={`${ADMIN_PATH}/challenges/:id/live`}
               element={
                 <RequireAdmin>
                   <LiveControl />
                 </RequireAdmin>
               }
             />
-
             <Route
-              path="/admin/raffles/:id/control"
+              path={`${ADMIN_PATH}/raffles/:id/control`}
               element={
                 <RequireAdmin>
                   <RaffleControl />
@@ -86,7 +86,7 @@ export default function App() {
 
             {/* Concurso externo — panel admin */}
             <Route
-              path="/admin/concurso"
+              path={`${ADMIN_PATH}/concurso`}
               element={
                 <RequireAdmin>
                   <ContestAdmin />

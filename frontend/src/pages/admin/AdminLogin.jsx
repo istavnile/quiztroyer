@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../lib/api';
 import PageBackground from '../../components/PageBackground';
+import { ADMIN_PATH } from '../../lib/adminPath';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function AdminLogin() {
       const res = await api.post('/admin/login', { username, password });
       localStorage.setItem('qt_admin_token', res.data.token);
       localStorage.setItem('qt_admin_username', res.data.username || username);
-      navigate('/admin');
+      navigate(ADMIN_PATH);
     } catch (err) {
       setError(err.response?.data?.error || 'Error al iniciar sesión');
     } finally { setLoading(false); }
@@ -47,7 +48,7 @@ export default function AdminLogin() {
     try {
       await api.post('/admin/auth/reset-password', { token: resetToken, newPassword: newPass });
       setInfo('Contraseña restablecida. Puedes iniciar sesión.');
-      setTimeout(() => navigate('/admin/login'), 2000);
+      setTimeout(() => navigate(`${ADMIN_PATH}/login`), 2000);
     } catch (err) {
       setError(err.response?.data?.error || 'Token inválido o expirado');
     } finally { setLoading(false); }

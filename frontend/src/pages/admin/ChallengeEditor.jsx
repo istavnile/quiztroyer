@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ADMIN_PATH } from '../../lib/adminPath';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   DndContext,
@@ -398,7 +399,7 @@ export default function ChallengeEditor() {
       {/* ── Top bar ── */}
       <div className="border-b border-slate-800 fluid-px py-3 flex items-center gap-2 bg-slate-950/80 backdrop-blur sticky top-0 z-20">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <button onClick={() => navigate('/admin')} className="text-slate-400 hover:text-white transition-colors fluid-text-sm shrink-0">
+          <button onClick={() => navigate(ADMIN_PATH)} className="text-slate-400 hover:text-white transition-colors fluid-text-sm shrink-0">
             ← Admin
           </button>
           <span className="text-slate-600 shrink-0">|</span>
