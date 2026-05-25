@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ContestLayout from './ContestLayout';
@@ -89,71 +89,10 @@ function PulsingDot({ color, size = 12 }) {
   );
 }
 
-/* ── Particle canvas ─────────────────────────────────────────────── */
-function useParticles(canvasRef) {
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let raf;
-
-    const resize = () => {
-      canvas.width  = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    };
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-
-    const particles = Array.from({ length: 80 }, () => ({
-      x: Math.random(),
-      y: Math.random(),
-      size:    Math.random() * 1.3 + 0.25,
-      vy:    -(Math.random() * 0.35 + 0.08),
-      vx:     (Math.random() - 0.5) * 0.18,
-      alpha:   Math.random() * 0.55 + 0.08,
-      green:   Math.random() > 0.32,
-    }));
-
-    function frame() {
-      const w = canvas.width, h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-      for (const p of particles) {
-        p.y += p.vy / h;
-        p.x += p.vx / w;
-        if (p.y < -0.02) { p.y = 1.02; p.x = Math.random(); }
-        if (p.x < -0.02) p.x = 1.02;
-        if (p.x >  1.02) p.x = -0.02;
-
-        const px = p.x * w, py = p.y * h;
-        const rgb = p.green ? '118,185,0' : '220,55,55';
-        const r   = p.size * 5;
-        const g   = ctx.createRadialGradient(px, py, 0, px, py, r);
-        g.addColorStop(0, `rgba(${rgb},${p.alpha * 0.75})`);
-        g.addColorStop(1, `rgba(${rgb},0)`);
-        ctx.beginPath();
-        ctx.arc(px, py, r, 0, Math.PI * 2);
-        ctx.fillStyle = g;
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(px, py, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${rgb},${Math.min(p.alpha * 4, 1)})`;
-        ctx.fill();
-      }
-      raf = requestAnimationFrame(frame);
-    }
-    frame();
-
-    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
-  }, []);
-}
-
 /* ═══════════════════════════════════════════════════════════════════ */
 export default function ContestLanding() {
-  const [s, setS]     = useState(DEFAULT);
-  const canvasRef     = useRef(null);
-  const open          = isRegistrationOpen();
+  const [s, setS] = useState(DEFAULT);
+  const open      = isRegistrationOpen();
 
   useEffect(() => {
     fetch(`${API}/api/contest/settings`, { cache: 'no-store' })
@@ -161,8 +100,6 @@ export default function ContestLanding() {
       .then((data) => setS({ ...DEFAULT, ...data }))
       .catch((err) => console.warn('[contest-settings]', err));
   }, []);
-
-  useParticles(canvasRef);
 
   const titleWords  = s.titulo.trim().split(/\s+/);
   const titleMain   = titleWords.slice(0, -1).join(' ');
@@ -176,12 +113,6 @@ export default function ContestLanding() {
 
       {/* ══════════ HERO ══════════════════════════════════════════════ */}
       <section style={{ position: 'relative', padding: '80px 0 56px', overflow: 'hidden', textAlign: 'center' }}>
-
-        {/* Particle canvas */}
-        <canvas ref={canvasRef} style={{
-          position: 'absolute', inset: 0, width: '100%', height: '100%',
-          pointerEvents: 'none', zIndex: 0,
-        }} />
 
         {/* Hero BG image */}
         {s.imagenHero && (

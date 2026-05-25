@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import api from '../../lib/api';
 import {
   PROCESADOR_LABELS, GRAFICA_LABELS, FUENTE_LABELS,
@@ -107,6 +111,109 @@ function TextField({ label, value, onChange, multiline, placeholder }) {
       }
     </div>
   );
+}
+
+// ─── Rich-text editor (Tiptap) ────────────────────────────────────────────────
+const TIPTAP_CSS = `
+  .ProseMirror { padding: 10px 14px; min-height: 90px; outline: none; color: #e5e7eb; font-size: 0.85rem; line-height: 1.65; }
+  .ProseMirror p { margin: 0 0 6px; }
+  .ProseMirror ul, .ProseMirror ol { padding-left: 20px; margin: 0 0 6px; }
+  .ProseMirror li { margin-bottom: 2px; }
+  .ProseMirror strong { color: #fff; font-weight: 700; }
+  .ProseMirror em { color: #d1d5db; }
+  .ProseMirror p.is-editor-empty:first-child::before { content: attr(data-placeholder); color: #4b5563; pointer-events: none; float: left; height: 0; }
+`;
+
+function RichTextEditor({ label, value, onChange, placeholder }) {
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: value || '',
+    onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    editorProps: { attributes: { 'data-placeholder': placeholder || '' } },
+  });
+
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) editor.commands.setContent(value || '', false);
+  }, [value, editor]);
+
+  if (!editor) return null;
+
+  const Btn = ({ active, onClick, children, title }) => (
+    <button type="button" title={title} onClick={onClick} style={{
+      background: active ? 'rgba(118,185,0,0.18)' : 'transparent',
+      border: 'none', color: active ? '#76B900' : '#6b7280',
+      padding: '3px 9px', borderRadius: '4px', cursor: 'pointer',
+      fontSize: '0.78rem', fontWeight: 800, lineHeight: 1.4,
+    }}>{children}</button>
+  );
+
+  return (
+    <div>
+      <style>{TIPTAP_CSS}</style>
+      {label && <label style={labelSt}>{label}</label>}
+      <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #374151', borderRadius: '6px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', gap: '2px', padding: '5px 8px', borderBottom: '1px solid #1f2937', background: 'rgba(0,0,0,0.25)', flexWrap: 'wrap' }}>
+          <Btn active={editor.isActive('bold')}       onClick={() => editor.chain().focus().toggleBold().run()}       title="Negrita">B</Btn>
+          <Btn active={editor.isActive('italic')}     onClick={() => editor.chain().focus().toggleItalic().run()}     title="Cursiva"><em>I</em></Btn>
+          <Btn active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Lista">• Lista</Btn>
+          <Btn active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Lista numerada">1. Lista</Btn>
+          <div style={{ width: 1, background: '#1f2937', margin: '2px 4px', alignSelf: 'stretch' }} />
+          <Btn active={false} onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()} title="Limpiar formato">✕</Btn>
+        </div>
+        <EditorContent editor={editor} />
+      </div>
+    </div>
+  );
+}
+
+// ─── CSV / PDF export helpers ─────────────────────────────────────────────────
+function exportCSV(leads) {
+  const headers = ['Nombre', 'Email', 'Teléfono', 'Procesador', 'Gráfica', 'Fuente de poder', 'Finalista', 'Votos', 'Fecha registro'];
+  const rows = leads.map((l) => [
+    l.nombre,
+    l.email,
+    l.telefono,
+    PROCESADOR_LABELS[l.procesador]       ?? l.procesador,
+    GRAFICA_LABELS[l.graficaActual]       ?? l.graficaActual,
+    FUENTE_LABELS[l.fuentePoderWatts]     ?? l.fuentePoderWatts,
+    l.isFinalist ? 'Sí' : 'No',
+    l.voteCount ?? 0,
+    new Date(l.createdAt).toLocaleString('es-GT'),
+  ].map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`));
+  const csv = [headers.map((h) => `"${h}"`), ...rows].map((r) => r.join(',')).join('\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'registros-el-gran-upgrade.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function exportPDF(leads) {
+  const doc = new jsPDF();
+  const GREEN = [118, 185, 0];
+  doc.setFillColor(10, 10, 10); doc.rect(0, 0, 210, 36, 'F');
+  doc.setTextColor(...GREEN); doc.setFontSize(15); doc.setFont('helvetica', 'bold');
+  doc.text('El Gran Upgrade — Registros', 14, 16);
+  doc.setTextColor(150, 150, 150); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.text(`Total: ${leads.length} registros  ·  ${new Date().toLocaleDateString('es-GT')}`, 14, 26);
+  doc.setDrawColor(...GREEN); doc.setLineWidth(0.6); doc.line(14, 33, 196, 33);
+  autoTable(doc, {
+    startY: 38,
+    head: [['#', 'Nombre', 'Email', 'CPU', 'GPU', 'Fuente', 'Finalista', 'Votos']],
+    body: leads.map((l, i) => [
+      i + 1, l.nombre, l.email,
+      (PROCESADOR_LABELS[l.procesador] ?? l.procesador).replace('Intel Core ', '').replace(/ \(.*\)/, ''),
+      (GRAFICA_LABELS[l.graficaActual] ?? l.graficaActual).replace('NVIDIA GeForce ', '').replace('AMD Radeon ', '').replace(' Series', ''),
+      FUENTE_LABELS[l.fuentePoderWatts] ?? l.fuentePoderWatts,
+      l.isFinalist ? 'Sí' : '',
+      l.voteCount ?? 0,
+    ]),
+    headStyles: { fillColor: GREEN, textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7.5 },
+    bodyStyles: { fontSize: 7, textColor: [30, 30, 30] },
+    alternateRowStyles: { fillColor: [244, 249, 240] },
+    columnStyles: { 0: { cellWidth: 8 }, 6: { textColor: GREEN, fontStyle: 'bold' } },
+    margin: { left: 14, right: 14 },
+  });
+  doc.save('registros-el-gran-upgrade.pdf');
 }
 
 // ─── Modal de detalle de lead ─────────────────────────────────────────────────
@@ -243,6 +350,18 @@ function TabRegistros() {
         <button onClick={() => { setSearch(''); setProcesador(''); setGrafica(''); setFuente(''); setIsFinalist(''); }} style={{ background: 'none', border: '1px solid #374151', color: '#6b7280', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', alignSelf: 'flex-end' }}>Limpiar</button>
       </div>
 
+      {/* Acciones de exportación */}
+      {leads.length > 0 && (
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '14px', justifyContent: 'flex-end' }}>
+          <button onClick={() => exportCSV(leads)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid #374151', color: '#9ca3af', padding: '7px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+            ↓ CSV
+          </button>
+          <button onClick={() => exportPDF(leads)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(118,185,0,0.08)', border: '1px solid #4a7400', color: '#76B900', padding: '7px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}>
+            ↓ PDF
+          </button>
+        </div>
+      )}
+
       {/* Tabla */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px', color: '#4b5563' }}>Cargando...</div>
@@ -323,17 +442,27 @@ const DEFAULTS = {
   urlTyC: '#tyc', textoMarketing: '',
 };
 
+const CONFIG_SECTIONS = [
+  { id: 'hero',   label: 'Hero',            icon: '▶' },
+  { id: 'fechas', label: 'Fechas',          icon: '◷' },
+  { id: 'pats',   label: 'Patrocinadores',  icon: '★' },
+  { id: 'pasos',  label: 'Pasos',           icon: '✓' },
+  { id: 'premios',label: 'Premios',         icon: '▲' },
+  { id: 'form',   label: 'Formulario',      icon: '≡' },
+  { id: 'campos', label: 'Campos',          icon: '⊞' },
+];
+
 function TabConfiguracion() {
-  const [cfg, setCfg]       = useState(DEFAULTS);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved]   = useState(false);
+  const [cfg, setCfg]         = useState(DEFAULTS);
+  const [saving, setSaving]   = useState(false);
+  const [saved, setSaved]     = useState(false);
+  const [section, setSection] = useState('hero');
 
   useEffect(() => {
     api.get('/admin/concurso/settings').then((r) => setCfg({ ...DEFAULTS, ...r.data })).catch(() => {});
   }, []);
 
   const set = (key, val) => setCfg((c) => ({ ...c, [key]: val }));
-
   const setNested = (key, index, field, val) =>
     setCfg((c) => ({ ...c, [key]: c[key].map((item, i) => i === index ? { ...item, [field]: val } : item) }));
 
@@ -347,155 +476,165 @@ function TabConfiguracion() {
     finally { setSaving(false); }
   };
 
+  const sidebarBtnSt = (active) => ({
+    display: 'flex', alignItems: 'center', gap: '10px',
+    width: '100%', padding: '11px 18px', border: 'none',
+    borderLeft: active ? '2px solid #76B900' : '2px solid transparent',
+    background: active ? 'rgba(118,185,0,0.07)' : 'transparent',
+    color: active ? '#76B900' : '#6b7280',
+    cursor: 'pointer', textAlign: 'left', fontSize: '0.85rem', fontWeight: 600,
+    transition: 'color .15s, background .15s',
+  });
+
   return (
-    <div style={{ maxWidth: '760px' }}>
-      {/* ── LANDING PAGE ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-        <div style={{ flex: 1, height: '1px', background: '#1f2937' }} />
-        <span style={{ color: '#6b7280', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Página de inicio</span>
-        <div style={{ flex: 1, height: '1px', background: '#1f2937' }} />
-      </div>
+    <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', border: '1px solid #1f2937', borderRadius: '10px', overflow: 'hidden', minHeight: '560px' }}>
 
-      <Accordion title="Hero principal" defaultOpen>
-        <TextField label="Título de la campaña" value={cfg.titulo} onChange={(v) => set('titulo', v)} placeholder="El Gran Upgrade" />
-        <TextField label="Subtítulo / descripción" value={cfg.subtitulo} onChange={(v) => set('subtitulo', v)} multiline placeholder="Muéstranos tu PC..." />
-        <TextField label="Texto del badge superior" value={cfg.badge} onChange={(v) => set('badge', v)} placeholder="CONCURSO PATROCINADO POR..." />
-        <ImageUploader label="Imagen de fondo del hero (opcional)" value={cfg.imagenHero} onChange={(v) => set('imagenHero', v)} />
-      </Accordion>
-
-      <Accordion title="Fechas clave (texto display)">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-          <TextField label="Apertura" value={cfg.textoFechaApertura} onChange={(v) => set('textoFechaApertura', v)} placeholder="1 de junio, 2026" />
-          <TextField label="Cierre"   value={cfg.textoFechaCierre}   onChange={(v) => set('textoFechaCierre', v)}   placeholder="7 de junio, 23:59" />
-          <TextField label="Gran Final" value={cfg.textoFechaFinal}  onChange={(v) => set('textoFechaFinal', v)}    placeholder="12 de junio, 2026" />
+      {/* ── Sidebar ── */}
+      <div style={{ background: '#060a10', borderRight: '1px solid #1f2937', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, paddingTop: '8px' }}>
+          {CONFIG_SECTIONS.map((s) => (
+            <button key={s.id} onClick={() => setSection(s.id)} style={sidebarBtnSt(section === s.id)}>
+              <span style={{ fontSize: '0.9rem', width: '16px', textAlign: 'center' }}>{s.icon}</span>
+              {s.label}
+            </button>
+          ))}
         </div>
-      </Accordion>
-
-      <Accordion title="Patrocinadores / logos">
-        {cfg.patrocinadores.map((p, i) => (
-          <div key={i} style={{ padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #1f2937', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '10px' }}>
-              <TextField label={`Patrocinador ${i + 1} — nombre`} value={p.nombre} onChange={(v) => setNested('patrocinadores', i, 'nombre', v)} />
-              <div>
-                <label style={labelSt}>Color</label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <input type="color" value={p.color || '#ffffff'} onChange={(e) => setNested('patrocinadores', i, 'color', e.target.value)} style={{ width: '40px', height: '36px', borderRadius: '6px', border: '1px solid #374151', background: 'none', cursor: 'pointer' }} />
-                  <input value={p.color || ''} onChange={(e) => setNested('patrocinadores', i, 'color', e.target.value)} style={{ ...inputSt, flex: 1 }} />
-                </div>
-              </div>
-            </div>
-            <ImageUploader label="Logo" value={p.logoUrl} onChange={(v) => setNested('patrocinadores', i, 'logoUrl', v)} />
-          </div>
-        ))}
-      </Accordion>
-
-      <Accordion title="Pasos (¿Cómo participar?)">
-        {cfg.pasos.map((paso, i) => (
-          <div key={i} style={{ padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #1f2937', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '10px' }}>
-              <TextField label="Número" value={paso.numero} onChange={(v) => setNested('pasos', i, 'numero', v)} placeholder="01" />
-              <TextField label="Título" value={paso.titulo} onChange={(v) => setNested('pasos', i, 'titulo', v)} placeholder="Inscríbete" />
-            </div>
-            <TextField label="Descripción" value={paso.descripcion} onChange={(v) => setNested('pasos', i, 'descripcion', v)} multiline />
-          </div>
-        ))}
-      </Accordion>
-
-      <Accordion title="Premios">
-        {cfg.premios.map((premio, i) => (
-          <div key={i} style={{ padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #1f2937', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 100px', gap: '10px' }}>
-              <TextField label="Posición" value={premio.posicion} onChange={(v) => setNested('premios', i, 'posicion', v)} placeholder="1er lugar" />
-              <TextField label="Descripción" value={premio.descripcion} onChange={(v) => setNested('premios', i, 'descripcion', v)} placeholder="NVIDIA RTX 4080 + ..." />
-              <div>
-                <label style={labelSt}>Color</label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <input type="color" value={premio.color || '#facc15'} onChange={(e) => setNested('premios', i, 'color', e.target.value)} style={{ width: '40px', height: '36px', borderRadius: '6px', border: '1px solid #374151', background: 'none', cursor: 'pointer' }} />
-                </div>
-              </div>
-            </div>
-            <ImageUploader label="Imagen del premio (opcional)" value={premio.imagenUrl} onChange={(v) => setNested('premios', i, 'imagenUrl', v)} />
-          </div>
-        ))}
-      </Accordion>
-
-      {/* ── FORMULARIO ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '24px 0 16px' }}>
-        <div style={{ flex: 1, height: '1px', background: '#1f2937' }} />
-        <span style={{ color: '#6b7280', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Formulario de inscripción</span>
-        <div style={{ flex: 1, height: '1px', background: '#1f2937' }} />
-      </div>
-
-      <Accordion title="Textos del formulario" defaultOpen>
-        <TextField label="Título del formulario" value={cfg.tituloFormulario} onChange={(v) => set('tituloFormulario', v)} placeholder="Formulario de inscripción" />
-        <TextField label="Instrucciones / subtítulo" value={cfg.instruccionesFormulario} onChange={(v) => set('instruccionesFormulario', v)} multiline placeholder="Completa todos los campos..." />
-      </Accordion>
-
-      <Accordion title="Campo de historia">
-        <TextField label="Label del campo" value={cfg.labelHistoria} onChange={(v) => set('labelHistoria', v)} placeholder="¿Por qué mereces el Gran Upgrade?" />
-        <TextField label="Placeholder" value={cfg.placeholderHistoria} onChange={(v) => set('placeholderHistoria', v)} multiline placeholder="Comparte tu historia..." />
-        <div>
-          <label style={labelSt}>Máximo de palabras</label>
-          <input type="number" min={10} max={500} value={cfg.maxPalabrasHistoria} onChange={(e) => set('maxPalabrasHistoria', Number(e.target.value))} style={{ ...inputSt, width: '120px' }} />
-        </div>
-      </Accordion>
-
-      <Accordion title="Términos y marketing">
-        <TextField label="Texto del checkbox de TyC" value={cfg.textoTyC} onChange={(v) => set('textoTyC', v)} placeholder="Acepto los Términos y Condiciones..." />
-        <TextField label="URL de los TyC" value={cfg.urlTyC} onChange={(v) => set('urlTyC', v)} placeholder="#tyc o https://..." />
-        <TextField label="Texto del checkbox de marketing" value={cfg.textoMarketing} onChange={(v) => set('textoMarketing', v)} multiline placeholder="Acepto recibir comunicaciones..." />
-      </Accordion>
-
-      {/* ── CAMPOS DEL FORMULARIO ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '24px 0 16px' }}>
-        <div style={{ flex: 1, height: '1px', background: '#1f2937' }} />
-        <span style={{ color: '#6b7280', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Campos del formulario</span>
-        <div style={{ flex: 1, height: '1px', background: '#1f2937' }} />
-      </div>
-
-      <Accordion title="Constructor de campos" defaultOpen={false}>
-        <p style={{ color: '#6b7280', fontSize: '0.82rem', marginTop: 0, marginBottom: '12px' }}>
-          Arrastra los campos para reordenarlos. Los campos <span style={{ color: '#9ca3af' }}>SISTEMA</span> son obligatorios y no pueden eliminarse.
-        </p>
-        <ContestFormBuilder
-          campos={cfg.campos || []}
-          onChange={(campos) => set('campos', campos)}
-        />
-        <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid #1f2937' }}>
-          <a
-            href="/concursos/el-gran-upgrade/inscripcion?preview=1"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '6px',
-              background: 'rgba(250,204,21,0.08)', border: '1px solid #ca8a04',
-              color: '#fbbf24', padding: '7px 16px', borderRadius: '6px',
-              textDecoration: 'none', fontSize: '0.82rem', fontWeight: 700,
-            }}
-          >
-            Vista previa del formulario ↗
+        <div style={{ padding: '16px', borderTop: '1px solid #1f2937' }}>
+          <button onClick={save} disabled={saving} style={{
+            width: '100%', background: saving ? '#4a7400' : '#76B900',
+            color: '#000', fontWeight: 800, padding: '10px',
+            borderRadius: '6px', border: 'none', cursor: saving ? 'not-allowed' : 'pointer',
+            fontSize: '0.88rem', transition: 'background .2s',
+          }}>
+            {saving ? 'Guardando...' : 'Guardar cambios'}
+          </button>
+          {saved && <p style={{ color: '#76B900', fontSize: '0.78rem', textAlign: 'center', margin: '8px 0 0', fontWeight: 600 }}>✓ Guardado</p>}
+          <a href="/concursos/el-gran-upgrade" target="_blank" rel="noopener noreferrer"
+            style={{ display: 'block', color: '#374151', fontSize: '0.76rem', textAlign: 'center', textDecoration: 'none', marginTop: '10px' }}>
+            Ver página pública ↗
           </a>
-          <span style={{ color: '#4b5563', fontSize: '0.75rem', marginLeft: '10px' }}>
-            (se abre en pestaña nueva con datos ficticios)
-          </span>
         </div>
-      </Accordion>
+      </div>
 
-      {/* Guardar */}
-      <div style={{ marginTop: '24px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-        <button
-          onClick={save} disabled={saving}
-          style={{ background: saving ? '#4a7400' : '#76B900', color: '#000', fontWeight: 800, padding: '12px 32px', borderRadius: '6px', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '0.95rem', transition: 'background .2s' }}
-        >
-          {saving ? 'Guardando...' : 'Guardar cambios'}
-        </button>
-        {saved && <span style={{ color: '#76B900', fontSize: '0.85rem', fontWeight: 600 }}>✓ Cambios guardados</span>}
-        <a href="/concursos/el-gran-upgrade" target="_blank" rel="noopener noreferrer" style={{ color: '#6b7280', fontSize: '0.82rem', textDecoration: 'none', marginLeft: 'auto' }}>
-          Ver página pública ↗
-        </a>
+      {/* ── Content panel ── */}
+      <div style={{ padding: '28px 32px', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+
+        {/* HERO */}
+        {section === 'hero' && (<>
+          <SectionTitle>Hero principal</SectionTitle>
+          <TextField label="Título de la campaña" value={cfg.titulo} onChange={(v) => set('titulo', v)} placeholder="El Gran Upgrade" />
+          <RichTextEditor label="Subtítulo / descripción" value={cfg.subtitulo} onChange={(v) => set('subtitulo', v)} placeholder="Muéstranos tu PC y cuéntanos tu historia..." />
+          <TextField label="Texto del badge superior" value={cfg.badge} onChange={(v) => set('badge', v)} placeholder="CONCURSO PATROCINADO POR..." />
+          <ImageUploader label="Imagen de fondo del hero (opcional)" value={cfg.imagenHero} onChange={(v) => set('imagenHero', v)} />
+        </>)}
+
+        {/* FECHAS */}
+        {section === 'fechas' && (<>
+          <SectionTitle>Fechas clave</SectionTitle>
+          <p style={{ color: '#6b7280', fontSize: '0.82rem', margin: 0 }}>Texto display — no afectan la lógica de apertura/cierre del formulario.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '14px' }}>
+            <TextField label="Apertura"    value={cfg.textoFechaApertura} onChange={(v) => set('textoFechaApertura', v)} placeholder="1 de junio, 2026" />
+            <TextField label="Cierre"      value={cfg.textoFechaCierre}   onChange={(v) => set('textoFechaCierre', v)}   placeholder="7 de junio, 23:59" />
+            <TextField label="Gran Final"  value={cfg.textoFechaFinal}    onChange={(v) => set('textoFechaFinal', v)}    placeholder="12 de junio, 2026" />
+          </div>
+        </>)}
+
+        {/* PATROCINADORES */}
+        {section === 'pats' && (<>
+          <SectionTitle>Patrocinadores</SectionTitle>
+          {cfg.patrocinadores.map((p, i) => (
+            <div key={i} style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #1f2937', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <p style={{ color: '#6b7280', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>Patrocinador {i + 1}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: '12px' }}>
+                <TextField label="Nombre" value={p.nombre} onChange={(v) => setNested('patrocinadores', i, 'nombre', v)} />
+                <div>
+                  <label style={labelSt}>Color de acento</label>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input type="color" value={p.color || '#ffffff'} onChange={(e) => setNested('patrocinadores', i, 'color', e.target.value)} style={{ width: '38px', height: '36px', borderRadius: '6px', border: '1px solid #374151', background: 'none', cursor: 'pointer', flexShrink: 0 }} />
+                    <input value={p.color || ''} onChange={(e) => setNested('patrocinadores', i, 'color', e.target.value)} style={{ ...inputSt, flex: 1 }} />
+                  </div>
+                </div>
+              </div>
+              <ImageUploader label="Logo (PNG/SVG recomendado)" value={p.logoUrl} onChange={(v) => setNested('patrocinadores', i, 'logoUrl', v)} />
+            </div>
+          ))}
+        </>)}
+
+        {/* PASOS */}
+        {section === 'pasos' && (<>
+          <SectionTitle>Pasos — ¿Cómo participar?</SectionTitle>
+          {cfg.pasos.map((paso, i) => (
+            <div key={i} style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #1f2937', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '12px' }}>
+                <TextField label="Número" value={paso.numero} onChange={(v) => setNested('pasos', i, 'numero', v)} placeholder="01" />
+                <TextField label="Título del paso" value={paso.titulo} onChange={(v) => setNested('pasos', i, 'titulo', v)} placeholder="Inscríbete" />
+              </div>
+              <RichTextEditor label="Descripción" value={paso.descripcion} onChange={(v) => setNested('pasos', i, 'descripcion', v)} placeholder="Describe este paso..." />
+            </div>
+          ))}
+        </>)}
+
+        {/* PREMIOS */}
+        {section === 'premios' && (<>
+          <SectionTitle>Premios</SectionTitle>
+          {cfg.premios.map((premio, i) => (
+            <div key={i} style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #1f2937', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr 100px', gap: '12px' }}>
+                <TextField label="Posición" value={premio.posicion} onChange={(v) => setNested('premios', i, 'posicion', v)} placeholder="1er lugar" />
+                <TextField label="Descripción" value={premio.descripcion} onChange={(v) => setNested('premios', i, 'descripcion', v)} placeholder="NVIDIA RTX..." />
+                <div>
+                  <label style={labelSt}>Color</label>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input type="color" value={premio.color || '#76B900'} onChange={(e) => setNested('premios', i, 'color', e.target.value)} style={{ width: '38px', height: '36px', borderRadius: '6px', border: '1px solid #374151', background: 'none', cursor: 'pointer' }} />
+                    <input value={premio.color || ''} onChange={(e) => setNested('premios', i, 'color', e.target.value)} style={{ ...inputSt, flex: 1 }} />
+                  </div>
+                </div>
+              </div>
+              <ImageUploader label="Imagen del producto (opcional)" value={premio.imagenUrl} onChange={(v) => setNested('premios', i, 'imagenUrl', v)} />
+            </div>
+          ))}
+        </>)}
+
+        {/* FORMULARIO */}
+        {section === 'form' && (<>
+          <SectionTitle>Textos del formulario</SectionTitle>
+          <TextField label="Título del formulario" value={cfg.tituloFormulario} onChange={(v) => set('tituloFormulario', v)} placeholder="Formulario de inscripción" />
+          <RichTextEditor label="Instrucciones / subtítulo" value={cfg.instruccionesFormulario} onChange={(v) => set('instruccionesFormulario', v)} placeholder="Completa todos los campos..." />
+          <SectionTitle style={{ marginTop: 8 }}>Campo de historia</SectionTitle>
+          <TextField label="Label del campo" value={cfg.labelHistoria} onChange={(v) => set('labelHistoria', v)} placeholder="¿Por qué mereces el Gran Upgrade?" />
+          <TextField label="Placeholder del textarea" value={cfg.placeholderHistoria} onChange={(v) => set('placeholderHistoria', v)} multiline placeholder="Comparte tu historia..." />
+          <div>
+            <label style={labelSt}>Máximo de palabras</label>
+            <input type="number" min={10} max={500} value={cfg.maxPalabrasHistoria} onChange={(e) => set('maxPalabrasHistoria', Number(e.target.value))} style={{ ...inputSt, width: '120px' }} />
+          </div>
+          <SectionTitle style={{ marginTop: 8 }}>Términos y marketing</SectionTitle>
+          <TextField label="Texto del checkbox de TyC" value={cfg.textoTyC} onChange={(v) => set('textoTyC', v)} placeholder="Acepto los Términos y Condiciones..." />
+          <TextField label="URL de los TyC" value={cfg.urlTyC} onChange={(v) => set('urlTyC', v)} placeholder="#tyc o https://..." />
+          <TextField label="Texto del checkbox de marketing" value={cfg.textoMarketing} onChange={(v) => set('textoMarketing', v)} multiline placeholder="Acepto recibir comunicaciones..." />
+        </>)}
+
+        {/* CAMPOS */}
+        {section === 'campos' && (<>
+          <SectionTitle>Constructor de campos</SectionTitle>
+          <p style={{ color: '#6b7280', fontSize: '0.82rem', margin: 0 }}>
+            Los campos <strong style={{ color: '#9ca3af' }}>SISTEMA</strong> son obligatorios y no pueden eliminarse.
+          </p>
+          <ContestFormBuilder campos={cfg.campos || []} onChange={(campos) => set('campos', campos)} />
+          <div style={{ paddingTop: '12px', borderTop: '1px solid #1f2937' }}>
+            <a href="/concursos/el-gran-upgrade/inscripcion?preview=1" target="_blank" rel="noopener noreferrer"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(250,204,21,0.08)', border: '1px solid #ca8a04', color: '#fbbf24', padding: '7px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '0.82rem', fontWeight: 700 }}>
+              Vista previa del formulario ↗
+            </a>
+          </div>
+        </>)}
+
       </div>
     </div>
   );
+}
+
+function SectionTitle({ children, style }) {
+  return <h3 style={{ color: '#e5e7eb', fontWeight: 700, fontSize: '0.95rem', margin: 0, paddingBottom: '10px', borderBottom: '1px solid #1f2937', ...style }}>{children}</h3>;
 }
 
 // ─── Página principal ──────────────────────────────────────────────────────────
@@ -521,7 +660,7 @@ export default function ContestAdmin() {
         ))}
       </div>
 
-      <div style={{ padding: '24px' }}>
+      <div style={{ padding: tab === 'config' ? '20px' : '24px' }}>
         {tab === 'registros' && <TabRegistros />}
         {tab === 'config'    && <TabConfiguracion />}
       </div>

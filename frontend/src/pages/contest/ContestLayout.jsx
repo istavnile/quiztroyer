@@ -1,6 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+
+function useParticles(canvasRef) {
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let raf;
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    resize();
+    window.addEventListener('resize', resize);
+    const particles = Array.from({ length: 90 }, () => ({
+      x: Math.random(), y: Math.random(),
+      size: Math.random() * 1.3 + 0.25,
+      vy: -(Math.random() * 0.35 + 0.08),
+      vx: (Math.random() - 0.5) * 0.18,
+      alpha: Math.random() * 0.55 + 0.08,
+      green: Math.random() > 0.32,
+    }));
+    function frame() {
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      for (const p of particles) {
+        p.y += p.vy / h; p.x += p.vx / w;
+        if (p.y < -0.02) { p.y = 1.02; p.x = Math.random(); }
+        if (p.x < -0.02) p.x = 1.02;
+        if (p.x >  1.02) p.x = -0.02;
+        const px = p.x * w, py = p.y * h;
+        const rgb = p.green ? '118,185,0' : '220,55,55';
+        const r = p.size * 5;
+        const g = ctx.createRadialGradient(px, py, 0, px, py, r);
+        g.addColorStop(0, `rgba(${rgb},${p.alpha * 0.75})`);
+        g.addColorStop(1, `rgba(${rgb},0)`);
+        ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2);
+        ctx.fillStyle = g; ctx.fill();
+        ctx.beginPath(); ctx.arc(px, py, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${rgb},${Math.min(p.alpha * 4, 1)})`; ctx.fill();
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    frame();
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
+  }, []);
+}
 
 const BASE = '/concursos/el-gran-upgrade';
 const API  = import.meta.env.VITE_API_URL || 'http://localhost:4000';
@@ -30,6 +73,20 @@ function isDark(hex = '#000000') {
 export default function ContestLayout({ children }) {
   const { pathname } = useLocation();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [navVisible, setNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const canvasRef = useRef(null);
+  useParticles(canvasRef);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      setNavVisible(y < lastScrollY.current || y < 80);
+      lastScrollY.current = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     fetch(`${API}/api/contest/settings`, { cache: 'no-store' })
@@ -49,20 +106,32 @@ export default function ContestLayout({ children }) {
       style={{ background: '#0a0a0a', minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif' }}
       className="text-white"
     >
+      {/* Particle canvas — full viewport */}
+      <canvas ref={canvasRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1 }} />
+
       {/* Scanlines decorativas */}
       <div
         style={{
-          position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+          position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 2,
           backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.18) 2px, rgba(0,0,0,.18) 4px)',
         }}
       />
 
-      {/* Header */}
+      {/* Header — hide on scroll down, show on scroll up */}
       <motion.header
-        animate={{ borderColor: [`${accentColor}99`, `${accentColor}ff`, `${accentColor}99`] }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-        style={{ background: 'rgba(0,0,0,0.85)', borderBottom: `2px solid ${accentColor}` }}
-        className="sticky top-0 z-50 backdrop-blur-md"
+        animate={{
+          borderColor: [`${accentColor}88`, `${accentColor}ee`, `${accentColor}88`],
+          y: navVisible ? 0 : -80,
+          opacity: navVisible ? 1 : 0,
+        }}
+        transition={{ borderColor: { duration: 3, repeat: Infinity, ease: 'easeInOut' }, y: { duration: 0.25, ease: 'easeInOut' }, opacity: { duration: 0.2 } }}
+        style={{
+          background: 'rgba(0,0,0,0.45)',
+          borderBottom: `1px solid ${accentColor}55`,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        }}
+        className="sticky top-0 z-50"
       >
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link to={BASE} className="flex items-center gap-3 no-underline">
