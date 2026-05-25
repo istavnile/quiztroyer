@@ -12,7 +12,7 @@ import {
 import ContestFormBuilder from './ContestFormBuilder';
 import { ADMIN_PATH } from '../../lib/adminPath';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmtDate(iso) {

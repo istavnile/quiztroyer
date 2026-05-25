@@ -7,7 +7,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import ContestLayout from './ContestLayout';
 import { isRegistrationOpen } from '../../lib/contestConstants';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API = import.meta.env.VITE_API_URL || '';
 
 function countWords(text) {
   return text.trim().split(/\s+/).filter(Boolean).length;
