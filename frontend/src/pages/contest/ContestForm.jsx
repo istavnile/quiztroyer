@@ -411,9 +411,9 @@ function FormContent({ campos, settings, isPreview }) {
         <h1 style={{ fontSize: '2.2rem', fontWeight: 900, marginBottom: '6px' }}>
           {settings?.tituloFormulario || 'Formulario de inscripción'}
         </h1>
-        <p style={{ color: '#9ca3af', marginBottom: '40px', fontSize: '0.95rem' }}>
-          {settings?.instruccionesFormulario || 'Completa todos los campos.'}
-        </p>
+        <p style={{ color: '#9ca3af', marginBottom: '40px', fontSize: '0.95rem' }}
+          dangerouslySetInnerHTML={{ __html: settings?.instruccionesFormulario || 'Completa todos los campos.' }}
+        />
       </motion.div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>

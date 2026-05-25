@@ -221,9 +221,8 @@ export default function ContestLanding() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.6 }}
               style={{ color: '#6b7280', fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto 2.5rem', lineHeight: 1.75 }}
-            >
-              {s.subtitulo}
-            </motion.p>
+              dangerouslySetInnerHTML={{ __html: s.subtitulo }}
+            />
           )}
 
           {/* Sponsor logos */}
@@ -414,9 +413,8 @@ export default function ContestLanding() {
                   <h3 style={{ color: '#f9fafb', fontSize: '1.15rem', fontWeight: 800, marginBottom: '12px', lineHeight: 1.2 }}>
                     {titulo}
                   </h3>
-                  <p style={{ color: '#4b5563', fontSize: '0.88rem', lineHeight: 1.75, margin: 0 }}>
-                    {descripcion}
-                  </p>
+                  <p style={{ color: '#4b5563', fontSize: '0.88rem', lineHeight: 1.75, margin: 0 }}
+                    dangerouslySetInnerHTML={{ __html: descripcion }} />
                 </motion.div>
               );
             })}
