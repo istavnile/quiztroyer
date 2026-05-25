@@ -488,13 +488,13 @@ export default function ContestForm() {
   const [settings, setSettings] = useState(null);
 
   useEffect(() => {
-    fetch(`${API}/api/contest/settings`)
+    fetch(`${API}/api/contest/settings`, { cache: 'no-store' })
       .then((r) => r.json())
       .then((data) => {
         setCampos(data.campos || []);
         setSettings(data);
       })
-      .catch(() => setCampos([]));
+      .catch((err) => { console.warn('[contest-form-settings]', err); setCampos([]); });
   }, []);
 
   if (!open && !isPreview) {

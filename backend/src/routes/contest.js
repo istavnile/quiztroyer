@@ -97,14 +97,19 @@ const DEFAULT_SETTINGS = {
 
 function readContestSettings() {
   try {
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8')) };
-  } catch {
+    const raw = fs.readFileSync(SETTINGS_PATH, 'utf8');
+    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+  } catch (err) {
+    if (err.code !== 'ENOENT') console.error('[readContestSettings]', err.message);
     return { ...DEFAULT_SETTINGS };
   }
 }
 
 // GET /api/contest/settings  (pública)
-router.get('/settings', (req, res) => res.json(readContestSettings()));
+router.get('/settings', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json(readContestSettings());
+});
 
 const prisma = new PrismaClient();
 

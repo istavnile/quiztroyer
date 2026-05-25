@@ -156,10 +156,10 @@ export default function ContestLanding() {
   const open          = isRegistrationOpen();
 
   useEffect(() => {
-    fetch(`${API}/api/contest/settings`)
+    fetch(`${API}/api/contest/settings`, { cache: 'no-store' })
       .then((r) => r.json())
       .then((data) => setS({ ...DEFAULT, ...data }))
-      .catch(() => {});
+      .catch((err) => console.warn('[contest-settings]', err));
   }, []);
 
   useParticles(canvasRef);

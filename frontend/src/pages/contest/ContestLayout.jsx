@@ -32,10 +32,10 @@ export default function ContestLayout({ children }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
 
   useEffect(() => {
-    fetch(`${API}/api/contest/settings`)
+    fetch(`${API}/api/contest/settings`, { cache: 'no-store' })
       .then((r) => r.json())
       .then((data) => setSettings({ ...DEFAULT_SETTINGS, ...data }))
-      .catch(() => {});
+      .catch((err) => console.warn('[contest-layout-settings]', err));
   }, []);
 
   const sponsors     = settings.patrocinadores || DEFAULT_SETTINGS.patrocinadores;
