@@ -92,6 +92,7 @@ async function main() {
       id: 'singleton',
       data: {
         titulo:    'El Gran Upgrade',
+        tituloVw:  7,
         subtitulo: 'Muéstranos tu PC y cuéntanos tu historia. Los mejores setups ganarán un upgrade épico con hardware NVIDIA y ASUS ROG.',
         badge:     'CONCURSO PATROCINADO POR NVIDIA · ASUS ROG · COMPUTERSHOP',
         imagenHero: '',

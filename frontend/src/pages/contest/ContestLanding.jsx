@@ -8,6 +8,7 @@ const API = import.meta.env.VITE_API_URL || '';
 
 const DEFAULT = {
   titulo: 'El Gran Upgrade',
+  tituloVw: 7,
   subtitulo: 'Muéstranos tu PC y cuéntanos tu historia. Los mejores setups ganarán un upgrade épico con hardware NVIDIA y ASUS ROG.',
   badge: 'CONCURSO PATROCINADO POR NVIDIA · ASUS ROG · COMPUTERSHOP',
   imagenHero: '',
@@ -308,6 +309,17 @@ export default function ContestLanding() {
         {/* Galaxy shader */}
         <GalaxyCanvas accent={accent} />
 
+        {/* Animated vignette glow — drifts side to side */}
+        <motion.div
+          animate={{ x: ['0%', '10%', '-10%', '0%'] }}
+          transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut', times: [0, 0.33, 0.66, 1] }}
+          style={{
+            position: 'absolute', top: '-15%', left: '-15%', right: '-15%', bottom: '-15%',
+            background: `radial-gradient(ellipse 50% 60% at 50% 52%, ${accent}22, transparent 62%)`,
+            pointerEvents: 'none', zIndex: 1,
+          }}
+        />
+
         {/* Tactical HUD — top-left */}
         <div className="gaming-flicker" style={{
           position: 'absolute', top: '22px', left: '22px', zIndex: 5,
@@ -383,7 +395,7 @@ export default function ContestLanding() {
               initial={{ opacity: 0, y: 22 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              style={{ fontSize: 'clamp(3rem, 7vw, 6rem)', fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em', margin: 0 }}
+              style={{ fontSize: `clamp(2rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em', margin: 0 }}
             >
               {titleMain && <>{titleMain} </>}
               <motion.span
@@ -409,7 +421,7 @@ export default function ContestLanding() {
               transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 1.2, times: [0, 0.52, 0.57, 0.61, 0.65, 0.70] }}
               style={{
                 position: 'absolute', inset: 0, pointerEvents: 'none', userSelect: 'none',
-                fontSize: 'clamp(3rem, 7vw, 6rem)', fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
+                fontSize: `clamp(2rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
                 color: '#e61f30',
               }}
             >
@@ -426,7 +438,7 @@ export default function ContestLanding() {
               transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 1.2, delay: 0.07, times: [0, 0.52, 0.57, 0.61, 0.65, 0.70] }}
               style={{
                 position: 'absolute', inset: 0, pointerEvents: 'none', userSelect: 'none',
-                fontSize: 'clamp(3rem, 7vw, 6rem)', fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
+                fontSize: `clamp(2rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
                 color: '#00cfff',
               }}
             >

@@ -522,6 +522,26 @@ function TabConfiguracion() {
         {section === 'hero' && (<>
           <SectionTitle>Hero principal</SectionTitle>
           <TextField label="Título de la campaña" value={cfg.titulo} onChange={(v) => set('titulo', v)} placeholder="El Gran Upgrade" />
+
+          {/* Font size slider */}
+          <div>
+            <label style={labelSt}>Tamaño del título</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <input
+                type="range" min="4" max="12" step="0.5"
+                value={cfg.tituloVw ?? 7}
+                onChange={(e) => set('tituloVw', parseFloat(e.target.value))}
+                style={{ flex: 1, accentColor: '#6366f1' }}
+              />
+              <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', minWidth: '48px', textAlign: 'right' }}>
+                {cfg.tituloVw ?? 7}vw
+              </span>
+            </div>
+            <p style={{ color: '#4b5563', fontSize: '0.72rem', margin: '4px 0 0' }}>
+              Rango 4–12vw · actual: clamp(2rem, {cfg.tituloVw ?? 7}vw, 9rem)
+            </p>
+          </div>
+
           <RichTextEditor label="Subtítulo / descripción" value={cfg.subtitulo} onChange={(v) => set('subtitulo', v)} placeholder="Muéstranos tu PC y cuéntanos tu historia..." />
           <TextField label="Texto del badge superior" value={cfg.badge} onChange={(v) => set('badge', v)} placeholder="CONCURSO PATROCINADO POR..." />
           <ImageUploader label="Imagen de fondo del hero (opcional)" value={cfg.imagenHero} onChange={(v) => set('imagenHero', v)} />
