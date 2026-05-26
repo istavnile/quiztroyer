@@ -75,6 +75,120 @@ function GamingCursor({ accent = '#76B900' }) {
 }
 
 
+/* ── Full-page circuit-board background canvas ───────────────────── */
+function CircuitBoardBG({ accent = '#76B900' }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const cr = parseInt(accent.slice(1,3),16);
+    const cg = parseInt(accent.slice(3,5),16);
+    const cb = parseInt(accent.slice(5,7),16);
+    const col = (a) => `rgba(${cr},${cg},${cb},${a})`;
+
+    let W = 0, H = 0, off = null, traces = [], pulses = [];
+    const STEP = 58;
+    const DATA_LABELS = ['48.15','3.26','18.59','73.26','0.16','31.51','47.14','51.29','1.04','27.12','65.43','9.87'];
+    const mkRng = () => { let s = 7331; return () => { s=(s*1664525+1013904223)>>>0; return s/4294967295; }; };
+
+    const build = () => {
+      const rng = mkRng();
+      traces = [];
+      const nodes = {};
+      const labels = [];
+      const addNode = (x,y) => { nodes[`${Math.round(x)},${Math.round(y)}`] = {x,y}; };
+
+      // Horizontal traces — primary visual element
+      for (let y = STEP*0.5; y < H+STEP; y += STEP*(0.65+rng()*0.95)) {
+        for (let x = -STEP; x < W+STEP;) {
+          if (rng() < 0.6) {
+            const len = STEP*(1+Math.floor(rng()*5));
+            traces.push({x1:x,y1:y,x2:x+len,y2:y, a:0.04+rng()*0.08});
+            addNode(x,y); addNode(x+len,y);
+            if (rng()<0.14) labels.push({x:x+len*(0.2+rng()*0.6), y:y-7, t:DATA_LABELS[Math.floor(rng()*DATA_LABELS.length)]});
+            x += len + STEP*(rng()<0.35 ? 1 : 2);
+          } else { x += STEP*(1+Math.floor(rng()*2)); }
+        }
+      }
+
+      // Vertical connectors
+      for (let x = STEP; x < W+STEP; x += STEP*(1.3+rng()*2.4)) {
+        for (let y = 0; y < H;) {
+          if (rng()<0.28) {
+            const len = STEP*(1+Math.floor(rng()*2));
+            traces.push({x1:x,y1:y,x2:x,y2:y+len, a:0.03+rng()*0.045});
+            addNode(x,y); addNode(x,y+len);
+            y += len+STEP;
+          } else { y += STEP; }
+        }
+      }
+
+      // Bake static elements to offscreen canvas
+      off = document.createElement('canvas');
+      off.width = W; off.height = H;
+      const oc = off.getContext('2d');
+
+      for (const t of traces) {
+        oc.strokeStyle = col(t.a); oc.lineWidth = 0.75;
+        oc.beginPath(); oc.moveTo(t.x1,t.y1); oc.lineTo(t.x2,t.y2); oc.stroke();
+      }
+      for (const n of Object.values(nodes)) {
+        oc.fillStyle = col(0.18);
+        oc.beginPath(); oc.arc(n.x,n.y,2,0,Math.PI*2); oc.fill();
+        if (rng()<0.22) {
+          oc.strokeStyle = col(0.07); oc.lineWidth = 0.55;
+          oc.beginPath(); oc.arc(n.x,n.y,4.5,0,Math.PI*2); oc.stroke();
+        }
+      }
+      oc.font = '7.5px "Courier New", monospace';
+      for (const l of labels) { oc.fillStyle = col(0.11); oc.fillText(l.t,l.x,l.y); }
+    };
+
+    const spawnPulse = () => {
+      const long = traces.filter(t => Math.hypot(t.x2-t.x1,t.y2-t.y1) > 85);
+      if (!long.length) return;
+      const t = long[Math.floor(Math.random()*long.length)];
+      pulses.push({t, p:0, spd:0.004+Math.random()*0.006});
+    };
+
+    for (let i=0;i<12;i++) setTimeout(spawnPulse, i*280);
+    const pInt = setInterval(spawnPulse, 480);
+
+    const resize = () => {
+      const dpr = Math.min(devicePixelRatio||1,2);
+      W = window.innerWidth; H = window.innerHeight;
+      canvas.width = W*dpr; canvas.height = H*dpr;
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      build();
+    };
+    window.addEventListener('resize', resize); resize();
+
+    let raf;
+    const frame = () => {
+      ctx.clearRect(0,0,W,H);
+      if (off) ctx.drawImage(off,0,0,W,H);
+
+      pulses = pulses.filter(p=>p.p<=1);
+      for (const p of pulses) {
+        p.p += p.spd;
+        const px = p.t.x1+(p.t.x2-p.t.x1)*p.p;
+        const py = p.t.y1+(p.t.y2-p.t.y1)*p.p;
+        const g = ctx.createRadialGradient(px,py,0,px,py,11);
+        g.addColorStop(0, col(0.9)); g.addColorStop(0.3, col(0.35)); g.addColorStop(1, col(0));
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(px,py,11,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle=col(1); ctx.beginPath(); ctx.arc(px,py,2,0,Math.PI*2); ctx.fill();
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    frame();
+
+    return () => { cancelAnimationFrame(raf); clearInterval(pInt); window.removeEventListener('resize', resize); };
+  }, [accent]);
+
+  return <canvas ref={ref} style={{position:'fixed', inset:0, pointerEvents:'none', zIndex:0, display:'block'}} />;
+}
+
 const BASE = '/concursos/el-gran-upgrade';
 const API  = import.meta.env.VITE_API_URL || '';
 
@@ -138,6 +252,9 @@ export default function ContestLayout({ children }) {
       <style>{`a, button, input, select, textarea, label, [role="button"] { cursor: none !important; }`}</style>
 
       <GamingCursor accent={accentColor} />
+
+      {/* Full-page circuit board background */}
+      <CircuitBoardBG accent={accentColor} />
 
       {/* Ambient top glow — extends well below the hero fold */}
       <div style={{
