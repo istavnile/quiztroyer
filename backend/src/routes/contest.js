@@ -95,10 +95,22 @@ const DEFAULT_SETTINGS = {
   ],
 };
 
+// Strip absolute localhost origins from stored URL fields (dev leftovers)
+function sanitizeUrls(obj) {
+  if (typeof obj === 'string') return obj.replace(/^https?:\/\/localhost:\d+/, '');
+  if (Array.isArray(obj))     return obj.map(sanitizeUrls);
+  if (obj && typeof obj === 'object') {
+    const out = {};
+    for (const k of Object.keys(obj)) out[k] = sanitizeUrls(obj[k]);
+    return out;
+  }
+  return obj;
+}
+
 function readContestSettings() {
   try {
     const raw = fs.readFileSync(SETTINGS_PATH, 'utf8');
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+    return sanitizeUrls({ ...DEFAULT_SETTINGS, ...JSON.parse(raw) });
   } catch (err) {
     if (err.code !== 'ENOENT') console.error('[readContestSettings]', err.message);
     return { ...DEFAULT_SETTINGS };
