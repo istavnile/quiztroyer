@@ -59,7 +59,7 @@ export default function ContestLayout({ children }) {
 
   return (
     <div
-      style={{ background: '#0a0a0a', minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif' }}
+      style={{ background: '#0a0a0a', minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif', display: 'flex', flexDirection: 'column' }}
       className="text-white"
     >
       {/* Ambient top glow — extends well below the hero fold */}
@@ -101,7 +101,7 @@ export default function ContestLayout({ children }) {
               <img
                 src={primary.logoUrl}
                 alt={primary.nombre || ''}
-                style={{ height: '24px', maxWidth: '90px', width: 'auto', objectFit: 'contain', display: 'block', flexShrink: 0 }}
+                style={{ height: `${Math.min(primary.logoAltura || 28, 34)}px`, maxWidth: '110px', width: 'auto', objectFit: 'contain', display: 'block', flexShrink: 0 }}
               />
             ) : (
               <div
@@ -155,7 +155,7 @@ export default function ContestLayout({ children }) {
       />
 
       {/* Contenido */}
-      <main className="relative z-10 max-w-6xl mx-auto px-4 py-10">
+      <main className="relative z-10 max-w-6xl mx-auto px-4 py-10" style={{ flex: 1 }}>
         {children}
       </main>
 

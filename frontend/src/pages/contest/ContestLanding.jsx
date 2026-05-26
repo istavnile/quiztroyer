@@ -312,7 +312,7 @@ export default function ContestLanding() {
             >
               {s.patrocinadores.filter((p) => p.logoUrl).map((p) => (
                 <img key={p.nombre} src={p.logoUrl} alt={p.nombre}
-                  style={{ height: '52px', objectFit: 'contain', opacity: 0.88 }} />
+                  style={{ height: `${p.logoAltura || 52}px`, objectFit: 'contain', opacity: 0.88 }} />
               ))}
             </motion.div>
           )}

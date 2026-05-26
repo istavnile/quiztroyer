@@ -424,9 +424,9 @@ const DEFAULTS = {
   campos: [],
   textoFechaApertura: '1 de junio, 2026', textoFechaCierre: '7 de junio, 23:59', textoFechaFinal: '12 de junio, 2026',
   patrocinadores: [
-    { nombre: 'NVIDIA', logoUrl: '', color: '#76B900' },
-    { nombre: 'ASUS ROG', logoUrl: '', color: '#e61f30' },
-    { nombre: 'ComputerShop', logoUrl: '', color: '#ffffff' },
+    { nombre: 'NVIDIA', logoUrl: '', color: '#76B900', logoAltura: 52 },
+    { nombre: 'ASUS ROG', logoUrl: '', color: '#e61f30', logoAltura: 40 },
+    { nombre: 'ComputerShop', logoUrl: '', color: '#ffffff', logoAltura: 36 },
   ],
   pasos: [
     { numero: '01', titulo: 'Inscríbete', descripcion: '' },
@@ -545,7 +545,7 @@ function TabConfiguracion() {
           {cfg.patrocinadores.map((p, i) => (
             <div key={i} style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #1f2937', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <p style={{ color: '#6b7280', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>Patrocinador {i + 1}</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px 130px', gap: '12px' }}>
                 <TextField label="Nombre" value={p.nombre} onChange={(v) => setNested('patrocinadores', i, 'nombre', v)} />
                 <div>
                   <label style={labelSt}>Color de acento</label>
@@ -553,6 +553,19 @@ function TabConfiguracion() {
                     <input type="color" value={p.color || '#ffffff'} onChange={(e) => setNested('patrocinadores', i, 'color', e.target.value)} style={{ width: '38px', height: '36px', borderRadius: '6px', border: '1px solid #374151', background: 'none', cursor: 'pointer', flexShrink: 0 }} />
                     <input value={p.color || ''} onChange={(e) => setNested('patrocinadores', i, 'color', e.target.value)} style={{ ...inputSt, flex: 1 }} />
                   </div>
+                </div>
+                <div>
+                  <label style={labelSt}>Tamaño del logo</label>
+                  <select
+                    value={p.logoAltura || 52}
+                    onChange={(e) => setNested('patrocinadores', i, 'logoAltura', Number(e.target.value))}
+                    style={{ ...inputSt, cursor: 'pointer' }}
+                  >
+                    <option value={28} style={{ background: '#111' }}>Pequeño (28px)</option>
+                    <option value={40} style={{ background: '#111' }}>Mediano (40px)</option>
+                    <option value={52} style={{ background: '#111' }}>Grande (52px)</option>
+                    <option value={68} style={{ background: '#111' }}>Extra grande (68px)</option>
+                  </select>
                 </div>
               </div>
               <ImageUploader label="Logo (PNG/SVG recomendado)" value={p.logoUrl} onChange={(v) => setNested('patrocinadores', i, 'logoUrl', v)} />
