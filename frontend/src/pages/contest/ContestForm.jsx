@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import UilLockAlt from '@iconscout/react-unicons/icons/uil-lock-alt';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -501,7 +502,7 @@ export default function ContestForm() {
     return (
       <ContestLayout>
         <div style={{ textAlign: 'center', padding: '80px 16px' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔒</div>
+          <div style={{ marginBottom: '16px', opacity: 0.5 }}><UilLockAlt size="52" color="#e61f30" /></div>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '12px' }}>Inscripciones cerradas</h1>
           <p style={{ color: '#9ca3af' }}>
             El período de inscripción fue del 1 al 7 de junio de 2026.<br />

@@ -379,48 +379,29 @@ export default function ContestLanding() {
       </section>
 
       {/* ══════════ FECHAS ════════════════════════════════════════════ */}
-      <section style={{ marginTop: '32px', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
-          {[
-            { label: 'APERTURA',           date: s.textoFechaApertura, color: '#76B900', live: false },
-            { label: 'CIERRE',             date: s.textoFechaCierre,   color: '#e61f30', live: false },
-            { label: 'GRAN FINAL EN VIVO', date: s.textoFechaFinal,    color: '#facc15', live: true  },
-          ].map(({ label, date, color, live }, i) => (
-            <motion.div
-              key={label}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.4 }}
-              style={{
-                padding: '16px 20px', position: 'relative', overflow: 'hidden',
-                borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-              }}
-            >
-              <motion.div
-                animate={{ opacity: [0.4, 0.9, 0.4] }}
-                transition={{ duration: 2 + i * 0.5, repeat: Infinity, ease: 'easeInOut' }}
-                style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '1px', background: color }}
-              />
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '5px' }}>
-                {live && (
-                  <motion.div
-                    animate={{ opacity: [1, 0.15, 1] }}
-                    transition={{ duration: 0.9, repeat: Infinity }}
-                    style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0 }}
-                  />
-                )}
-                <p style={{ color: '#374151', fontSize: '0.55rem', letterSpacing: '0.2em', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>
-                  {label}
-                </p>
-              </div>
-              <p style={{ color, fontSize: 'clamp(0.82rem, 1.6vw, 1.1rem)', fontWeight: 800, letterSpacing: '-0.01em', lineHeight: 1, margin: 0 }}>
-                {date}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+      <div style={{ marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        {[
+          { label: 'APERTURA',           date: s.textoFechaApertura, color: '#76B900', live: false },
+          { label: 'CIERRE',             date: s.textoFechaCierre,   color: '#e61f30', live: false },
+          { label: 'GRAN FINAL EN VIVO', date: s.textoFechaFinal,    color: '#facc15', live: true  },
+        ].map(({ label, date, color, live }, i) => (
+          <motion.div
+            key={label}
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            transition={{ delay: i * 0.1, duration: 0.4 }}
+            style={{ padding: '14px 40px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', marginBottom: '4px' }}>
+              {live && (
+                <motion.div animate={{ opacity: [1, 0.15, 1] }} transition={{ duration: 0.9, repeat: Infinity }}
+                  style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0 }} />
+              )}
+              <p style={{ color: '#374151', fontSize: '0.52rem', letterSpacing: '0.18em', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>{label}</p>
+            </div>
+            <p style={{ color, fontSize: '0.88rem', fontWeight: 800, margin: 0, letterSpacing: '-0.01em', lineHeight: 1 }}>{date}</p>
+          </motion.div>
+        ))}
+      </div>
 
       {/* ══════════ CÓMO PARTICIPAR ═══════════════════════════════════ */}
       {s.pasos?.length > 0 && (
@@ -450,8 +431,8 @@ export default function ContestLanding() {
                   transition={{ duration: 1.8, repeat: segActive ? Infinity : 0, ease: 'easeInOut' }}
                   style={{
                     position: 'absolute', top: '6px', height: '1px',
-                    left:  seg === 0 ? 'calc(16.6% + 12px)' : 'calc(50% + 6px)',
-                    right: seg === 0 ? 'calc(50% + 6px)'    : 'calc(16.6% + 12px)',
+                    left:  seg === 0 ? '18px'                  : 'calc(33.33% + 38px)',
+                    right: seg === 0 ? 'calc(66.66% - 32px)'  : '18px',
                     background: STEP_COLORS[seg],
                     zIndex: 0,
                   }}

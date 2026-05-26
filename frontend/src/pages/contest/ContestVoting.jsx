@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import UilTrophy from '@iconscout/react-unicons/icons/uil-trophy';
 import { motion, AnimatePresence } from 'framer-motion';
 import ContestLayout from './ContestLayout';
 import { PROCESADOR_LABELS, GRAFICA_LABELS } from '../../lib/contestConstants';
@@ -282,7 +283,7 @@ export default function ContestVoting() {
               borderRadius: '16px', background: 'rgba(255,255,255,0.02)',
             }}
           >
-            <div style={{ fontSize: '3rem', marginBottom: '16px', opacity: 0.4 }}>🏆</div>
+            <div style={{ marginBottom: '16px', opacity: 0.35 }}><UilTrophy size="52" color="#facc15" /></div>
             <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '8px' }}>
               Los finalistas se anunciarán pronto
             </h2>

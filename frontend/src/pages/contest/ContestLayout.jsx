@@ -2,6 +2,49 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
+function GamingCursor({ accent = '#76B900' }) {
+  const [pos, setPos] = useState({ x: -300, y: -300 });
+  useEffect(() => {
+    const fn = (e) => setPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', fn, { passive: true });
+    return () => window.removeEventListener('mousemove', fn);
+  }, []);
+  return (
+    <div style={{ position: 'fixed', left: 0, top: 0, zIndex: 9999, pointerEvents: 'none', transform: `translate(${pos.x - 20}px, ${pos.y - 20}px)`, willChange: 'transform' }}>
+      <svg width="40" height="40" viewBox="0 0 40 40" style={{ display: 'block' }}>
+        {/* Corner brackets */}
+        <line x1="4" y1="4" x2="10" y2="4"  stroke={accent} strokeWidth="1" opacity="0.45" />
+        <line x1="4" y1="4" x2="4"  y2="10" stroke={accent} strokeWidth="1" opacity="0.45" />
+        <line x1="36" y1="4" x2="30" y2="4"  stroke={accent} strokeWidth="1" opacity="0.45" />
+        <line x1="36" y1="4" x2="36" y2="10" stroke={accent} strokeWidth="1" opacity="0.45" />
+        <line x1="4" y1="36" x2="10" y2="36" stroke={accent} strokeWidth="1" opacity="0.45" />
+        <line x1="4" y1="36" x2="4"  y2="30" stroke={accent} strokeWidth="1" opacity="0.45" />
+        <line x1="36" y1="36" x2="30" y2="36" stroke={accent} strokeWidth="1" opacity="0.45" />
+        <line x1="36" y1="36" x2="36" y2="30" stroke={accent} strokeWidth="1" opacity="0.45" />
+        {/* Crosshair lines */}
+        <line x1="20" y1="4"  x2="20" y2="14" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="20" y1="26" x2="20" y2="36" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="4"  y1="20" x2="14" y2="20" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="26" y1="20" x2="36" y2="20" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
+        {/* Center dot */}
+        <circle cx="20" cy="20" r="1.5" fill={accent} />
+      </svg>
+      {/* Slowly rotating dashed ring */}
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 9, repeat: Infinity, ease: 'linear' }}
+        style={{ position: 'absolute', inset: 5, borderRadius: '50%', border: `1px dashed ${accent}55`, pointerEvents: 'none' }}
+      />
+      {/* Pulsing ring */}
+      <motion.div
+        animate={{ scale: [0.7, 1.4], opacity: [0.55, 0] }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut', repeatDelay: 0.6 }}
+        style={{ position: 'absolute', inset: 8, borderRadius: '50%', border: `1px solid ${accent}`, pointerEvents: 'none' }}
+      />
+    </div>
+  );
+}
+
 
 const BASE = '/concursos/el-gran-upgrade';
 const API  = import.meta.env.VITE_API_URL || '';
@@ -59,9 +102,11 @@ export default function ContestLayout({ children }) {
 
   return (
     <div
-      style={{ background: '#0a0a0a', minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif', display: 'flex', flexDirection: 'column' }}
+      style={{ background: '#0a0a0a', minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif', display: 'flex', flexDirection: 'column', cursor: 'none' }}
       className="text-white"
     >
+      <GamingCursor accent={accentColor} />
+
       {/* Ambient top glow — extends well below the hero fold */}
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, height: '75vh',
