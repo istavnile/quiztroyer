@@ -151,30 +151,30 @@ const TECH_TERMS = [
 function _pr(seed) { const x = Math.sin(seed * 9301 + 49297) * 233280; return x - Math.floor(x); }
 
 function TechBG({ accent = '#76B900' }) {
-  const COLS = 7, ROWS = 10;
+  const COLS = 6, ROWS = 12;
   const makePass = (offset) =>
     Array.from({ length: ROWS }, (_, r) =>
       Array.from({ length: COLS }, (_, c) => {
         const s = (offset + r) * COLS + c;
         return {
           text:  TECH_TERMS[((offset + r) * 3 + c * 2 + 1) % TECH_TERMS.length],
-          size:  0.48 + _pr(s) * 0.52,
-          alpha: 0.18 + _pr(s + 400) * 0.82,
-          pad:   12 + _pr(s + 800) * 18,
+          size:  0.9 + _pr(s) * 0.8,          // 0.9–1.7rem — large enough to survive blur
+          alpha: 0.25 + _pr(s + 400) * 0.55,  // 0.25–0.8 before container opacity
+          pad:   10 + _pr(s + 800) * 16,
         };
       })
     );
-  const rows = [...makePass(0), ...makePass(ROWS)]; // 2× for seamless loop
+  const rows = [...makePass(0), ...makePass(ROWS)];
 
   return (
     <div style={{
       position: 'absolute', inset: 0, overflow: 'hidden',
-      filter: 'blur(13px)', opacity: 0.14,
+      filter: 'blur(7px)', opacity: 0.22,
       userSelect: 'none', pointerEvents: 'none', zIndex: 1,
     }}>
       <motion.div
         animate={{ y: ['0%', '-50%'] }}
-        transition={{ duration: 110, repeat: Infinity, ease: 'linear' }}
+        transition={{ duration: 100, repeat: Infinity, ease: 'linear' }}
       >
         {rows.map((row, ri) => (
           <div key={ri} style={{ display: 'flex' }}>
