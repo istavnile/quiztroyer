@@ -262,11 +262,11 @@ export default function ContestLanding() {
             {/* Glitch layer R */}
             <motion.div aria-hidden="true"
               animate={{
-                opacity:   [0, 0, 0.55, 0],
-                x:         [0, 0, -5,   0],
-                clipPath:  ['inset(40% 0 40% 0)', 'inset(40% 0 40% 0)', 'inset(18% 0 55% 0)', 'inset(0% 0 0% 0)'],
+                opacity:  [0, 0, 0.82, 0.1, 0.75, 0],
+                x:        [0, 0, -9,   2,   -6,   0],
+                clipPath: ['inset(35% 0 45% 0)', 'inset(35% 0 45% 0)', 'inset(12% 0 58% 0)', 'inset(55% 0 22% 0)', 'inset(28% 0 40% 0)', 'inset(0% 0 0% 0)'],
               }}
-              transition={{ duration: 5.5, repeat: Infinity, repeatDelay: 2.5, times: [0, 0.58, 0.63, 0.68] }}
+              transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 1.2, times: [0, 0.52, 0.57, 0.61, 0.65, 0.70] }}
               style={{
                 position: 'absolute', inset: 0, pointerEvents: 'none', userSelect: 'none',
                 fontSize: 'clamp(3rem, 7vw, 6rem)', fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
@@ -279,11 +279,11 @@ export default function ContestLanding() {
             {/* Glitch layer C */}
             <motion.div aria-hidden="true"
               animate={{
-                opacity:   [0, 0, 0.45, 0],
-                x:         [0, 0,  6,   0],
-                clipPath:  ['inset(60% 0 18% 0)', 'inset(60% 0 18% 0)', 'inset(68% 0 4% 0)', 'inset(0% 0 0% 0)'],
+                opacity:  [0, 0, 0.70, 0.08, 0.60, 0],
+                x:        [0, 0,  10,  -3,    7,   0],
+                clipPath: ['inset(62% 0 15% 0)', 'inset(62% 0 15% 0)', 'inset(70% 0 2% 0)', 'inset(40% 0 35% 0)', 'inset(58% 0 10% 0)', 'inset(0% 0 0% 0)'],
               }}
-              transition={{ duration: 5.5, repeat: Infinity, repeatDelay: 2.5, delay: 0.06, times: [0, 0.58, 0.63, 0.68] }}
+              transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 1.2, delay: 0.07, times: [0, 0.52, 0.57, 0.61, 0.65, 0.70] }}
               style={{
                 position: 'absolute', inset: 0, pointerEvents: 'none', userSelect: 'none',
                 fontSize: 'clamp(3rem, 7vw, 6rem)', fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
