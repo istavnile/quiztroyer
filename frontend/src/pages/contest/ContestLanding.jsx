@@ -178,6 +178,12 @@ export default function ContestLanding() {
       .catch((err) => console.warn('[contest-settings]', err));
   }, []);
 
+  const [stepTick, setStepTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setStepTick((t) => t + 1), 1800);
+    return () => clearInterval(id);
+  }, []);
+
   const titleWords  = s.titulo.trim().split(/\s+/);
   const titleMain   = titleWords.slice(0, -1).join(' ');
   const titleAccent = titleWords.slice(-1)[0];
@@ -306,7 +312,7 @@ export default function ContestLanding() {
             >
               {s.patrocinadores.filter((p) => p.logoUrl).map((p) => (
                 <img key={p.nombre} src={p.logoUrl} alt={p.nombre}
-                  style={{ height: '30px', objectFit: 'contain', opacity: 0.75 }} />
+                  style={{ height: '52px', objectFit: 'contain', opacity: 0.88 }} />
               ))}
             </motion.div>
           )}
@@ -373,7 +379,7 @@ export default function ContestLanding() {
       </section>
 
       {/* ══════════ FECHAS ════════════════════════════════════════════ */}
-      <section style={{ marginTop: '48px', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <section style={{ marginTop: '32px', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
           {[
             { label: 'APERTURA',           date: s.textoFechaApertura, color: '#76B900', live: false },
@@ -382,45 +388,33 @@ export default function ContestLanding() {
           ].map(({ label, date, color, live }, i) => (
             <motion.div
               key={label}
-              initial={{ opacity: 0, y: 14 }}
+              initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.45 }}
+              transition={{ delay: i * 0.1, duration: 0.4 }}
               style={{
-                padding: '32px 24px', position: 'relative', overflow: 'hidden',
+                padding: '16px 20px', position: 'relative', overflow: 'hidden',
                 borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none',
               }}
             >
-              {/* Animated bottom bar */}
               <motion.div
-                animate={{ opacity: [0.5, 1, 0.5], boxShadow: [`0 0 6px ${color}55`, `0 0 18px ${color}`, `0 0 6px ${color}55`] }}
+                animate={{ opacity: [0.4, 0.9, 0.4] }}
                 transition={{ duration: 2 + i * 0.5, repeat: Infinity, ease: 'easeInOut' }}
-                style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '2px', background: color }}
+                style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '1px', background: color }}
               />
-              {/* Ambient tint */}
-              <motion.div
-                animate={{ opacity: [0.02, 0.06, 0.02] }}
-                transition={{ duration: 3 + i * 0.6, repeat: Infinity }}
-                style={{
-                  position: 'absolute', inset: 0,
-                  background: `linear-gradient(180deg, ${color}10 0%, transparent 100%)`,
-                  pointerEvents: 'none',
-                }}
-              />
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '5px' }}>
                 {live && (
                   <motion.div
                     animate={{ opacity: [1, 0.15, 1] }}
                     transition={{ duration: 0.9, repeat: Infinity }}
-                    style={{ width: 7, height: 7, borderRadius: '50%', background: color, flexShrink: 0 }}
+                    style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0 }}
                   />
                 )}
-                <p style={{ color: '#374151', fontSize: '0.60rem', letterSpacing: '0.22em', fontWeight: 800, margin: 0, textTransform: 'uppercase' }}>
+                <p style={{ color: '#374151', fontSize: '0.55rem', letterSpacing: '0.2em', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>
                   {label}
                 </p>
               </div>
-              <p style={{ color, fontSize: 'clamp(1rem, 2.2vw, 1.55rem)', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1, margin: 0 }}>
+              <p style={{ color, fontSize: 'clamp(0.82rem, 1.6vw, 1.1rem)', fontWeight: 800, letterSpacing: '-0.01em', lineHeight: 1, margin: 0 }}>
                 {date}
               </p>
             </motion.div>
@@ -441,22 +435,33 @@ export default function ContestLanding() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', position: 'relative' }}>
 
-            {/* Animated data-transfer connector */}
-            <motion.div
-              animate={{ backgroundPosition: ['0% 50%', '200% 50%'] }}
-              transition={{ duration: 2.8, repeat: Infinity, ease: 'linear' }}
-              style={{
-                position: 'absolute', top: '6px',
-                left: 'calc(16.6% + 8px)', right: 'calc(16.6% + 8px)',
-                height: '1px',
-                background: `linear-gradient(90deg, transparent 0%, ${STEP_COLORS[0]}77 25%, ${STEP_COLORS[1]}55 50%, ${STEP_COLORS[2]}77 75%, transparent 100%)`,
-                backgroundSize: '200% 100%',
-                zIndex: 0,
-              }}
-            />
+            {/* Sequential connector segments */}
+            {[0, 1].map((seg) => {
+              const segActive = (stepTick % s.pasos.length) === seg;
+              return (
+                <motion.div
+                  key={seg}
+                  animate={{
+                    opacity: segActive ? [0.25, 1, 0.25] : 0.12,
+                    boxShadow: segActive
+                      ? [`0 0 3px ${STEP_COLORS[seg]}44`, `0 0 10px ${STEP_COLORS[seg]}bb`, `0 0 3px ${STEP_COLORS[seg]}44`]
+                      : 'none',
+                  }}
+                  transition={{ duration: 1.8, repeat: segActive ? Infinity : 0, ease: 'easeInOut' }}
+                  style={{
+                    position: 'absolute', top: '6px', height: '1px',
+                    left:  seg === 0 ? 'calc(16.6% + 12px)' : 'calc(50% + 6px)',
+                    right: seg === 0 ? 'calc(50% + 6px)'    : 'calc(16.6% + 12px)',
+                    background: STEP_COLORS[seg],
+                    zIndex: 0,
+                  }}
+                />
+              );
+            })}
 
             {s.pasos.map(({ numero, titulo, descripcion }, i) => {
               const clr = STEP_COLORS[i % STEP_COLORS.length];
+              const isActive = (stepTick % s.pasos.length) === i;
               return (
                 <motion.div
                   key={numero}
@@ -466,7 +471,20 @@ export default function ContestLanding() {
                   transition={{ duration: 0.55, delay: i * 0.14 }}
                   style={{ padding: i === 0 ? '0 32px 0 0' : '0 32px 0 32px', position: 'relative' }}
                 >
-                  <div style={{ marginBottom: '28px', position: 'relative', zIndex: 1, display: 'inline-block' }}>
+                  {/* Radar ping on active step */}
+                  <div style={{ marginBottom: '28px', position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isActive && (
+                      <motion.div
+                        key={`ping-${stepTick}`}
+                        initial={{ scale: 1, opacity: 0.9 }}
+                        animate={{ scale: 5.5, opacity: 0 }}
+                        transition={{ duration: 1.5, ease: 'easeOut' }}
+                        style={{
+                          position: 'absolute', width: '12px', height: '12px', borderRadius: '50%',
+                          border: `1.5px solid ${clr}`, pointerEvents: 'none',
+                        }}
+                      />
+                    )}
                     <PulsingDot color={clr} size={12} />
                   </div>
 
@@ -474,16 +492,27 @@ export default function ContestLanding() {
                     position: 'absolute', top: '-20px',
                     left: i === 0 ? '-12px' : '20px',
                     fontSize: '9rem', fontWeight: 900, lineHeight: 1,
-                    color: clr, opacity: 0.05,
+                    color: clr, opacity: isActive ? 0.13 : 0.04,
                     userSelect: 'none', pointerEvents: 'none', letterSpacing: '-0.04em',
+                    transition: 'opacity 0.5s ease',
                   }}>
                     {numero}
                   </div>
 
-                  <p style={{ color: clr, fontSize: '0.60rem', fontWeight: 800, letterSpacing: '0.2em', marginBottom: '12px', textTransform: 'uppercase' }}>
+                  <p style={{
+                    color: isActive ? clr : `${clr}66`,
+                    fontSize: '0.60rem', fontWeight: 800, letterSpacing: '0.2em',
+                    marginBottom: '12px', textTransform: 'uppercase',
+                    transition: 'color 0.45s',
+                  }}>
                     Paso {numero}
                   </p>
-                  <h3 style={{ color: '#f9fafb', fontSize: '1.15rem', fontWeight: 800, marginBottom: '12px', lineHeight: 1.2 }}>
+                  <h3 style={{
+                    color: isActive ? '#ffffff' : '#6b7280',
+                    fontSize: '1.15rem', fontWeight: 800, marginBottom: '12px', lineHeight: 1.2,
+                    textShadow: isActive ? `0 0 28px ${clr}77` : 'none',
+                    transition: 'color 0.45s, text-shadow 0.45s',
+                  }}>
                     {titulo}
                   </h3>
                   <p style={{ color: '#4b5563', fontSize: '0.88rem', lineHeight: 1.75, margin: 0 }}
