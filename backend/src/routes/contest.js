@@ -5,8 +5,9 @@ const path = require('path');
 const fs = require('fs');
 const { PrismaClient } = require('@prisma/client');
 
+const prisma = new PrismaClient();
+
 // ─── Contest Settings ─────────────────────────────────────────────────────────
-const SETTINGS_PATH = path.join(__dirname, '../../uploads/contest-settings.json');
 
 const DEFAULT_SETTINGS = {
   // Hero
@@ -107,23 +108,21 @@ function sanitizeUrls(obj) {
   return obj;
 }
 
-function readContestSettings() {
+async function readContestSettings() {
   try {
-    const raw = fs.readFileSync(SETTINGS_PATH, 'utf8');
-    return sanitizeUrls({ ...DEFAULT_SETTINGS, ...JSON.parse(raw) });
+    const row = await prisma.contestSettings.findUnique({ where: { id: 'singleton' } });
+    return sanitizeUrls({ ...DEFAULT_SETTINGS, ...(row?.data ?? {}) });
   } catch (err) {
-    if (err.code !== 'ENOENT') console.error('[readContestSettings]', err.message);
+    console.error('[readContestSettings]', err.message);
     return { ...DEFAULT_SETTINGS };
   }
 }
 
 // GET /api/contest/settings  (pública)
-router.get('/settings', (req, res) => {
+router.get('/settings', async (req, res) => {
   res.set('Cache-Control', 'no-store');
-  res.json(readContestSettings());
+  res.json(await readContestSettings());
 });
-
-const prisma = new PrismaClient();
 
 // Fechas del concurso (UTC-6 / hora Guatemala)
 const OPEN_DATE = new Date('2026-06-01T06:00:00Z');   // 1 jun 00:00 GT
@@ -189,7 +188,7 @@ router.post(
       return res.status(403).json({ error: 'Las inscripciones no están abiertas en este momento.' });
     }
 
-    const settings = readContestSettings();
+    const settings = await readContestSettings();
     const camposConfig = settings.campos || [];
 
     const { nombre, email, telefono, procesador, graficaActual, fuentePoderWatts, historia, aceptaTyC, aceptaMarketing } = req.body;

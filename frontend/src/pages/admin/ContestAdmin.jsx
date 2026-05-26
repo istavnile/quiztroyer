@@ -443,13 +443,12 @@ const DEFAULTS = {
 };
 
 const CONFIG_SECTIONS = [
-  { id: 'hero',   label: 'Hero',            icon: '▶' },
-  { id: 'fechas', label: 'Fechas',          icon: '◷' },
-  { id: 'pats',   label: 'Patrocinadores',  icon: '★' },
-  { id: 'pasos',  label: 'Pasos',           icon: '✓' },
-  { id: 'premios',label: 'Premios',         icon: '▲' },
-  { id: 'form',   label: 'Formulario',      icon: '≡' },
-  { id: 'campos', label: 'Campos',          icon: '⊞' },
+  { id: 'hero',   label: 'Hero',           icon: '▶' },
+  { id: 'fechas', label: 'Fechas',         icon: '◷' },
+  { id: 'pats',   label: 'Patrocinadores', icon: '★' },
+  { id: 'pasos',  label: 'Pasos',          icon: '✓' },
+  { id: 'premios',label: 'Premios',        icon: '▲' },
+  { id: 'form',   label: 'Formulario',     icon: '≡' },
 ];
 
 function TabConfiguracion() {
@@ -487,10 +486,10 @@ function TabConfiguracion() {
   });
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', border: '1px solid #1f2937', borderRadius: '10px', overflow: 'hidden', minHeight: '560px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', border: '1px solid #1f2937', borderRadius: '10px', overflow: 'hidden', height: 'calc(100vh - 148px)', minHeight: '520px' }}>
 
       {/* ── Sidebar ── */}
-      <div style={{ background: '#060a10', borderRight: '1px solid #1f2937', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: '#060a10', borderRight: '1px solid #1f2937', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
         <div style={{ flex: 1, paddingTop: '8px' }}>
           {CONFIG_SECTIONS.map((s) => (
             <button key={s.id} onClick={() => setSection(s.id)} style={sidebarBtnSt(section === s.id)}>
@@ -608,7 +607,7 @@ function TabConfiguracion() {
           ))}
         </>)}
 
-        {/* FORMULARIO */}
+        {/* FORMULARIO + CAMPOS */}
         {section === 'form' && (<>
           <SectionTitle>Textos del formulario</SectionTitle>
           <TextField label="Título del formulario" value={cfg.tituloFormulario} onChange={(v) => set('tituloFormulario', v)} placeholder="Formulario de inscripción" />
@@ -624,20 +623,20 @@ function TabConfiguracion() {
           <TextField label="Texto del checkbox de TyC" value={cfg.textoTyC} onChange={(v) => set('textoTyC', v)} placeholder="Acepto los Términos y Condiciones..." />
           <TextField label="URL de los TyC" value={cfg.urlTyC} onChange={(v) => set('urlTyC', v)} placeholder="#tyc o https://..." />
           <TextField label="Texto del checkbox de marketing" value={cfg.textoMarketing} onChange={(v) => set('textoMarketing', v)} multiline placeholder="Acepto recibir comunicaciones..." />
-        </>)}
 
-        {/* CAMPOS */}
-        {section === 'campos' && (<>
-          <SectionTitle>Constructor de campos</SectionTitle>
-          <p style={{ color: '#6b7280', fontSize: '0.82rem', margin: 0 }}>
-            Los campos <strong style={{ color: '#9ca3af' }}>SISTEMA</strong> son obligatorios y no pueden eliminarse.
-          </p>
-          <ContestFormBuilder campos={cfg.campos || []} onChange={(campos) => set('campos', campos)} />
-          <div style={{ paddingTop: '12px', borderTop: '1px solid #1f2937' }}>
-            <a href="/concursos/el-gran-upgrade/inscripcion?preview=1" target="_blank" rel="noopener noreferrer"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(250,204,21,0.08)', border: '1px solid #ca8a04', color: '#fbbf24', padding: '7px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '0.82rem', fontWeight: 700 }}>
-              Vista previa del formulario ↗
-            </a>
+          {/* ── Campos del formulario ── */}
+          <div style={{ borderTop: '2px solid #1f2937', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <SectionTitle>Campos del formulario</SectionTitle>
+            <p style={{ color: '#6b7280', fontSize: '0.82rem', margin: 0 }}>
+              Los campos <strong style={{ color: '#9ca3af' }}>SISTEMA</strong> son fijos y no pueden eliminarse.
+            </p>
+            <ContestFormBuilder campos={cfg.campos || []} onChange={(campos) => set('campos', campos)} />
+            <div style={{ paddingTop: '12px', borderTop: '1px solid #1f2937' }}>
+              <a href="/concursos/el-gran-upgrade/inscripcion?preview=1" target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(250,204,21,0.08)', border: '1px solid #ca8a04', color: '#fbbf24', padding: '7px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '0.82rem', fontWeight: 700 }}>
+                Vista previa del formulario ↗
+              </a>
+            </div>
           </div>
         </>)}
 

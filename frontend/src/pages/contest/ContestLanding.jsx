@@ -47,8 +47,13 @@ const GAMING_CSS = `
     97%          { opacity: 0.5; }
     98%          { opacity: 1;   }
   }
+  @keyframes tactical-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
   .gaming-float   { animation: float-bob   3.8s ease-in-out infinite; }
   .gaming-flicker { animation: hud-flicker 7s   ease-in-out infinite; }
+  .tactical-blink { animation: tactical-blink 1.1s step-start infinite; }
 `;
 
 /* ── HUD corner brackets ─────────────────────────────────────────── */
@@ -85,6 +90,71 @@ function PulsingDot({ color, size = 12 }) {
         background: color,
         boxShadow: `0 0 8px ${color}, 0 0 18px ${color}66`,
       }} />
+    </div>
+  );
+}
+
+/* ── Animated scanning HUD corners (prize card) ─────────────────── */
+function ScanningHudCorners({ color, size = 34, thickness = 2.5 }) {
+  const corners = [
+    { wrap: { top: 0,    left:  0 }, dx:  18, dy:  18, delay: 0    },
+    { wrap: { top: 0,    right: 0 }, dx: -18, dy:  18, delay: 0.2  },
+    { wrap: { bottom: 0, left:  0 }, dx:  18, dy: -18, delay: 0.4  },
+    { wrap: { bottom: 0, right: 0 }, dx: -18, dy: -18, delay: 0.6  },
+  ];
+
+  return (
+    <>
+      {corners.map(({ wrap, dx, dy, delay }, i) => {
+        const vEdge = 'top' in wrap ? { top: 0 } : { bottom: 0 };
+        const hEdge = 'left' in wrap ? { left: 0 } : { right: 0 };
+        return (
+          <motion.div
+            key={i}
+            animate={{
+              x:       [0, dx,  dx,  0,  0],
+              y:       [0, dy,  dy,  0,  0],
+              opacity: [1, 0.9, 0.06, 0.06, 1],
+            }}
+            transition={{
+              x:       { duration: 3.0, repeat: Infinity, ease: 'easeInOut', delay, times: [0, 0.30, 0.50, 0.70, 1] },
+              y:       { duration: 3.0, repeat: Infinity, ease: 'easeInOut', delay, times: [0, 0.30, 0.50, 0.70, 1] },
+              opacity: { duration: 3.0, repeat: Infinity, ease: 'linear',    delay, times: [0, 0.28, 0.38, 0.65, 1] },
+            }}
+            style={{ position: 'absolute', ...wrap, width: size, height: size, pointerEvents: 'none', zIndex: 10 }}
+          >
+            <div style={{
+              background: color,
+              boxShadow: `0 0 7px ${color}, 0 0 18px ${color}88`,
+              position: 'absolute', ...vEdge, ...hEdge, width: size, height: thickness,
+            }} />
+            <div style={{
+              background: color,
+              boxShadow: `0 0 7px ${color}, 0 0 18px ${color}88`,
+              position: 'absolute', ...vEdge, ...hEdge, width: thickness, height: size,
+            }} />
+          </motion.div>
+        );
+      })}
+    </>
+  );
+}
+
+/* ── Valorant-style section header ───────────────────────────────── */
+function SectionHeader({ label, count, countLabel, accent }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '52px' }}>
+      <div style={{ width: '3px', height: '18px', background: accent, flexShrink: 0 }} />
+      <span style={{ color: `${accent}99`, fontFamily: 'monospace', fontSize: '0.65rem', letterSpacing: '0.08em' }}>//</span>
+      <span style={{ color: '#e2e8f0', fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.28em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+        {label}
+      </span>
+      <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, rgba(255,255,255,0.1), transparent)' }} />
+      {count !== undefined && (
+        <span style={{ color: '#374151', fontFamily: 'monospace', fontSize: '0.55rem', letterSpacing: '0.1em', flexShrink: 0 }}>
+          [ {count}{countLabel ? ` ${countLabel}` : ''} ]
+        </span>
+      )}
     </div>
   );
 }
@@ -200,21 +270,50 @@ export default function ContestLanding() {
         {/* Galaxy shader */}
         <GalaxyCanvas accent={accent} />
 
+        {/* Tactical HUD — top-left */}
+        <div className="gaming-flicker" style={{
+          position: 'absolute', top: '22px', left: '22px', zIndex: 5,
+          pointerEvents: 'none', fontFamily: 'monospace',
+        }}>
+          <div style={{ borderLeft: `2px solid ${accent}77`, paddingLeft: '10px' }}>
+            <div style={{ fontSize: '0.5rem', letterSpacing: '0.14em', lineHeight: 1.9, color: `${accent}aa` }}>
+              <div>SYS <span style={{ color: accent }}>ONLINE</span></div>
+              <div>NET <span style={{ color: accent }}>SECURED</span></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tactical HUD — top-right */}
+        <div className="gaming-flicker" style={{
+          position: 'absolute', top: '22px', right: '22px', zIndex: 5,
+          pointerEvents: 'none', textAlign: 'right', fontFamily: 'monospace',
+        }}>
+          <div style={{ borderRight: '2px solid rgba(255,255,255,0.1)', paddingRight: '10px' }}>
+            <div style={{ fontSize: '0.5rem', letterSpacing: '0.12em', lineHeight: 1.9, color: 'rgba(255,255,255,0.25)' }}>
+              <div>GU_2026</div>
+              <div style={{ color: open ? '#76B900' : '#e61f30' }}>{open ? 'REG_OPEN' : 'REG_CLOSED'}</div>
+            </div>
+          </div>
+        </div>
+
         {/* Optional hero BG image overlay */}
         {s.imagenHero && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 1, overflow: 'hidden' }}>
             <img src={s.imagenHero} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08 }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, #0a0a0a)' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, #06070e)' }} />
           </div>
         )}
 
-        {/* Fade galaxy into page below */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '200px', background: 'linear-gradient(to bottom, transparent, #0a0a0a)', pointerEvents: 'none', zIndex: 3 }} />
+        {/* Fade galaxy into page — all 4 edges so the canvas has no visible rect border */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '240px', background: 'linear-gradient(to bottom, transparent, #06070e)', pointerEvents: 'none', zIndex: 3 }} />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '110px', background: 'linear-gradient(to bottom, #06070e, transparent)', pointerEvents: 'none', zIndex: 3 }} />
+        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '220px', background: 'linear-gradient(to right, #06070e, transparent)', pointerEvents: 'none', zIndex: 3 }} />
+        <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: '220px', background: 'linear-gradient(to left, #06070e, transparent)', pointerEvents: 'none', zIndex: 3 }} />
 
         {/* Content */}
         <div style={{ position: 'relative', zIndex: 2 }}>
 
-          {/* Animated badge */}
+          {/* Badge — angular Valorant cut */}
           {s.badge && (
             <motion.div
               initial={{ opacity: 0, y: -14 }}
@@ -223,13 +322,16 @@ export default function ContestLanding() {
               style={{ marginBottom: '2rem' }}
             >
               <motion.span
-                animate={{ borderColor: [`${accent}33`, `${accent}bb`, `${accent}33`] }}
+                animate={{ opacity: [0.82, 1, 0.82] }}
                 transition={{ duration: 2.2, repeat: Infinity }}
                 style={{
                   display: 'inline-block',
-                  background: `${accent}0e`, border: `1px solid ${accent}44`,
+                  background: `${accent}10`,
+                  border: `1px solid ${accent}44`,
+                  borderLeft: `3px solid ${accent}`,
                   color: accent, fontSize: '0.61rem', letterSpacing: '0.22em',
-                  fontWeight: 800, padding: '5px 18px', borderRadius: '2px',
+                  fontWeight: 800, padding: '6px 20px 6px 14px',
+                  clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)',
                 }}
               >
                 {s.badge}
@@ -317,7 +419,7 @@ export default function ContestLanding() {
             </motion.div>
           )}
 
-          {/* CTA buttons */}
+          {/* CTA buttons — parallelogram shape */}
           <motion.div
             initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28, duration: 0.5 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
@@ -325,13 +427,15 @@ export default function ContestLanding() {
             {open ? (
               <Link to="/concursos/el-gran-upgrade/inscripcion" style={{ textDecoration: 'none' }}>
                 <motion.button
-                  animate={{ boxShadow: [`0 0 28px ${accent}44`, `0 0 58px ${accent}99`, `0 0 28px ${accent}44`] }}
+                  animate={{ filter: [`drop-shadow(0 0 12px ${accent}55)`, `drop-shadow(0 0 28px ${accent}cc) drop-shadow(0 0 50px ${accent}44)`, `drop-shadow(0 0 12px ${accent}55)`] }}
+                  whileHover={{ filter: `drop-shadow(0 0 22px ${accent}) drop-shadow(0 0 60px ${accent}88)`, scale: 1.06 }}
                   transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
                   style={{
                     background: accent, color: '#000', fontWeight: 900,
-                    padding: '15px 44px', borderRadius: '3px', fontSize: '0.9rem',
-                    border: 'none', cursor: 'pointer', letterSpacing: '0.08em',
-                    textTransform: 'uppercase', position: 'relative', overflow: 'hidden',
+                    padding: '14px 52px', border: 'none', cursor: 'pointer',
+                    letterSpacing: '0.1em', textTransform: 'uppercase',
+                    clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)',
+                    fontSize: '0.9rem', position: 'relative', overflow: 'hidden',
                   }}
                 >
                   <motion.div
@@ -348,12 +452,19 @@ export default function ContestLanding() {
               </Link>
             ) : (
               <motion.span
-                animate={{ borderColor: [`${accent}22`, `${accent}55`, `${accent}22`] }}
+                animate={{ opacity: [0.75, 1, 0.75] }}
+                whileHover={{
+                  opacity: 1,
+                  filter: `drop-shadow(0 0 12px ${accent}bb) drop-shadow(0 0 28px ${accent}55)`,
+                  scale: 1.03,
+                }}
                 transition={{ duration: 2.5, repeat: Infinity }}
                 style={{
                   display: 'inline-block',
                   background: `${accent}08`, border: `1px solid ${accent}33`,
-                  color: accent, padding: '15px 40px', borderRadius: '3px',
+                  borderLeft: `3px solid ${accent}`,
+                  color: accent, padding: '14px 44px',
+                  clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)',
                   fontSize: '0.9rem', fontWeight: 700,
                 }}
               >
@@ -361,25 +472,38 @@ export default function ContestLanding() {
               </motion.span>
             )}
             <Link to="/concursos/el-gran-upgrade/votacion" style={{ textDecoration: 'none' }}>
-              <button style={{
-                background: 'transparent', color: '#9ca3af',
-                border: '1px solid rgba(255,255,255,0.12)',
-                fontWeight: 600, padding: '15px 40px', borderRadius: '3px',
-                fontSize: '0.9rem', cursor: 'pointer',
-                transition: 'color .2s, border-color .2s',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
-                onMouseLeave={e => { e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}
+              <motion.button
+                initial={{ filter: 'none' }}
+                whileHover={{
+                  color: '#fff',
+                  filter: `drop-shadow(0 0 10px ${accent}99) drop-shadow(0 0 26px ${accent}44)`,
+                  scale: 1.04,
+                }}
+                transition={{ duration: 0.16 }}
+                style={{
+                  background: 'transparent', color: '#9ca3af',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  fontWeight: 600, padding: '14px 44px',
+                  clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)',
+                  fontSize: '0.9rem', cursor: 'pointer', outline: 'none',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = `${accent}55`; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}
               >
                 Ver finalistas y votar
-              </button>
+              </motion.button>
             </Link>
           </motion.div>
         </div>
       </section>
 
       {/* ══════════ FECHAS ════════════════════════════════════════════ */}
-      <div style={{ marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{
+        marginTop: '24px',
+        borderTop: '1px solid rgba(255,255,255,0.04)',
+        borderBottom: '1px solid rgba(255,255,255,0.04)',
+        display: 'flex', justifyContent: 'center', alignItems: 'center',
+      }}>
         {[
           { label: 'APERTURA',           date: s.textoFechaApertura, color: '#76B900', live: false },
           { label: 'CIERRE',             date: s.textoFechaCierre,   color: '#e61f30', live: false },
@@ -389,16 +513,18 @@ export default function ContestLanding() {
             key={label}
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             transition={{ delay: i * 0.1, duration: 0.4 }}
-            style={{ padding: '14px 40px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
+            style={{ padding: '12px 36px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', marginBottom: '4px' }}>
-              {live && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
+              {live ? (
                 <motion.div animate={{ opacity: [1, 0.15, 1] }} transition={{ duration: 0.9, repeat: Infinity }}
                   style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0 }} />
+              ) : (
+                <span style={{ fontFamily: 'monospace', color: `${color}55`, fontSize: '0.5rem', lineHeight: 1 }}>//</span>
               )}
-              <p style={{ color: '#374151', fontSize: '0.52rem', letterSpacing: '0.18em', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>{label}</p>
+              <p style={{ color: '#374151', fontSize: '0.5rem', letterSpacing: '0.18em', fontWeight: 700, margin: 0, textTransform: 'uppercase', fontFamily: 'monospace' }}>{label}</p>
             </div>
-            <p style={{ color, fontSize: '0.88rem', fontWeight: 800, margin: 0, letterSpacing: '-0.01em', lineHeight: 1 }}>{date}</p>
+            <p style={{ color, fontSize: '0.86rem', fontWeight: 800, margin: 0, letterSpacing: '0.01em', lineHeight: 1, fontFamily: 'monospace' }}>{date}</p>
           </motion.div>
         ))}
       </div>
@@ -406,13 +532,7 @@ export default function ContestLanding() {
       {/* ══════════ CÓMO PARTICIPAR ═══════════════════════════════════ */}
       {s.pasos?.length > 0 && (
         <section style={{ marginTop: '100px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '64px' }}>
-            <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.07))' }} />
-            <span style={{ color: '#374151', fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.28em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
-              Cómo participar
-            </span>
-            <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, rgba(255,255,255,0.07), transparent)' }} />
-          </div>
+          <SectionHeader label="Cómo participar" count={s.pasos.length} countLabel="pasos" accent={accent} />
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', position: 'relative' }}>
 
@@ -450,7 +570,7 @@ export default function ContestLanding() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.55, delay: i * 0.14 }}
-                  style={{ padding: i === 0 ? '0 32px 0 0' : '0 32px 0 32px', position: 'relative' }}
+                  style={{ padding: i === 0 ? '0 32px 0 0' : '0 32px 0 32px', position: 'relative', paddingBottom: '24px' }}
                 >
                   {/* Radar ping on active step */}
                   <div style={{ marginBottom: '28px', position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -469,35 +589,72 @@ export default function ContestLanding() {
                     <PulsingDot color={clr} size={12} />
                   </div>
 
+                  {/* Ghost number behind content */}
                   <div aria-hidden="true" style={{
-                    position: 'absolute', top: '-20px',
+                    position: 'absolute', top: '-16px',
                     left: i === 0 ? '-12px' : '20px',
                     fontSize: '9rem', fontWeight: 900, lineHeight: 1,
-                    color: clr, opacity: isActive ? 0.13 : 0.04,
+                    color: clr, opacity: isActive ? 0.12 : 0.03,
                     userSelect: 'none', pointerEvents: 'none', letterSpacing: '-0.04em',
-                    transition: 'opacity 0.5s ease',
+                    transition: 'opacity 0.5s ease', zIndex: 0,
                   }}>
                     {numero}
                   </div>
 
-                  <p style={{
-                    color: isActive ? clr : `${clr}66`,
-                    fontSize: '0.60rem', fontWeight: 800, letterSpacing: '0.2em',
-                    marginBottom: '12px', textTransform: 'uppercase',
-                    transition: 'color 0.45s',
-                  }}>
-                    Paso {numero}
-                  </p>
-                  <h3 style={{
-                    color: isActive ? '#ffffff' : '#6b7280',
-                    fontSize: '1.15rem', fontWeight: 800, marginBottom: '12px', lineHeight: 1.2,
-                    textShadow: isActive ? `0 0 28px ${clr}77` : 'none',
-                    transition: 'color 0.45s, text-shadow 0.45s',
-                  }}>
-                    {titulo}
-                  </h3>
-                  <p style={{ color: '#4b5563', fontSize: '0.88rem', lineHeight: 1.75, margin: 0 }}
-                    dangerouslySetInnerHTML={{ __html: descripcion }} />
+                  {/* Content card — Valorant angular border + glow */}
+                  <motion.div
+                    animate={isActive ? {
+                      filter: [
+                        `drop-shadow(0 0 6px ${clr}66)`,
+                        `drop-shadow(0 0 18px ${clr}cc) drop-shadow(0 0 32px ${clr}55)`,
+                        `drop-shadow(0 0 6px ${clr}66)`,
+                      ],
+                    } : { filter: `drop-shadow(0 0 0px ${clr}00)` }}
+                    whileHover={{
+                      filter: `drop-shadow(0 0 14px ${clr}99) drop-shadow(0 0 30px ${clr}44)`,
+                      scale: 1.02,
+                    }}
+                    transition={isActive ? { duration: 1.1, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.25 }}
+                    style={{
+                      position: 'relative', zIndex: 1,
+                      border: `1px solid ${isActive ? `${clr}66` : 'rgba(255,255,255,0.05)'}`,
+                      clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)',
+                      background: isActive ? `${clr}0c` : 'rgba(255,255,255,0.015)',
+                      padding: '20px',
+                      transition: 'border-color 0.45s, background 0.45s',
+                    }}
+                  >
+                    {/* Active top-left accent bar */}
+                    {isActive && (
+                      <div style={{
+                        position: 'absolute', top: 0, left: 0, width: '3px', height: '100%',
+                        background: `linear-gradient(to bottom, ${clr}, ${clr}00)`,
+                        transition: 'opacity 0.45s',
+                      }} />
+                    )}
+
+                    <p style={{
+                      color: isActive ? clr : `${clr}55`,
+                      fontSize: '0.58rem', fontWeight: 800, letterSpacing: '0.22em',
+                      marginBottom: '10px', textTransform: 'uppercase',
+                      transition: 'color 0.45s',
+                      fontFamily: 'monospace',
+                    }}>
+                      // PASO {numero}
+                    </p>
+                    <h3 style={{
+                      color: isActive ? '#ffffff' : '#5b6471',
+                      fontSize: '1.05rem', fontWeight: 800, marginBottom: '10px', lineHeight: 1.2,
+                      textShadow: isActive ? `0 0 28px ${clr}66` : 'none',
+                      transition: 'color 0.45s, text-shadow 0.45s',
+                      letterSpacing: '0.02em',
+                      textTransform: 'uppercase',
+                    }}>
+                      {titulo}
+                    </h3>
+                    <p style={{ color: isActive ? '#6b7280' : '#374151', fontSize: '0.85rem', lineHeight: 1.7, margin: 0, transition: 'color 0.45s' }}
+                      dangerouslySetInnerHTML={{ __html: descripcion }} />
+                  </motion.div>
                 </motion.div>
               );
             })}
@@ -514,18 +671,12 @@ export default function ContestLanding() {
           transition={{ duration: 0.5 }}
           style={{ marginTop: '100px' }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '48px' }}>
-            <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.07))' }} />
-            <span style={{ color: '#374151', fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.28em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
-              Premio
-            </span>
-            <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, rgba(255,255,255,0.07), transparent)' }} />
-          </div>
+          <SectionHeader label="Premio" count={s.premios.length} countLabel={s.premios.length === 1 ? 'premio' : 'premios'} accent={accent} />
 
           <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {s.premios.map(({ posicion, descripcion, color, imagenUrl }) => (
               <div key={posicion} style={{ position: 'relative', overflow: 'hidden' }}>
-                <HudCorners color={color} size={22} />
+                <ScanningHudCorners color={color} size={22} />
 
                 {/* Sweeping highlight */}
                 <motion.div
@@ -551,8 +702,8 @@ export default function ContestLanding() {
                   <div style={{ flex: 1, padding: '36px 32px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
                       <PulsingDot color={color} size={8} />
-                      <p style={{ color, fontSize: '0.60rem', fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', margin: 0 }}>
-                        {posicion}
+                      <p style={{ color, fontSize: '0.58rem', fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', margin: 0, fontFamily: 'monospace' }}>
+                        // {posicion}
                       </p>
                     </div>
                     <motion.p
@@ -561,6 +712,7 @@ export default function ContestLanding() {
                       style={{
                         color: '#f9fafb', fontSize: 'clamp(1.3rem, 3vw, 2rem)',
                         fontWeight: 900, lineHeight: 1.15, margin: 0, letterSpacing: '-0.02em',
+                        textTransform: 'uppercase',
                       }}
                     >
                       {descripcion}
@@ -596,10 +748,9 @@ export default function ContestLanding() {
           transition={{ duration: 0.5 }}
           style={{ marginTop: '100px', textAlign: 'center', paddingBottom: '32px' }}
         >
-          <p style={{ color: '#374151', fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.28em', textTransform: 'uppercase', marginBottom: '20px' }}>
-            No te quedes fuera
-          </p>
-          <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: '16px' }}>
+          <SectionHeader label="No te quedes fuera" accent={accent} />
+
+          <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: '16px', textTransform: 'uppercase' }}>
             ¿Listo para el{' '}
             <motion.span
               animate={{ textShadow: [`0 0 30px ${accent}33`, `0 0 70px ${accent}88`, `0 0 30px ${accent}33`] }}
@@ -609,8 +760,8 @@ export default function ContestLanding() {
               Gran Upgrade?
             </motion.span>
           </h2>
-          <p style={{ color: '#4b5563', marginBottom: '44px', fontSize: '0.95rem' }}>
-            Las inscripciones cierran el {s.textoFechaCierre}.
+          <p style={{ color: '#4b5563', marginBottom: '44px', fontSize: '0.9rem', fontFamily: 'monospace', letterSpacing: '0.05em' }}>
+            // INSCRIPCIONES CIERRAN EL <span style={{ color: '#e2e8f0' }}>{s.textoFechaCierre}</span>
           </p>
 
           <Link to="/concursos/el-gran-upgrade/inscripcion" style={{ textDecoration: 'none' }}>
@@ -621,20 +772,22 @@ export default function ContestLanding() {
                   animate={{ scale: [1, 2.8], opacity: [0.45, 0] }}
                   transition={{ duration: 2.2, repeat: Infinity, delay, ease: 'easeOut' }}
                   style={{
-                    position: 'absolute', inset: 0, borderRadius: '3px',
+                    position: 'absolute', inset: 0,
                     border: `1px solid ${accent}`, pointerEvents: 'none',
                   }}
                 />
               ))}
 
               <motion.button
-                animate={{ boxShadow: [`0 0 35px ${accent}44`, `0 0 75px ${accent}99`, `0 0 35px ${accent}44`] }}
+                animate={{ filter: [`drop-shadow(0 0 14px ${accent}55)`, `drop-shadow(0 0 36px ${accent}cc) drop-shadow(0 0 64px ${accent}44)`, `drop-shadow(0 0 14px ${accent}55)`] }}
+                whileHover={{ filter: `drop-shadow(0 0 28px ${accent}) drop-shadow(0 0 70px ${accent}88)`, scale: 1.07 }}
                 transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
                 style={{
                   background: accent, color: '#000', fontWeight: 900,
-                  padding: '18px 60px', borderRadius: '3px', fontSize: '1rem',
-                  border: 'none', cursor: 'pointer', letterSpacing: '0.08em',
-                  textTransform: 'uppercase', position: 'relative', overflow: 'hidden',
+                  padding: '18px 72px', border: 'none', cursor: 'pointer',
+                  letterSpacing: '0.1em', textTransform: 'uppercase',
+                  clipPath: 'polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%)',
+                  fontSize: '1rem', position: 'relative', overflow: 'hidden',
                 }}
               >
                 <motion.div

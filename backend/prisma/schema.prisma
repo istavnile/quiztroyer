@@ -253,3 +253,17 @@ model ContestVote {
   @@unique([voterIp])
 }
 
+// ─── Settings persistentes (una sola fila por tabla, id = "singleton") ──────
+
+model SiteSettings {
+  id        String   @id
+  data      Json     @default("{}")
+  updatedAt DateTime @updatedAt
+}
+
+model ContestSettings {
+  id        String   @id
+  data      Json     @default("{}")
+  updatedAt DateTime @updatedAt
+}
+

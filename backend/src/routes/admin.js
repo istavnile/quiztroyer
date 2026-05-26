@@ -409,48 +409,59 @@ router.post('/auth/reset-password', async (req, res) => {
   res.json({ ok: true });
 });
 
-// --- SITE SETTINGS ---
-// Store in uploads dir (volume-mounted in production so it persists across restarts)
-const SETTINGS_PATH = path.join(__dirname, '../../uploads/settings.json');
+// --- SITE SETTINGS (DB-backed) ---
+const SITE_DEFAULTS = { blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '', bgEffect: 'blobs' };
 
-function readSettings() {
-  try { return JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8')); }
-  catch { return { blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '', bgEffect: 'blobs' }; }
+async function readSettings() {
+  try {
+    const row = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } });
+    return { ...SITE_DEFAULTS, ...(row?.data ?? {}) };
+  } catch { return { ...SITE_DEFAULTS }; }
 }
 
 // GET /api/admin/settings
-router.get('/settings', requireAdmin, (req, res) => res.json(readSettings()));
+router.get('/settings', requireAdmin, async (req, res) => {
+  res.json(await readSettings());
+});
 
 // PATCH /api/admin/settings
-router.patch('/settings', requireAdmin, (req, res) => {
-  const updated = { ...readSettings(), ...req.body };
-  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(updated, null, 2));
-  res.json(updated);
+router.patch('/settings', requireAdmin, async (req, res) => {
+  try {
+    const updated = { ...await readSettings(), ...req.body };
+    await prisma.siteSettings.upsert({
+      where: { id: 'singleton' },
+      update: { data: updated },
+      create: { id: 'singleton', data: updated },
+    });
+    res.json(updated);
+  } catch (err) {
+    console.error('[PATCH settings]', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ─── Concurso Externo ("El Gran Upgrade") ─────────────────────────────────────
 
-const CONTEST_SETTINGS_PATH = path.join(__dirname, '../../uploads/contest-settings.json');
-
 // GET /api/admin/concurso/settings
-router.get('/concurso/settings', requireAdmin, (req, res) => {
+router.get('/concurso/settings', requireAdmin, async (req, res) => {
   res.set('Cache-Control', 'no-store');
-  res.json(readContestSettings());
+  res.json(await readContestSettings());
 });
 
 // PATCH /api/admin/concurso/settings
-router.patch('/concurso/settings', requireAdmin, (req, res) => {
+router.patch('/concurso/settings', requireAdmin, async (req, res) => {
   try {
-    const dir = path.dirname(CONTEST_SETTINGS_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    let current = {};
-    try { current = JSON.parse(fs.readFileSync(CONTEST_SETTINGS_PATH, 'utf8')); } catch {}
+    const current = await readContestSettings();
     const updated = sanitizeUrls({ ...current, ...req.body });
-    fs.writeFileSync(CONTEST_SETTINGS_PATH, JSON.stringify(updated, null, 2), 'utf8');
+    await prisma.contestSettings.upsert({
+      where: { id: 'singleton' },
+      update: { data: updated },
+      create: { id: 'singleton', data: updated },
+    });
     res.set('Cache-Control', 'no-store');
     res.json(updated);
   } catch (err) {
-    console.error('[contest-settings PATCH]', err);
+    console.error('[PATCH concurso/settings]', err);
     res.status(500).json({ error: err.message });
   }
 });

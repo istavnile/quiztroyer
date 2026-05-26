@@ -6,6 +6,9 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const rateLimit = require('express-rate-limit');
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient();
 
 const adminRoutes = require('./routes/admin');
 const challengeRoutes = require('./routes/challenges');
@@ -61,13 +64,14 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // Health
 app.get('/health', (req, res) => res.json({ ok: true, ts: Date.now() }));
 
-// Public site settings (no auth)
-app.get('/api/settings', (req, res) => {
+// Public site settings (no auth) — DB-backed
+const SITE_DEFAULTS = { blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '', bgEffect: 'blobs' };
+app.get('/api/settings', async (req, res) => {
   try {
-    const data = JSON.parse(fs.readFileSync(path.join(__dirname, '../uploads/settings.json'), 'utf8'));
-    res.json(data);
+    const row = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } });
+    res.json({ ...SITE_DEFAULTS, ...(row?.data ?? {}) });
   } catch {
-    res.json({ blob1Color: '#6366f1', blob2Color: '#a855f7', blob3Color: '#ec4899', homeBgColor: '#0f172a', homeButtonColor: '#4f46e5', logoUrl: '', bgEffect: 'blobs' });
+    res.json(SITE_DEFAULTS);
   }
 });
 
