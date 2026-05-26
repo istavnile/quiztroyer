@@ -143,7 +143,7 @@ function ScanningHudCorners({ color, size = 34, thickness = 2.5 }) {
 
 /* ── Terminal typewriter with glitch ────────────────────────────── */
 const GLITCH_CHARS = '!@#$%^&*<>?\\|~[]{}ABCDEFabcdef0123456789';
-function TerminalText({ text, delay = 0, speed = 54, started = true, onDone }) {
+function TerminalText({ text, delay = 0, speed = 54, started = true, showCursor = false, onDone }) {
   const [displayed, setDisplayed] = useState('');
   const [done, setDone]           = useState(false);
 
@@ -171,7 +171,9 @@ function TerminalText({ text, delay = 0, speed = 54, started = true, onDone }) {
   return (
     <span>
       {displayed}
-      <span className="tactical-blink" style={{ marginLeft: '1px', opacity: done ? 0.45 : 1 }}>█</span>
+      {showCursor && (
+        <span className="tactical-blink" style={{ marginLeft: '1px' }}>█</span>
+      )}
     </span>
   );
 }
@@ -584,6 +586,7 @@ export default function ContestLanding() {
                   <TerminalText
                     text={label} speed={36}
                     started={dateSeq >= labelSeq}
+                    showCursor={dateSeq === labelSeq}
                     onDone={() => setDateSeq((s) => Math.max(s, labelSeq + 1))}
                   />
                 </p>
@@ -593,6 +596,7 @@ export default function ContestLanding() {
                   text={date} speed={58}
                   delay={dateSeqIdx === 3 ? 120 : 0}
                   started={dateSeq >= dateSeqIdx}
+                  showCursor={dateSeq === dateSeqIdx || (dateSeq >= 6 && i === 2)}
                   onDone={() => setDateSeq((s) => Math.max(s, dateSeqIdx + 1))}
                 />
               </p>
