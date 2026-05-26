@@ -7,7 +7,7 @@ const speakeasy = require('speakeasy');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { readContestSettings } = require('./contest');
+const { readContestSettings, sanitizeUrls } = require('./contest');
 
 const prisma = new PrismaClient();
 
@@ -445,7 +445,7 @@ router.patch('/concurso/settings', requireAdmin, (req, res) => {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     let current = {};
     try { current = JSON.parse(fs.readFileSync(CONTEST_SETTINGS_PATH, 'utf8')); } catch {}
-    const updated = { ...current, ...req.body };
+    const updated = sanitizeUrls({ ...current, ...req.body });
     fs.writeFileSync(CONTEST_SETTINGS_PATH, JSON.stringify(updated, null, 2), 'utf8');
     res.set('Cache-Control', 'no-store');
     res.json(updated);

@@ -312,3 +312,4 @@ router.post('/vote/:id', async (req, res) => {
 
 module.exports = router;
 module.exports.readContestSettings = readContestSettings;
+module.exports.sanitizeUrls = sanitizeUrls;

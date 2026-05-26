@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ContestLayout from './ContestLayout';
 import { PROCESADOR_LABELS, GRAFICA_LABELS } from '../../lib/contestConstants';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API = import.meta.env.VITE_API_URL || '';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getCookieVote() {
