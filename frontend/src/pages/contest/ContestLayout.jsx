@@ -274,18 +274,67 @@ export default function ContestLayout({ children }) {
 }
 
 function NavLink({ to, children, active, accent }) {
+  const [hov, setHov] = useState(false);
+  const lit = active || hov;
   return (
     <Link
       to={to}
-      style={{
-        color: active ? accent : '#9ca3af',
-        borderBottom: active ? `2px solid ${accent}` : '2px solid transparent',
-        paddingBottom: '2px',
-        textDecoration: 'none',
-        transition: 'color .2s',
-      }}
+      style={{ textDecoration: 'none', position: 'relative', display: 'inline-block' }}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
     >
-      {children}
+      {/* Diagonal hover fill */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        background: `${accent}0e`,
+        clipPath: 'polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%)',
+        opacity: hov && !active ? 1 : 0,
+        transition: 'opacity 0.14s',
+      }} />
+
+      <div style={{ padding: '8px 10px 7px', display: 'flex', alignItems: 'center', gap: '5px', position: 'relative' }}>
+        {/* // prefix — only on active */}
+        <span style={{
+          fontFamily: 'monospace', fontSize: '0.55rem',
+          color: `${accent}66`, lineHeight: 1,
+          opacity: active ? 1 : 0, transition: 'opacity 0.2s',
+          width: active ? 'auto' : 0, overflow: 'hidden', whiteSpace: 'nowrap',
+        }}>//</span>
+
+        <span style={{
+          fontSize: '0.68rem', fontWeight: 800,
+          letterSpacing: '0.16em', textTransform: 'uppercase',
+          fontFamily: 'monospace',
+          color: lit ? accent : '#374151',
+          filter: lit ? `drop-shadow(0 0 7px ${accent}99)` : 'none',
+          transition: 'color 0.15s, filter 0.15s',
+        }}>
+          {children}
+        </span>
+      </div>
+
+      {/* Active bottom bar — pulsing glow */}
+      {active && (
+        <motion.div
+          animate={{ boxShadow: [`0 0 5px ${accent}88`, `0 0 16px ${accent}`, `0 0 5px ${accent}88`] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            position: 'absolute', bottom: 0, left: 8, right: 8, height: '2px',
+            background: accent,
+          }}
+        />
+      )}
+
+      {/* Hover bottom bar — slides in from left */}
+      {!active && (
+        <div style={{
+          position: 'absolute', bottom: 0, left: 8, right: 8, height: '1px',
+          background: `${accent}55`,
+          transform: `scaleX(${hov ? 1 : 0})`,
+          transition: 'transform 0.18s ease',
+          transformOrigin: 'left',
+        }} />
+      )}
     </Link>
   );
 }

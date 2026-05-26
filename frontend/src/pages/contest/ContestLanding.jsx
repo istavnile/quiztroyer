@@ -142,7 +142,7 @@ function ScanningHudCorners({ color, size = 34, thickness = 2.5 }) {
 
 /* ── Terminal typewriter with glitch ────────────────────────────── */
 const GLITCH_CHARS = '!@#$%^&*<>?\\|~[]{}ABCDEFabcdef0123456789';
-function TerminalText({ text, delay = 0, speed = 54, started = true }) {
+function TerminalText({ text, delay = 0, speed = 54, started = true, onDone }) {
   const [displayed, setDisplayed] = useState('');
   const [done, setDone]           = useState(false);
 
@@ -162,7 +162,7 @@ function TerminalText({ text, delay = 0, speed = 54, started = true }) {
         setDisplayed(text.slice(0, i + 1));
         await pause(speed + Math.random() * 28 - 14);
       }
-      if (!cancelled) setDone(true);
+      if (!cancelled) { setDone(true); onDone?.(); }
     })();
     return () => { cancelled = true; };
   }, [text, delay, speed, started]);
@@ -170,7 +170,7 @@ function TerminalText({ text, delay = 0, speed = 54, started = true }) {
   return (
     <span>
       {displayed}
-      <span className="tactical-blink" style={{ marginLeft: '1px', opacity: done ? 0.5 : 1 }}>█</span>
+      <span className="tactical-blink" style={{ marginLeft: '1px', opacity: done ? 0.45 : 1 }}>█</span>
     </span>
   );
 }
@@ -284,6 +284,8 @@ export default function ContestLanding() {
   }, []);
 
   const [datesIn,  setDatesIn]  = useState(false);
+  const [dateSeq,  setDateSeq]  = useState(-1);
+  const [stepsIn,  setStepsIn]  = useState(false);
   const [stepTick, setStepTick] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setStepTick((t) => t + 1), 1800);
@@ -534,8 +536,9 @@ export default function ContestLanding() {
       </section>
 
       {/* ══════════ FECHAS ════════════════════════════════════════════ */}
+      {/* seq: 0=label0  1=label1  2=label2  3=date0  4=date1  5=date2 */}
       <motion.div
-        onViewportEnter={() => setDatesIn(true)}
+        onViewportEnter={() => { setDatesIn(true); setDateSeq(0); }}
         viewport={{ once: true }}
         style={{
           marginTop: '24px',
@@ -548,34 +551,51 @@ export default function ContestLanding() {
           { label: 'APERTURA',           date: s.textoFechaApertura, color: '#76B900', live: false },
           { label: 'CIERRE',             date: s.textoFechaCierre,   color: '#e61f30', live: false },
           { label: 'GRAN FINAL EN VIVO', date: s.textoFechaFinal,    color: '#facc15', live: true  },
-        ].map(({ label, date, color, live }, i) => (
-          <motion.div
-            key={label}
-            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            transition={{ delay: i * 0.12, duration: 0.35 }}
-            style={{ padding: '12px 36px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
-              {live ? (
-                <motion.div animate={{ opacity: [1, 0.15, 1] }} transition={{ duration: 0.9, repeat: Infinity }}
-                  style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0 }} />
-              ) : (
-                <span style={{ fontFamily: 'monospace', color: `${color}55`, fontSize: '0.5rem', lineHeight: 1 }}>//</span>
-              )}
-              <p style={{ color: '#374151', fontSize: '0.5rem', letterSpacing: '0.18em', fontWeight: 700, margin: 0, textTransform: 'uppercase', fontFamily: 'monospace' }}>
-                <TerminalText text={label} delay={i * 620 + 80} speed={38} started={datesIn} />
+        ].map(({ label, date, color, live }, i) => {
+          const labelSeq = i;       // 0 1 2
+          const dateSeqIdx = 3 + i; // 3 4 5
+          return (
+            <motion.div
+              key={label}
+              initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+              transition={{ delay: i * 0.08, duration: 0.3 }}
+              style={{ padding: '12px 36px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
+                {live ? (
+                  <motion.div animate={{ opacity: [1, 0.15, 1] }} transition={{ duration: 0.9, repeat: Infinity }}
+                    style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0 }} />
+                ) : (
+                  <span style={{ fontFamily: 'monospace', color: `${color}55`, fontSize: '0.5rem', lineHeight: 1 }}>//</span>
+                )}
+                <p style={{ color: '#374151', fontSize: '0.5rem', letterSpacing: '0.18em', fontWeight: 700, margin: 0, textTransform: 'uppercase', fontFamily: 'monospace' }}>
+                  <TerminalText
+                    text={label} speed={36}
+                    started={dateSeq >= labelSeq}
+                    onDone={() => setDateSeq((s) => Math.max(s, labelSeq + 1))}
+                  />
+                </p>
+              </div>
+              <p style={{ color, fontSize: '0.86rem', fontWeight: 800, margin: 0, letterSpacing: '0.01em', lineHeight: 1, fontFamily: 'monospace' }}>
+                <TerminalText
+                  text={date} speed={58}
+                  delay={dateSeqIdx === 3 ? 120 : 0}
+                  started={dateSeq >= dateSeqIdx}
+                  onDone={() => setDateSeq((s) => Math.max(s, dateSeqIdx + 1))}
+                />
               </p>
-            </div>
-            <p style={{ color, fontSize: '0.86rem', fontWeight: 800, margin: 0, letterSpacing: '0.01em', lineHeight: 1, fontFamily: 'monospace' }}>
-              <TerminalText text={date} delay={i * 620 + 480} speed={56} started={datesIn} />
-            </p>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </motion.div>
 
       {/* ══════════ CÓMO PARTICIPAR ═══════════════════════════════════ */}
       {s.pasos?.length > 0 && (
-        <section style={{ marginTop: '100px' }}>
+        <motion.section
+          style={{ marginTop: '100px' }}
+          onViewportEnter={() => setStepsIn(true)}
+          viewport={{ once: true }}
+        >
           <SectionHeader label="Cómo participar" count={s.pasos.length} countLabel="pasos" accent={accent} />
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', position: 'relative' }}>
@@ -694,7 +714,7 @@ export default function ContestLanding() {
                       letterSpacing: '0.02em',
                       textTransform: 'uppercase',
                     }}>
-                      {titulo}
+                      <TerminalText text={titulo} delay={i * 500 + 150} speed={46} started={stepsIn} />
                     </h3>
                     <p style={{ color: isActive ? '#6b7280' : '#374151', fontSize: '0.85rem', lineHeight: 1.7, margin: 0, transition: 'color 0.45s' }}
                       dangerouslySetInnerHTML={{ __html: descripcion }} />
@@ -703,7 +723,7 @@ export default function ContestLanding() {
               );
             })}
           </div>
-        </section>
+        </motion.section>
       )}
 
       {/* ══════════ PREMIO ════════════════════════════════════════════ */}
