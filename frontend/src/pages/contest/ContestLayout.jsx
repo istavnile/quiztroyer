@@ -2,48 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-function useParticles(canvasRef) {
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let raf;
-    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-    resize();
-    window.addEventListener('resize', resize);
-    const particles = Array.from({ length: 90 }, () => ({
-      x: Math.random(), y: Math.random(),
-      size: Math.random() * 1.3 + 0.25,
-      vy: -(Math.random() * 0.35 + 0.08),
-      vx: (Math.random() - 0.5) * 0.18,
-      alpha: Math.random() * 0.55 + 0.08,
-      green: Math.random() > 0.32,
-    }));
-    function frame() {
-      const w = canvas.width, h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-      for (const p of particles) {
-        p.y += p.vy / h; p.x += p.vx / w;
-        if (p.y < -0.02) { p.y = 1.02; p.x = Math.random(); }
-        if (p.x < -0.02) p.x = 1.02;
-        if (p.x >  1.02) p.x = -0.02;
-        const px = p.x * w, py = p.y * h;
-        const rgb = p.green ? '118,185,0' : '220,55,55';
-        const r = p.size * 5;
-        const g = ctx.createRadialGradient(px, py, 0, px, py, r);
-        g.addColorStop(0, `rgba(${rgb},${p.alpha * 0.75})`);
-        g.addColorStop(1, `rgba(${rgb},0)`);
-        ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2);
-        ctx.fillStyle = g; ctx.fill();
-        ctx.beginPath(); ctx.arc(px, py, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${rgb},${Math.min(p.alpha * 4, 1)})`; ctx.fill();
-      }
-      raf = requestAnimationFrame(frame);
-    }
-    frame();
-    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
-  }, []);
-}
 
 const BASE = '/concursos/el-gran-upgrade';
 const API  = import.meta.env.VITE_API_URL || '';
@@ -75,8 +33,6 @@ export default function ContestLayout({ children }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [navVisible, setNavVisible] = useState(true);
   const lastScrollY = useRef(0);
-  const canvasRef = useRef(null);
-  useParticles(canvasRef);
 
   useEffect(() => {
     const onScroll = () => {
@@ -106,8 +62,12 @@ export default function ContestLayout({ children }) {
       style={{ background: '#0a0a0a', minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif' }}
       className="text-white"
     >
-      {/* Particle canvas — full viewport */}
-      <canvas ref={canvasRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1 }} />
+      {/* Ambient top glow — extends well below the hero fold */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, height: '75vh',
+        background: `radial-gradient(ellipse 90% 80% at 50% -10%, ${accentColor}0d, transparent 70%)`,
+        pointerEvents: 'none', zIndex: 1,
+      }} />
 
       {/* Scanlines decorativas */}
       <div
