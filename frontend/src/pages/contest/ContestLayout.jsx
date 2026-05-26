@@ -136,48 +136,32 @@ export default function ContestLayout({ children }) {
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link to={BASE} className="flex items-center gap-3 no-underline">
 
-            {/* Primary sponsor badge — logo image or text fallback */}
-            <div
-              style={{
-                background: accentColor,
-                borderRadius: '4px',
-                padding: '4px 8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minWidth: '36px',
-                height: '28px',
-                flexShrink: 0,
-              }}
-            >
-              {primary.logoUrl ? (
-                <img
-                  src={primary.logoUrl}
-                  alt={primary.nombre || ''}
-                  style={{
-                    height: '18px',
-                    maxWidth: '80px',
-                    width: 'auto',
-                    objectFit: 'contain',
-                    objectPosition: 'center',
-                    display: 'block',
-                  }}
-                />
-              ) : (
-                <span
-                  style={{
-                    color: badgeTextClr,
-                    fontWeight: 900,
-                    fontSize: '0.72rem',
-                    letterSpacing: '0.1em',
-                    whiteSpace: 'nowrap',
-                    lineHeight: 1,
-                  }}
-                >
+            {/* Primary sponsor — bare logo or colored text badge */}
+            {primary.logoUrl ? (
+              <img
+                src={primary.logoUrl}
+                alt={primary.nombre || ''}
+                style={{ height: '24px', maxWidth: '90px', width: 'auto', objectFit: 'contain', display: 'block', flexShrink: 0 }}
+              />
+            ) : (
+              <div
+                style={{
+                  background: accentColor,
+                  borderRadius: '4px',
+                  padding: '4px 8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: '36px',
+                  height: '28px',
+                  flexShrink: 0,
+                }}
+              >
+                <span style={{ color: badgeTextClr, fontWeight: 900, fontSize: '0.72rem', letterSpacing: '0.1em', whiteSpace: 'nowrap', lineHeight: 1 }}>
                   {primary.nombre || 'NVIDIA'}
                 </span>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Campaign title */}
             <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.04em' }}>
