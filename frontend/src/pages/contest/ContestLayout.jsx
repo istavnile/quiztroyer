@@ -221,6 +221,7 @@ void main(){
   col+=red*exp(-length(rp+vec2(.28,.08))*5.)*.07;
   float st=star(uv+u_t*.001,55.)+star(uv*1.35+u_t*.002+.5,78.)*.7+star(uv*.78-u_t*.0015+.3,38.)*1.1;
   col+=vec3(st)*.95+st*u_acc*.18;
+  col*=1.-smoothstep(.25,1.1,length(p*.75));
   gl_FragColor=vec4(col,1.);}`;
 
 function GalaxyCanvas({ accent = '#76B900' }) {
@@ -262,7 +263,7 @@ function GalaxyCanvas({ accent = '#76B900' }) {
     frame();
     return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
   }, [accent]);
-  return <canvas ref={ref} style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh', display: 'block', zIndex: 0 }} />;
+  return <canvas ref={ref} style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh', display: 'block', zIndex: 0, mixBlendMode: 'screen' }} />;
 }
 
 /* ── NVIDIA tech-term depth background ──────────────────────────── */
