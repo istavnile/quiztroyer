@@ -125,7 +125,31 @@ function sanitizeUrls(obj) {
 async function readContestSettings() {
   try {
     const row = await prisma.contestSettings.findUnique({ where: { id: 'singleton' } });
-    return sanitizeUrls({ ...DEFAULT_SETTINGS, ...(row?.data ?? {}) });
+    const stored = row?.data ?? {};
+    const merged = { ...DEFAULT_SETTINGS, ...stored };
+
+    // System campos must always be present. If DB has empty/missing campos (e.g. first save
+    // before the form builder was opened), reconstruct from defaults preserving stored order
+    // and any label/placeholder overrides the admin may have saved.
+    const storedCampos = Array.isArray(stored.campos) ? stored.campos : [];
+    if (storedCampos.length === 0) {
+      // Nothing stored — use full defaults
+      merged.campos = DEFAULT_SETTINGS.campos;
+    } else {
+      const storedIds = new Set(storedCampos.map((c) => c.id));
+      const missingSystems = DEFAULT_SETTINGS.campos.filter((c) => !storedIds.has(c.id));
+      merged.campos = [
+        ...storedCampos.map((c) => {
+          if (!c.sistema) return c;
+          const def = DEFAULT_SETTINGS.campos.find((d) => d.id === c.id);
+          // Merge: default provides structure, stored provides overrides; id/tipo/sistema immutable
+          return def ? { ...def, ...c, id: def.id, tipo: def.tipo, sistema: true } : c;
+        }),
+        ...missingSystems,
+      ];
+    }
+
+    return sanitizeUrls(merged);
   } catch (err) {
     console.error('[readContestSettings]', err.message);
     return { ...DEFAULT_SETTINGS };
