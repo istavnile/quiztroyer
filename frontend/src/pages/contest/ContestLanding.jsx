@@ -249,73 +249,100 @@ function SectionHeader({ label, count, countLabel, accent }) {
 
 /* ── Bottom-right system recon HUD ──────────────────────────────── */
 function SysInfoHud({ accent }) {
-  const [rows, setRows] = useState([]);
+  const [lines,   setLines]   = useState([]);
+  const [sysRows, setSysRows] = useState(null);
 
+  // Detect once on mount
   useEffect(() => {
     const ua = navigator.userAgent;
     let os = 'UNKNOWN';
-    if      (/Windows NT 10/i.test(ua))      os = 'WIN 10/11';
-    else if (/Windows NT/i.test(ua))         os = 'WINDOWS';
-    else if (/Mac OS X/i.test(ua))           os = 'MACOS';
-    else if (/Android/i.test(ua))            os = 'ANDROID';
-    else if (/iPhone|iPad/i.test(ua))        os = 'IOS';
-    else if (/Linux/i.test(ua))              os = 'LINUX';
+    if      (/Windows NT 10/i.test(ua)) os = 'WIN 10/11';
+    else if (/Mac OS X/i.test(ua))      os = 'MACOS';
+    else if (/Android/i.test(ua))       os = 'ANDROID';
+    else if (/iPhone|iPad/i.test(ua))   os = 'IOS';
+    else if (/Linux/i.test(ua))         os = 'LINUX';
+    else if (/Windows/i.test(ua))       os = 'WINDOWS';
 
-    const ram    = navigator.deviceMemory   ? `${navigator.deviceMemory} GB`          : null;
-    const cores  = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} THREADS` : null;
-    const res    = `${screen.width}×${screen.height}`;
-    const depth  = `${screen.colorDepth}BIT`;
-    const touch  = navigator.maxTouchPoints > 0 ? 'TOUCH' : 'MOUSE';
-    const tz     = Intl.DateTimeFormat().resolvedOptions().timeZone.split('/').pop().replace(/_/g, ' ');
-    const conn   = navigator.connection?.effectiveType?.toUpperCase() ?? null;
+    const rows = [];
+    if (navigator.deviceMemory)        rows.push({ l: 'BAT', v: null }); // placeholder for battery
+    rows.push({ l: 'OS',  v: os });
+    if (navigator.deviceMemory)        rows.push({ l: 'RAM', v: `${navigator.deviceMemory} GB` });
+    if (navigator.hardwareConcurrency) rows.push({ l: 'CPU', v: `${navigator.hardwareConcurrency}T` });
+    rows.push({ l: 'RES', v: `${screen.width}\xD7${screen.height}` });
+    rows.push({ l: 'INP', v: navigator.maxTouchPoints > 0 ? 'TOUCH' : 'MOUSE' });
+    rows.push({ l: 'TZ',  v: Intl.DateTimeFormat().resolvedOptions().timeZone.split('/').pop().replace(/_/g, ' ') });
+    if (navigator.connection?.effectiveType) rows.push({ l: 'NET', v: navigator.connection.effectiveType.toUpperCase() });
 
-    const base = [
-      { label: 'OS',  value: os },
-      ...(ram   ? [{ label: 'RAM',  value: ram   }] : []),
-      ...(cores ? [{ label: 'CPU',  value: cores }] : []),
-      { label: 'RES',  value: res   },
-      { label: 'CLR',  value: depth },
-      { label: 'INP',  value: touch },
-      { label: 'TZ',   value: tz    },
-      ...(conn  ? [{ label: 'NET',  value: conn  }] : []),
-    ];
+    const finalize = (batStr) => {
+      const final = rows
+        .filter((r) => r.l !== 'BAT')
+        .map((r) => r);
+      if (batStr) final.unshift({ l: 'BAT', v: batStr });
+      setSysRows(final);
+    };
 
-    // Reveal rows one by one with stagger
-    base.forEach((row, i) => {
-      setTimeout(() => setRows((prev) => [...prev, row]), 300 + i * 220);
-    });
-
-    // Battery async — push when available
     if (navigator.getBattery) {
-      navigator.getBattery().then((bat) => {
-        const update = () => {
-          const pct  = Math.round(bat.level * 100);
-          const icon = bat.charging ? '⚡' : pct < 20 ? '▼' : '';
-          setRows((prev) => {
-            const next = prev.filter((r) => r.label !== 'BAT');
-            return [...next, { label: 'BAT', value: `${icon}${pct}%` }];
-          });
-        };
-        update();
-        bat.addEventListener('levelchange', update);
-        bat.addEventListener('chargingchange', update);
-      }).catch(() => {});
+      navigator.getBattery()
+        .then((bat) => finalize(`${bat.charging ? '⚡' : ''}${Math.round(bat.level * 100)}%`))
+        .catch(() => finalize(null));
+    } else {
+      finalize(null);
     }
   }, []);
 
-  if (rows.length === 0) return null;
+  // Cycling terminal sequence
+  useEffect(() => {
+    if (!sysRows) return;
+    let cancelled = false;
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    let k = 0;
+    const add = (text, color) =>
+      setLines((prev) => [...prev, { text, color, k: k++ }]);
+
+    const run = async () => {
+      while (!cancelled) {
+        // ── Boot phase ───────────────────────────────────────────────
+        setLines([{ text: '> initializing recon...', color: null, k: k++ }]);
+        await sleep(850);  if (cancelled) return;
+        add('> gathering system data...', null);
+        await sleep(700);  if (cancelled) return;
+        add('> parsing hardware...', null);
+        await sleep(600);  if (cancelled) return;
+
+        // ── Data reveal ──────────────────────────────────────────────
+        setLines([]);
+        for (const row of sysRows) {
+          if (cancelled) return;
+          add(`> ${row.l.padEnd(3)}  ${row.v}`, accent);
+          await sleep(270);
+        }
+
+        // ── Hold ─────────────────────────────────────────────────────
+        await sleep(5500); if (cancelled) return;
+
+        // ── Update phase ─────────────────────────────────────────────
+        add('> updating info...', null);
+        await sleep(700);  if (cancelled) return;
+        add('> sync: [OK]', '#76B900');
+        await sleep(900);  if (cancelled) return;
+        await sleep(300);
+      }
+    };
+    run();
+    return () => { cancelled = true; };
+  }, [sysRows, accent]);
+
+  if (lines.length === 0) return null;
 
   return (
     <div className="gaming-flicker" style={{
       position: 'absolute', bottom: '22px', right: '22px', zIndex: 5,
-      pointerEvents: 'none', fontFamily: 'monospace', textAlign: 'right',
+      pointerEvents: 'none', fontFamily: 'monospace',
     }}>
-      <div style={{ borderRight: `2px solid ${accent}66`, paddingRight: '10px' }}>
-        {rows.map((row) => (
-          <div key={row.label} style={{ fontSize: '0.48rem', letterSpacing: '0.12em', lineHeight: 1.85, color: `${accent}44` }}>
-            {row.label}&nbsp;<span style={{ color: accent }}>
-              <TerminalText text={row.value} speed={26} started={true} />
-            </span>
+      <div style={{ borderLeft: `2px solid ${accent}66`, paddingLeft: '10px' }}>
+        {lines.map((ln) => (
+          <div key={ln.k} style={{ fontSize: '0.48rem', letterSpacing: '0.12em', lineHeight: 1.85, color: ln.color || `${accent}55` }}>
+            <TerminalText text={ln.text} speed={26} started={true} />
           </div>
         ))}
       </div>
