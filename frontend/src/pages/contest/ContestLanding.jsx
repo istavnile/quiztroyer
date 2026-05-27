@@ -247,6 +247,62 @@ function SectionHeader({ label, count, countLabel, accent }) {
   );
 }
 
+/* ── GPU terminal cycling sequence ───────────────────────────────── */
+function GpuTerminal({ gpuName, worthy, accent }) {
+  const [lines, setLines] = useState([]);
+
+  useEffect(() => {
+    if (!gpuName) return;
+    let cancelled = false;
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    let key = 0;
+    const push = (text, color) =>
+      setLines((prev) => [...prev.slice(-3), { text, color, k: key++ }]);
+
+    const run = async () => {
+      while (!cancelled) {
+        setLines([]);
+        push('> scanning hardware...', null);        await sleep(750);
+        if (cancelled) return;
+        push('error: no sudo command', '#e61f30');   await sleep(550);
+        if (cancelled) return;
+        push('> acquiring root access...', null);    await sleep(950);
+        if (cancelled) return;
+        push('> access granted', '#76B900');         await sleep(500);
+        if (cancelled) return;
+        push(`> GPU: ${gpuName}`, accent);
+        if (!worthy) { await sleep(600); if (cancelled) return; push('> ⚠ gpu antiguo · upgrade!', '#e61f30'); }
+        await sleep(2800);
+        if (cancelled) return;
+        push('> updating firmware...', null);        await sleep(650);
+        if (cancelled) return;
+        push('! connection lost', '#e61f30');        await sleep(500);
+        if (cancelled) return;
+        push('> reestablishing...', null);           await sleep(1000);
+        if (cancelled) return;
+        await sleep(300);
+      }
+    };
+    run();
+    return () => { cancelled = true; };
+  }, [gpuName, worthy, accent]);
+
+  return (
+    <div className="gaming-flicker" style={{
+      position: 'absolute', bottom: '22px', left: '22px', zIndex: 5,
+      pointerEvents: 'none', fontFamily: 'monospace',
+    }}>
+      <div style={{ borderLeft: `2px solid ${accent}66`, paddingLeft: '10px' }}>
+        {lines.map((ln) => (
+          <div key={ln.k} style={{ fontSize: '0.48rem', letterSpacing: '0.12em', lineHeight: 1.85, color: ln.color || `${accent}55` }}>
+            <TerminalText text={ln.text} speed={30} started={true} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════════════════════════════════ */
 export default function ContestLanding() {
   const [s, setS] = useState(DEFAULT);
@@ -271,8 +327,11 @@ export default function ContestLanding() {
         if (!ext) return;
         const raw = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL);
         const angleMatch = raw.match(/ANGLE \((.+?)(?:\s+Direct3D|\s+OpenGL|\s+Metal|\s+Vulkan)/i);
-        const name = angleMatch ? angleMatch[1].trim() : raw;
+        let name = angleMatch ? angleMatch[1].trim() : raw;
         if (/mozilla|swiftshader/i.test(name)) return;
+        // clean "NVIDIA, NVIDIA GeForce..." → "NVIDIA GeForce..." and remove "(0x...)" hex suffix
+        name = name.replace(/^(nvidia|amd|intel\(r\)|intel|ati),?\s*/i, '').trim();
+        name = name.replace(/\s*\(0x[0-9a-f]+\)\s*$/i, '').trim();
         const worthy = /(rtx\s*4080|rtx\s*4090|rtx\s*5060\s*ti|rtx\s*507|rtx\s*508|rtx\s*5090)/i.test(name);
         setGpuInfo({ name, worthy });
       } catch {}
@@ -356,32 +415,8 @@ export default function ContestLanding() {
           </div>
         </div>
 
-        {/* Tactical HUD — bottom-left (GPU scan easter egg) */}
-        {gpuInfo && (
-          <div className="gaming-flicker" style={{
-            position: 'absolute', bottom: '22px', left: '22px', zIndex: 5,
-            pointerEvents: 'none', fontFamily: 'monospace',
-          }}>
-            <div style={{ borderLeft: `2px solid ${gpuInfo.worthy ? accent : '#e61f30'}77`, paddingLeft: '10px' }}>
-              <div style={{ fontSize: '0.5rem', letterSpacing: '0.14em', lineHeight: 1.9 }}>
-                <div style={{ color: `${accent}66` }}>
-                  GPU&nbsp;<span style={{ color: gpuInfo.worthy ? accent : '#e61f30' }}>
-                    <TerminalText text={gpuInfo.name} speed={28} started={true} />
-                  </span>
-                </div>
-                {!gpuInfo.worthy && (
-                  <motion.div
-                    animate={{ opacity: [1, 0.25, 1] }}
-                    transition={{ duration: 0.75, repeat: Infinity }}
-                    style={{ color: '#e61f30', letterSpacing: '0.1em' }}
-                  >
-                    ⚠ GPU ANTIGUO · TE TOCA ACTUALIZAR
-                  </motion.div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Tactical HUD — bottom-left (GPU terminal easter egg) */}
+        {gpuInfo && <GpuTerminal gpuName={gpuInfo.name} worthy={gpuInfo.worthy} accent={accent} />}
 
         {/* Optional hero BG image overlay */}
         {s.imagenHero && (
@@ -620,8 +655,11 @@ export default function ContestLanding() {
         viewport={{ once: true }}
         style={{
           marginTop: '24px',
-          borderTop: '1px solid rgba(255,255,255,0.04)',
-          borderBottom: '1px solid rgba(255,255,255,0.04)',
+          borderTop: '1px solid rgba(255,255,255,0.10)',
+          borderBottom: '1px solid rgba(255,255,255,0.10)',
+          background: 'rgba(0,0,0,0.35)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
           display: 'flex', justifyContent: 'center', alignItems: 'center',
         }}
       >
@@ -630,29 +668,29 @@ export default function ContestLanding() {
           { label: 'CIERRE',             date: s.textoFechaCierre,   color: '#e61f30', live: false },
           { label: 'GRAN FINAL EN VIVO', date: s.textoFechaFinal,    color: '#facc15', live: true  },
         ].map(({ label, date, color, live }, i) => {
-          const labelSeq = i;       // 0 1 2
-          const dateSeqIdx = 3 + i; // 3 4 5
+          const labelSeq = i;
+          const dateSeqIdx = 3 + i;
           return (
             <motion.div
               key={label}
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
               whileHover={{
-                background: `${color}0f`,
-                boxShadow: `inset 0 0 28px ${color}18, 0 0 18px ${color}22`,
+                background: `${color}12`,
+                boxShadow: `inset 0 0 28px ${color}22, 0 0 18px ${color}22`,
                 scale: 1.04,
                 filter: `drop-shadow(0 0 10px ${color}55)`,
               }}
-              transition={{ delay: i * 0.08, duration: 0.3, hover: { duration: 0.14 } }}
-              style={{ padding: '12px 36px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'default' }}
+              transition={{ delay: i * 0.08, duration: 0.3 }}
+              style={{ padding: '16px 40px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.08)' : 'none', cursor: 'default' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '6px' }}>
                 {live ? (
                   <motion.div animate={{ opacity: [1, 0.15, 1] }} transition={{ duration: 0.9, repeat: Infinity }}
                     style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0 }} />
                 ) : (
-                  <span style={{ fontFamily: 'monospace', color: `${color}55`, fontSize: '0.5rem', lineHeight: 1 }}>//</span>
+                  <span style={{ fontFamily: 'monospace', color: `${color}88`, fontSize: '0.55rem', lineHeight: 1 }}>//</span>
                 )}
-                <p style={{ color: '#374151', fontSize: '0.5rem', letterSpacing: '0.18em', fontWeight: 700, margin: 0, textTransform: 'uppercase', fontFamily: 'monospace' }}>
+                <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.55rem', letterSpacing: '0.18em', fontWeight: 700, margin: 0, textTransform: 'uppercase', fontFamily: 'monospace' }}>
                   <TerminalText
                     text={label} speed={36}
                     started={dateSeq >= labelSeq}
@@ -661,7 +699,7 @@ export default function ContestLanding() {
                   />
                 </p>
               </div>
-              <p style={{ color, fontSize: '0.86rem', fontWeight: 800, margin: 0, letterSpacing: '0.01em', lineHeight: 1, fontFamily: 'monospace' }}>
+              <p style={{ color, fontSize: '1rem', fontWeight: 800, margin: 0, letterSpacing: '0.02em', lineHeight: 1, fontFamily: 'monospace', textShadow: `0 0 18px ${color}66` }}>
                 <TerminalText
                   text={date} speed={58}
                   delay={dateSeqIdx === 3 ? 120 : 0}
