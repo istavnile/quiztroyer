@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function GamingCursor({ accent = '#76B900' }) {
-  const wrapRef = useRef(null);
-  const svgRef  = useRef(null);
+  const wrapRef  = useRef(null);
+  const svgRef   = useRef(null);
+  const coordRef = useRef(null);
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -15,6 +16,7 @@ function GamingCursor({ accent = '#76B900' }) {
 
     const onMove = (e) => {
       wrap.style.transform = `translate(${e.clientX - 20}px, ${e.clientY - 20}px)`;
+      if (coordRef.current) coordRef.current.textContent = `${e.clientX} ${e.clientY}`;
     };
 
     const onOver = (e) => {
@@ -70,6 +72,15 @@ function GamingCursor({ accent = '#76B900' }) {
         transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut', repeatDelay: 0.6 }}
         style={{ position: 'absolute', inset: 8, borderRadius: '50%', border: `1px solid ${accent}`, pointerEvents: 'none' }}
       />
+      <span
+        ref={coordRef}
+        style={{
+          position: 'absolute', left: '44px', top: '26px',
+          fontFamily: '"Courier New", monospace', fontSize: '0.42rem', fontWeight: 600,
+          color: `${accent}77`, whiteSpace: 'nowrap', lineHeight: 1, pointerEvents: 'none',
+          letterSpacing: '0.04em',
+        }}
+      >0 0</span>
     </div>
   );
 }
@@ -436,12 +447,14 @@ export default function ContestLayout({ children }) {
 
       {/* Header — hide on scroll down, show on scroll up */}
       <motion.header
+        initial={{ y: -80, opacity: 0, filter: 'brightness(3)' }}
         animate={{
           borderColor: [`${accentColor}88`, `${accentColor}ee`, `${accentColor}88`],
           y: navVisible ? 0 : -80,
           opacity: navVisible ? 1 : 0,
+          filter: 'brightness(1)',
         }}
-        transition={{ borderColor: { duration: 3, repeat: Infinity, ease: 'easeInOut' }, y: { duration: 0.25, ease: 'easeInOut' }, opacity: { duration: 0.2 } }}
+        transition={{ borderColor: { duration: 3, repeat: Infinity, ease: 'easeInOut' }, y: { duration: 0.25, ease: 'easeInOut' }, opacity: { duration: 0.2 }, filter: { duration: 0.5, ease: 'easeOut' } }}
         style={{
           background: 'rgba(0,0,0,0.45)',
           borderBottom: `1px solid ${accentColor}55`,
@@ -487,9 +500,9 @@ export default function ContestLayout({ children }) {
           </Link>
 
           <nav className="flex gap-4 text-sm font-medium">
-            <NavLink to={BASE}                      active={pathname === BASE}                     accent={accentColor}>Inicio</NavLink>
-            <NavLink to={`${BASE}/inscripcion`}     active={pathname.includes('/inscripcion')}     accent={accentColor}>Inscripción</NavLink>
-            <NavLink to={`${BASE}/votacion`}        active={pathname.includes('/votacion')}        accent={accentColor}>Votación</NavLink>
+            <NavLink to={BASE}                      active={pathname === BASE}                     accent={accentColor} icon="⌂">Inicio</NavLink>
+            <NavLink to={`${BASE}/inscripcion`}     active={pathname.includes('/inscripcion')}     accent={accentColor} icon="✎">Inscripción</NavLink>
+            <NavLink to={`${BASE}/votacion`}        active={pathname.includes('/votacion')}        accent={accentColor} icon="⊙">Votación</NavLink>
           </nav>
         </div>
       </motion.header>
@@ -511,9 +524,35 @@ export default function ContestLayout({ children }) {
         }}
       />
 
+      {/* Cyberpunk scan line on route change */}
+      <AnimatePresence>
+        <motion.div
+          key={`scan-${pathname}`}
+          initial={{ y: 0, opacity: 1 }}
+          animate={{ y: '100vh', opacity: 0.6 }}
+          transition={{ duration: 0.6, ease: 'easeIn' }}
+          style={{
+            position: 'fixed', left: 0, right: 0, top: 0, height: '3px',
+            background: `linear-gradient(90deg, transparent, ${accentColor}cc, ${accentColor}, ${accentColor}cc, transparent)`,
+            boxShadow: `0 0 20px ${accentColor}, 0 0 50px ${accentColor}66`,
+            zIndex: 999, pointerEvents: 'none',
+          }}
+        />
+      </AnimatePresence>
+
       {/* Contenido */}
       <main className="relative max-w-6xl mx-auto px-4 py-10" style={{ flex: 1 }}>
-        {children}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 18, filter: 'brightness(2.5) blur(4px) saturate(3)' }}
+            animate={{ opacity: 1, y: 0, filter: 'brightness(1) blur(0px) saturate(1)' }}
+            exit={{ opacity: 0, y: -10, filter: 'brightness(0) blur(2px) saturate(0)' }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Footer */}
@@ -544,7 +583,7 @@ export default function ContestLayout({ children }) {
   );
 }
 
-function NavLink({ to, children, active, accent }) {
+function NavLink({ to, children, active, accent, icon }) {
   const [hov, setHov] = useState(false);
   const lit = active || hov;
   return (
@@ -571,6 +610,15 @@ function NavLink({ to, children, active, accent }) {
           opacity: active ? 1 : 0, transition: 'opacity 0.2s',
           width: active ? 'auto' : 0, overflow: 'hidden', whiteSpace: 'nowrap',
         }}>//</span>
+
+        {icon && (
+          <span style={{
+            fontSize: '0.75rem', lineHeight: 1,
+            color: lit ? accent : '#374151',
+            filter: lit ? `drop-shadow(0 0 5px ${accent}99)` : 'none',
+            transition: 'color 0.15s, filter 0.15s',
+          }}>{icon}</span>
+        )}
 
         <span style={{
           fontSize: '0.68rem', fontWeight: 800,

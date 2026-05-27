@@ -181,19 +181,43 @@ function TerminalText({ text, delay = 0, speed = 54, started = true, showCursor 
 /* ── Valorant-style section header ───────────────────────────────── */
 function SectionHeader({ label, count, countLabel, accent }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '52px' }}>
-      <div style={{ width: '3px', height: '18px', background: accent, flexShrink: 0 }} />
+    <motion.div
+      initial={{ opacity: 0, x: -28, filter: 'blur(6px) brightness(3)' }}
+      whileInView={{ opacity: 1, x: 0, filter: 'blur(0px) brightness(1)' }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '52px' }}
+    >
+      <motion.div
+        initial={{ scaleY: 0 }}
+        whileInView={{ scaleY: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        style={{ width: '3px', height: '18px', background: accent, flexShrink: 0, transformOrigin: 'top' }}
+      />
       <span style={{ color: `${accent}99`, fontFamily: 'monospace', fontSize: '0.65rem', letterSpacing: '0.08em' }}>//</span>
       <span className="gaming-flicker" style={{ color: '#e2e8f0', fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.28em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
         {label}
       </span>
-      <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, rgba(255,255,255,0.1), transparent)' }} />
+      <motion.div
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, rgba(255,255,255,0.1), transparent)', transformOrigin: 'left' }}
+      />
       {count !== undefined && (
-        <span style={{ color: '#374151', fontFamily: 'monospace', fontSize: '0.55rem', letterSpacing: '0.1em', flexShrink: 0 }}>
+        <motion.span
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5 }}
+          style={{ color: '#374151', fontFamily: 'monospace', fontSize: '0.55rem', letterSpacing: '0.1em', flexShrink: 0 }}
+        >
           [ {count}{countLabel ? ` ${countLabel}` : ''} ]
-        </span>
+        </motion.span>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -610,7 +634,7 @@ export default function ContestLanding() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.55, delay: i * 0.14 }}
-                  style={{ padding: i === 0 ? '0 32px 0 0' : '0 32px 0 32px', position: 'relative', paddingBottom: '24px' }}
+                  style={{ padding: i === 0 ? '0 32px 0 0' : '0 32px 0 32px', position: 'relative', paddingBottom: '24px', display: 'flex', flexDirection: 'column' }}
                 >
                   {/* Radar ping on active step */}
                   <div style={{ marginBottom: '28px', position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -656,7 +680,7 @@ export default function ContestLanding() {
                     }}
                     transition={isActive ? { duration: 1.1, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.25 }}
                     style={{
-                      position: 'relative', zIndex: 1,
+                      position: 'relative', zIndex: 1, flex: 1,
                       border: `1px solid ${isActive ? `${clr}66` : 'rgba(255,255,255,0.05)'}`,
                       clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)',
                       background: isActive ? `${clr}0c` : 'rgba(255,255,255,0.015)',
