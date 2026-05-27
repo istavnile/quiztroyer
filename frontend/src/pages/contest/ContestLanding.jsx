@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import ContestLayout from './ContestLayout';
+import ContestLayout, { GalaxyCanvas } from './ContestLayout';
 import { isRegistrationOpen } from '../../lib/contestConstants';
 
 const API = import.meta.env.VITE_API_URL || '';
@@ -229,7 +229,10 @@ export default function ContestLanding() {
       <style>{GAMING_CSS}</style>
 
       {/* ══════════ HERO ══════════════════════════════════════════════ */}
-      <section style={{ position: 'relative', padding: '80px 0 56px', textAlign: 'center' }}>
+      <section style={{ position: 'relative', padding: '80px 0 56px', textAlign: 'center', overflow: 'hidden' }}>
+
+        {/* Nebulosa Shader confined to Hero */}
+        <GalaxyCanvas accent={accent} />
 
         {/* Spotlight — sweeps across the hero text like a theater light */}
         <motion.div
@@ -276,11 +279,7 @@ export default function ContestLanding() {
           </div>
         )}
 
-        {/* Fade galaxy into page — all 4 edges so the canvas has no visible rect border */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '240px', background: 'linear-gradient(to bottom, transparent, #06070e)', pointerEvents: 'none', zIndex: 3 }} />
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '110px', background: 'linear-gradient(to bottom, #06070e, transparent)', pointerEvents: 'none', zIndex: 3 }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '220px', background: 'linear-gradient(to right, #06070e, transparent)', pointerEvents: 'none', zIndex: 3 }} />
-        <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: '220px', background: 'linear-gradient(to left, #06070e, transparent)', pointerEvents: 'none', zIndex: 3 }} />
+        {/* Fade divs removed for a seamless look */}
 
         {/* Content */}
         <div style={{ position: 'relative', zIndex: 2 }}>

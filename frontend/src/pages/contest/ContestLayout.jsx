@@ -224,7 +224,7 @@ void main(){
   col*=1.-smoothstep(.25,1.1,length(p*.75));
   gl_FragColor=vec4(col,1.);}`;
 
-function GalaxyCanvas({ accent = '#76B900' }) {
+export function GalaxyCanvas({ accent = '#76B900' }) {
   const ref = useRef(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -250,9 +250,11 @@ function GalaxyCanvas({ accent = '#76B900' }) {
     const b = parseInt(accent.slice(5,7),16)/255;
     gl.uniform3f(uAcc, r, g, b);
     const resize = () => {
+      // Use parent dimensions instead of window
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      canvas.width  = window.innerWidth  * dpr;
-      canvas.height = window.innerHeight * dpr;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width  = rect.width  * dpr;
+      canvas.height = rect.height * dpr;
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(uRes, canvas.width, canvas.height);
     };
@@ -263,7 +265,8 @@ function GalaxyCanvas({ accent = '#76B900' }) {
     frame();
     return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
   }, [accent]);
-  return <canvas ref={ref} style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh', display: 'block', zIndex: 0, mixBlendMode: 'screen' }} />;
+  // Use absolute positioning to fill the parent container, not fixed to screen
+  return <canvas ref={ref} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block', zIndex: 0, mixBlendMode: 'screen', pointerEvents: 'none' }} />;
 }
 
 /* ── NVIDIA tech-term depth background ──────────────────────────── */
@@ -400,9 +403,6 @@ export default function ContestLayout({ children }) {
       <style>{`a, button, input, select, textarea, label, [role="button"] { cursor: none !important; }`}</style>
 
       <GamingCursor accent={accentColor} />
-
-      {/* Full-page galaxy shader */}
-      <GalaxyCanvas accent={accentColor} />
 
       {/* Full-page circuit board background */}
       <CircuitBoardBG accent={accentColor} />
