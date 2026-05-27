@@ -513,7 +513,7 @@ export default function ContestLanding() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.6 }}
-              style={{ color: '#6b7280', fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto 2.5rem', lineHeight: 1.75 }}
+              style={{ color: '#cbd5e1', fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto 2.5rem', lineHeight: 1.75 }}
               dangerouslySetInnerHTML={{ __html: s.subtitulo }}
             />
           )}
