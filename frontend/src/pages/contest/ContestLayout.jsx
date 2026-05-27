@@ -189,7 +189,7 @@ function CircuitBoardBG({ accent = '#76B900' }) {
   return <canvas ref={ref} style={{position:'fixed', inset:0, pointerEvents:'none', zIndex:0, display:'block'}} />;
 }
 
-/* ── NVIDIA tech-term blurred background ────────────────────────── */
+/* ── NVIDIA tech-term depth background ──────────────────────────── */
 const TECH_TERMS = [
   'DLSS 3', 'REFLEX', 'RAY TRACING', 'RTX ON', 'TENSOR CORES',
   'CUDA', 'G-SYNC', 'NVENC', 'FRAME GENERATION', 'ACE', 'BROADCAST',
@@ -198,51 +198,59 @@ const TECH_TERMS = [
 ];
 function _pr(seed) { const x = Math.sin(seed * 9301 + 49297) * 233280; return x - Math.floor(x); }
 
-function TechBG({ accent = '#76B900' }) {
-  const COLS = 6, ROWS = 12;
-  const makePass = (offset) =>
-    Array.from({ length: ROWS }, (_, r) =>
-      Array.from({ length: COLS }, (_, c) => {
-        const s = (offset + r) * COLS + c;
-        return {
-          text:  TECH_TERMS[((offset + r) * 3 + c * 2 + 1) % TECH_TERMS.length],
-          size:  0.9 + _pr(s) * 0.8,
-          alpha: 0.25 + _pr(s + 400) * 0.55,
-          pad:   10 + _pr(s + 800) * 16,
-        };
-      })
-    );
-  const rows = [...makePass(0), ...makePass(ROWS)];
+// 3 independent layers: far (small/blurry/slow), mid, near (large/sharp/fast)
+const TECH_LAYERS = [
+  { blur: 20, opacity: 0.10, minSz: 0.55, maxSz: 0.85, dur: 230, seed: 0,   count: 32 },
+  { blur: 7,  opacity: 0.17, minSz: 0.95, maxSz: 1.45, dur: 125, seed: 130, count: 22 },
+  { blur: 1,  opacity: 0.26, minSz: 1.6,  maxSz: 2.6,  dur: 62,  seed: 260, count: 13 },
+];
 
+function TechBG({ accent = '#76B900' }) {
   return (
-    <div style={{
-      position: 'fixed', inset: 0, overflow: 'hidden',
-      filter: 'blur(7px)', opacity: 0.22,
-      userSelect: 'none', pointerEvents: 'none', zIndex: 0,
-    }}>
-      <motion.div
-        animate={{ y: ['0%', '-50%'] }}
-        transition={{ duration: 100, repeat: Infinity, ease: 'linear' }}
-        style={{ height: '200%' }}
-      >
-        {rows.map((row, ri) => (
-          <div key={ri} style={{ display: 'flex' }}>
-            {row.map(({ text, size, alpha, pad }, ci) => (
-              <div key={ci} style={{
-                flex: 1, textAlign: 'center',
-                fontFamily: '"Courier New", Courier, monospace',
-                fontSize: `${size}rem`, fontWeight: 700,
-                color: accent, letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                padding: `${pad}px 4px`,
-                opacity: alpha,
-              }}>
-                {text}
-              </div>
-            ))}
-          </div>
-        ))}
-      </motion.div>
+    <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', userSelect: 'none', pointerEvents: 'none', zIndex: 0 }}>
+      {TECH_LAYERS.map((layer, li) => {
+        const words = Array.from({ length: layer.count }, (_, i) => {
+          const s = layer.seed + i * 23;
+          return {
+            text:  TECH_TERMS[Math.floor(_pr(s) * TECH_TERMS.length)],
+            x:     _pr(s * 3 + 1) * 92,
+            y:     _pr(s * 7 + 2) * 50,
+            size:  layer.minSz + _pr(s * 5 + 3) * (layer.maxSz - layer.minSz),
+            alpha: 0.35 + _pr(s * 11 + 4) * 0.65,
+            rot:   (_pr(s * 13 + 5) - 0.5) * 26,
+          };
+        });
+        const all = [...words, ...words.map((w) => ({ ...w, y: w.y + 50 }))];
+        return (
+          <motion.div
+            key={li}
+            animate={{ y: ['0%', '-50%'] }}
+            transition={{ duration: layer.dur, repeat: Infinity, ease: 'linear' }}
+            style={{ position: 'absolute', inset: 0, filter: `blur(${layer.blur}px)`, opacity: layer.opacity }}
+          >
+            <div style={{ position: 'relative', height: '200%' }}>
+              {all.map((w, i) => (
+                <div key={i} style={{
+                  position: 'absolute',
+                  left: `${w.x}%`,
+                  top: `${w.y}%`,
+                  transform: `rotate(${w.rot}deg)`,
+                  fontFamily: '"Courier New", monospace',
+                  fontSize: `${w.size}rem`,
+                  fontWeight: 700,
+                  color: accent,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  opacity: w.alpha,
+                  whiteSpace: 'nowrap',
+                }}>
+                  {w.text}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
