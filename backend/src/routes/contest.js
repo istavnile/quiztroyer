@@ -57,6 +57,7 @@ const DEFAULT_SETTINGS = {
   // Formulario — metadatos generales
   tituloFormulario: 'Formulario de inscripción',
   instruccionesFormulario: 'Completa todos los campos. Las inscripciones cierran el 7 de junio a las 23:59.',
+  contenidoTyC: '<h3>Términos y Condiciones</h3><p>Configura el contenido desde el panel de administración.</p>',
 
   // Campos del formulario (schema dinámico)
   campos: [

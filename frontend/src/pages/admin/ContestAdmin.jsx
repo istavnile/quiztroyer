@@ -449,6 +449,7 @@ const DEFAULTS = {
   labelHistoria: '¿Por qué mereces el Gran Upgrade?', placeholderHistoria: '',
   maxPalabrasHistoria: 150, textoTyC: 'Acepto los Términos y Condiciones del concurso',
   urlTyC: '#tyc', textoMarketing: '',
+  contenidoTyC: '',
 };
 
 const CONFIG_SECTIONS = [
@@ -758,7 +759,12 @@ function TabConfiguracion() {
           </div>
           <SectionTitle style={{ marginTop: 8 }}>Términos y marketing</SectionTitle>
           <TextField label="Texto del checkbox de TyC" value={cfg.textoTyC} onChange={(v) => set('textoTyC', v)} placeholder="Acepto los Términos y Condiciones..." />
-          <TextField label="URL de los TyC" value={cfg.urlTyC} onChange={(v) => set('urlTyC', v)} placeholder="#tyc o https://..." />
+          <RichTextEditor
+            label="Contenido del modal de TyC (se abre al hacer clic en el enlace)"
+            value={cfg.contenidoTyC}
+            onChange={(v) => set('contenidoTyC', v)}
+            placeholder="Escribe aquí los Términos y Condiciones del concurso..."
+          />
           <TextField label="Texto del checkbox de marketing" value={cfg.textoMarketing} onChange={(v) => set('textoMarketing', v)} multiline placeholder="Acepto recibir comunicaciones..." />
 
           {/* ── Campos del formulario ── */}

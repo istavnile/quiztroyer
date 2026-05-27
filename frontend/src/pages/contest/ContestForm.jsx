@@ -150,8 +150,70 @@ function ImageDropzone({ campoId, hint, file, onFile, error }) {
   );
 }
 
+// ─── Modal de Términos y Condiciones ──────────────────────────────────────────
+function TyCModal({ content, onClose }) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 1000,
+        background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(6px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '16px',
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: '#0d1117', border: '1px solid rgba(118,185,0,0.35)',
+          borderRadius: '12px', width: '100%', maxWidth: '580px',
+          maxHeight: '82vh', display: 'flex', flexDirection: 'column',
+          boxShadow: '0 0 48px rgba(118,185,0,0.12), 0 24px 64px rgba(0,0,0,0.6)',
+        }}
+      >
+        <div style={{
+          padding: '16px 22px', borderBottom: '1px solid #1f2937',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#76B900', boxShadow: '0 0 8px #76B900' }} />
+            <span style={{ color: '#76B900', fontWeight: 800, fontSize: '0.82rem', letterSpacing: '0.12em', fontFamily: 'monospace' }}>
+              TÉRMINOS Y CONDICIONES
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ background: 'none', border: 'none', color: '#4b5563', cursor: 'pointer', fontSize: '1.4rem', lineHeight: 1, padding: '2px 6px' }}
+          >×</button>
+        </div>
+        <div
+          style={{
+            padding: '22px 24px', overflowY: 'auto', flex: 1,
+            color: '#d1d5db', fontSize: '0.88rem', lineHeight: 1.75,
+          }}
+          dangerouslySetInnerHTML={{ __html: content || '<p style="color:#6b7280">Términos y condiciones no configurados.</p>' }}
+        />
+        <div style={{ padding: '14px 22px', borderTop: '1px solid #1f2937', flexShrink: 0 }}>
+          <button
+            onClick={onClose}
+            style={{
+              width: '100%', background: '#76B900', color: '#000',
+              fontWeight: 800, padding: '10px', borderRadius: '6px',
+              border: 'none', cursor: 'pointer', fontSize: '0.9rem',
+              letterSpacing: '0.04em',
+            }}
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Campo dinámico individual ────────────────────────────────────────────────
-function DynamicField({ campo, register, control, errors, fotoFiles, setFotoFiles, fileErrors, isPreview, watchValues }) {
+function DynamicField({ campo, register, control, errors, fotoFiles, setFotoFiles, fileErrors, isPreview, watchValues, onOpenTyC }) {
   const error = errors[campo.id]?.message;
   const span  = getGridSpan(campo.ancho);
 
@@ -284,9 +346,19 @@ function DynamicField({ campo, register, control, errors, fotoFiles, setFotoFile
               style={{ marginTop: '3px', accentColor: '#76B900', width: '16px', height: '16px', flexShrink: 0 }}
             />
             <span style={{ color: '#9ca3af', fontSize: '0.85rem', lineHeight: 1.5 }}>
-              {campo.url
-                ? <a href={campo.url} style={{ color: '#76B900' }}>{campo.label}</a>
-                : campo.label
+              {campo.url === '#tyc' && onOpenTyC
+                ? (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); onOpenTyC(); }}
+                    style={{ background: 'none', border: 'none', padding: 0, color: '#76B900', cursor: 'pointer', fontSize: 'inherit', fontFamily: 'inherit', lineHeight: 'inherit', textDecoration: 'underline' }}
+                  >
+                    {campo.label}
+                  </button>
+                )
+                : campo.url
+                  ? <a href={campo.url} target="_blank" rel="noopener noreferrer" style={{ color: '#76B900' }}>{campo.label}</a>
+                  : campo.label
               }
               {campo.requerido && ' *'}
             </span>
@@ -339,6 +411,7 @@ function FormContent({ campos, settings, isPreview }) {
   const [submitState, setSubmitState] = useState('idle');
   const [submitError, setSubmitError] = useState('');
   const [submitted, setSubmitted]   = useState(false);
+  const [tycOpen, setTycOpen]       = useState(false);
 
   const fileCampos = campos.filter((c) => c.tipo === 'file');
 
@@ -424,6 +497,7 @@ function FormContent({ campos, settings, isPreview }) {
   return (
     <div style={{ maxWidth: '820px', margin: '0 auto' }}>
       <style>{FORM_CSS}</style>
+      {tycOpen && <TyCModal content={settings?.contenidoTyC} onClose={() => setTycOpen(false)} />}
       {isPreview && (
         <div style={{
           background: 'rgba(250,204,21,0.1)', border: '1px solid #ca8a04',
@@ -465,6 +539,7 @@ function FormContent({ campos, settings, isPreview }) {
               fileErrors={fileErrors}
               isPreview={isPreview}
               watchValues={watchValues}
+              onOpenTyC={() => setTycOpen(true)}
             />
           ))}
         </div>
