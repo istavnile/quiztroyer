@@ -38,7 +38,7 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - backend_uploads:/app/uploads
+      - quiztroyer-uploads:/app/uploads
 
   frontend:
     build:
@@ -56,4 +56,4 @@ services:
 
 volumes:
   postgres_data:
-  backend_uploads:
+  quiztroyer-uploads:
