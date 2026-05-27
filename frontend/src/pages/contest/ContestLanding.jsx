@@ -197,84 +197,6 @@ function SectionHeader({ label, count, countLabel, accent }) {
   );
 }
 
-/* ── WebGL galaxy shader ─────────────────────────────────────────── */
-const VERT = `attribute vec2 a_pos;void main(){gl_Position=vec4(a_pos,0.,1.);}`;
-const FRAG = `precision mediump float;
-uniform vec2 u_res;uniform float u_t;uniform vec3 u_acc;
-float h21(vec2 p){p=fract(p*vec2(234.34,435.345));p+=dot(p,p+34.23);return fract(p.x*p.y);}
-float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
-  return mix(mix(h21(i),h21(i+vec2(1,0)),f.x),mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x),f.y);}
-float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.1+vec2(1.7,9.2);a*=.5;}return v;}
-float star(vec2 uv,float sc){
-  vec2 g=floor(uv*sc),f=fract(uv*sc)-.5;float hv=h21(g);
-  if(hv<.967)return 0.;float b=(hv-.967)/.033;
-  float tw=.55+.45*sin(u_t*(1.8+hv*5.)+hv*6.28);float sz=.014+b*.028;
-  return smoothstep(sz,.0,length(f))*tw*b;}
-void main(){
-  vec2 uv=gl_FragCoord.xy/u_res;
-  float asp=u_res.x/u_res.y;
-  vec2 p=(uv-.5)*vec2(asp,1.);
-  float c=cos(u_t*.05),s=sin(u_t*.05);
-  vec2 rp=vec2(c*p.x-s*p.y,s*p.x+c*p.y);
-  float n1=fbm(rp*2.2+u_t*.3);
-  float n2=fbm(rp*3.5-u_t*.2+vec2(5.1,2.3));
-  float neb=fbm(rp*1.7+n1*.5);
-  float core=exp(-length(rp)*4.2)*.55;
-  float halo=exp(-length(rp)*1.5)*.1;
-  vec3 red=vec3(.85,.12,.19);
-  vec3 col=vec3(.03,.03,.05);
-  col+=u_acc*smoothstep(.3,.75,n1)*neb*.2;
-  col+=red*smoothstep(.5,.85,n2)*(1.-neb)*.11;
-  col+=u_acc*core+u_acc*halo;
-  col+=red*exp(-length(rp+vec2(.28,.08))*5.)*.07;
-  float st=star(uv+u_t*.001,55.)+star(uv*1.35+u_t*.002+.5,78.)*.7+star(uv*.78-u_t*.0015+.3,38.)*1.1;
-  col+=vec3(st)*.95+st*u_acc*.18;
-  col*=1.-smoothstep(.2,1.05,length(p*.8));
-  gl_FragColor=vec4(col,1.);}`;
-
-function GalaxyCanvas({ accent = '#76B900' }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    if (!gl) return;
-    const mk = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
-    const prog = gl.createProgram();
-    gl.attachShader(prog, mk(gl.VERTEX_SHADER, VERT));
-    gl.attachShader(prog, mk(gl.FRAGMENT_SHADER, FRAG));
-    gl.linkProgram(prog); gl.useProgram(prog);
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
-    const aPos = gl.getAttribLocation(prog, 'a_pos');
-    gl.enableVertexAttribArray(aPos);
-    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-    const uRes = gl.getUniformLocation(prog, 'u_res');
-    const uT   = gl.getUniformLocation(prog, 'u_t');
-    const uAcc = gl.getUniformLocation(prog, 'u_acc');
-    const r = parseInt(accent.slice(1,3),16)/255;
-    const g = parseInt(accent.slice(3,5),16)/255;
-    const b = parseInt(accent.slice(5,7),16)/255;
-    gl.uniform3f(uAcc, r, g, b);
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      canvas.width  = canvas.offsetWidth  * dpr;
-      canvas.height = canvas.offsetHeight * dpr;
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.uniform2f(uRes, canvas.width, canvas.height);
-    };
-    resize();
-    const ro = new ResizeObserver(resize); ro.observe(canvas);
-    const t0 = performance.now(); let raf;
-    const frame = () => { gl.uniform1f(uT, (performance.now()-t0)/1000); gl.drawArrays(gl.TRIANGLE_STRIP,0,4); raf=requestAnimationFrame(frame); };
-    frame();
-    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
-  }, [accent]);
-  const mask = 'radial-gradient(ellipse 90% 88% at 50% 46%, black 28%, rgba(0,0,0,0.65) 54%, rgba(0,0,0,0.18) 72%, transparent 88%)';
-  return <canvas ref={ref} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block', maskImage: mask, WebkitMaskImage: mask }} />;
-}
-
 /* ═══════════════════════════════════════════════════════════════════ */
 export default function ContestLanding() {
   const [s, setS] = useState(DEFAULT);
@@ -308,9 +230,6 @@ export default function ContestLanding() {
 
       {/* ══════════ HERO ══════════════════════════════════════════════ */}
       <section style={{ position: 'relative', padding: '80px 0 56px', textAlign: 'center' }}>
-
-        {/* Galaxy shader */}
-        <GalaxyCanvas accent={accent} />
 
         {/* Spotlight — sweeps across the hero text like a theater light */}
         <motion.div
