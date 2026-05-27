@@ -311,13 +311,13 @@ export default function ContestLanding() {
         {/* Galaxy shader */}
         <GalaxyCanvas accent={accent} />
 
-        {/* Animated vignette glow — drifts side to side */}
+        {/* Spotlight — sweeps across the hero text like a theater light */}
         <motion.div
-          animate={{ x: ['0%', '10%', '-10%', '0%'] }}
-          transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut', times: [0, 0.33, 0.66, 1] }}
+          animate={{ left: ['-10%', '60%', '110%', '-10%'] }}
+          transition={{ duration: 9, repeat: Infinity, ease: [0.4, 0, 0.6, 1], times: [0, 0.38, 0.62, 1], repeatDelay: 1.2 }}
           style={{
-            position: 'absolute', top: '-15%', left: '-15%', right: '-15%', bottom: '-15%',
-            background: `radial-gradient(ellipse 50% 60% at 50% 52%, ${accent}22, transparent 62%)`,
+            position: 'absolute', top: '-20%', width: '80%', bottom: '-20%',
+            background: `radial-gradient(ellipse 55% 65% at 40% 50%, ${accent}2e 0%, ${accent}10 38%, transparent 68%)`,
             pointerEvents: 'none', zIndex: 1,
           }}
         />
@@ -513,8 +513,10 @@ export default function ContestLanding() {
                 transition={{ duration: 2.5, repeat: Infinity }}
                 style={{
                   display: 'inline-block',
-                  background: `${accent}08`, border: `1px solid ${accent}33`,
+                  background: `${accent}18`,
+                  border: `1px solid ${accent}77`,
                   borderLeft: `3px solid ${accent}`,
+                  boxShadow: `0 0 18px ${accent}33, inset 0 0 12px ${accent}0a`,
                   color: accent, padding: '14px 44px',
                   clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)',
                   fontSize: '0.9rem', fontWeight: 700,
@@ -533,14 +535,15 @@ export default function ContestLanding() {
                 }}
                 transition={{ duration: 0.16 }}
                 style={{
-                  background: 'transparent', color: '#9ca3af',
-                  border: '1px solid rgba(255,255,255,0.12)',
+                  background: 'rgba(255,255,255,0.05)', color: '#e2e8f0',
+                  border: '1px solid rgba(255,255,255,0.38)',
+                  boxShadow: '0 0 14px rgba(255,255,255,0.06), inset 0 0 8px rgba(255,255,255,0.03)',
                   fontWeight: 600, padding: '14px 44px',
                   clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)',
                   fontSize: '0.9rem', cursor: 'pointer', outline: 'none',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = `${accent}55`; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = `${accent}88`; e.currentTarget.style.color = accent; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.38)'; e.currentTarget.style.color = '#e2e8f0'; }}
               >
                 Ver finalistas y votar
               </motion.button>
