@@ -189,6 +189,64 @@ function CircuitBoardBG({ accent = '#76B900' }) {
   return <canvas ref={ref} style={{position:'fixed', inset:0, pointerEvents:'none', zIndex:0, display:'block'}} />;
 }
 
+/* ── NVIDIA tech-term blurred background ────────────────────────── */
+const TECH_TERMS = [
+  'DLSS 3', 'REFLEX', 'RAY TRACING', 'RTX ON', 'TENSOR CORES',
+  'CUDA', 'G-SYNC', 'NVENC', 'FRAME GENERATION', 'ACE', 'BROADCAST',
+  'ADA LOVELACE', 'AMPERE', 'NVLINK', 'AI DENOISING', 'OVERDRIVE',
+  'DEEP LEARNING', 'BLACKWELL', 'GDDR7', 'DLSS 4', 'MULTI FRAME GEN',
+];
+function _pr(seed) { const x = Math.sin(seed * 9301 + 49297) * 233280; return x - Math.floor(x); }
+
+function TechBG({ accent = '#76B900' }) {
+  const COLS = 6, ROWS = 12;
+  const makePass = (offset) =>
+    Array.from({ length: ROWS }, (_, r) =>
+      Array.from({ length: COLS }, (_, c) => {
+        const s = (offset + r) * COLS + c;
+        return {
+          text:  TECH_TERMS[((offset + r) * 3 + c * 2 + 1) % TECH_TERMS.length],
+          size:  0.9 + _pr(s) * 0.8,
+          alpha: 0.25 + _pr(s + 400) * 0.55,
+          pad:   10 + _pr(s + 800) * 16,
+        };
+      })
+    );
+  const rows = [...makePass(0), ...makePass(ROWS)];
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, overflow: 'hidden',
+      filter: 'blur(7px)', opacity: 0.22,
+      userSelect: 'none', pointerEvents: 'none', zIndex: 0,
+    }}>
+      <motion.div
+        animate={{ y: ['0%', '-50%'] }}
+        transition={{ duration: 100, repeat: Infinity, ease: 'linear' }}
+        style={{ height: '200%' }}
+      >
+        {rows.map((row, ri) => (
+          <div key={ri} style={{ display: 'flex' }}>
+            {row.map(({ text, size, alpha, pad }, ci) => (
+              <div key={ci} style={{
+                flex: 1, textAlign: 'center',
+                fontFamily: '"Courier New", Courier, monospace',
+                fontSize: `${size}rem`, fontWeight: 700,
+                color: accent, letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                padding: `${pad}px 4px`,
+                opacity: alpha,
+              }}>
+                {text}
+              </div>
+            ))}
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
 const BASE = '/concursos/el-gran-upgrade';
 const API  = import.meta.env.VITE_API_URL || '';
 
@@ -255,6 +313,9 @@ export default function ContestLayout({ children }) {
 
       {/* Full-page circuit board background */}
       <CircuitBoardBG accent={accentColor} />
+
+      {/* NVIDIA tech terms — full-page blurred depth layer */}
+      <TechBG accent={accentColor} />
 
       {/* Ambient top glow — extends well below the hero fold */}
       <div style={{
