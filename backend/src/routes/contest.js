@@ -135,6 +135,50 @@ router.get('/settings', async (req, res) => {
   res.json(await readContestSettings());
 });
 
+// ─── OG preview for social crawlers (served by nginx bot-detection) ────────────
+function esc(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+router.get('/og', async (_req, res) => {
+  const s = await readContestSettings();
+  const BASE = process.env.PUBLIC_URL || 'https://quiztroyer.istavnile.cloud';
+  const title = esc(`${s.titulo || 'El Gran Upgrade'} · Concurso`);
+  const desc  = esc(s.subtitulo || 'Muéstranos tu PC y cuéntanos tu historia. ¡El mejor setup ganará un upgrade épico!');
+  const badge = esc(s.badge || '');
+  const rawImg = s.imagenHero || `${BASE}/og-image.svg`;
+  const image = rawImg.startsWith('http') ? esc(rawImg) : esc(`${BASE}${rawImg}`);
+  const pageUrl = esc(`${BASE}/concursos/el-gran-upgrade`);
+
+  res.set('Content-Type', 'text/html; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=300');
+  res.send(`<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  <meta name="description" content="${desc}">
+  <meta property="og:type"        content="website">
+  <meta property="og:site_name"   content="Quiztroyer">
+  <meta property="og:title"       content="${title}">
+  <meta property="og:description" content="${desc}">
+  <meta property="og:image"       content="${image}">
+  <meta property="og:image:width"  content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url"         content="${pageUrl}">
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="${title}">
+  <meta name="twitter:description" content="${desc}">
+  <meta name="twitter:image"       content="${image}">
+</head>
+<body>
+  <h1>${title}</h1>
+  <p>${desc}</p>
+  ${badge ? `<p>${badge}</p>` : ''}
+  <a href="${pageUrl}">Ver concurso completo</a>
+</body>
+</html>`);
+});
+
 // Fechas del concurso (UTC-6 / hora Guatemala)
 const OPEN_DATE = new Date('2026-06-01T06:00:00Z');   // 1 jun 00:00 GT
 const CLOSE_DATE = new Date('2026-06-08T05:59:59Z');  // 7 jun 23:59 GT

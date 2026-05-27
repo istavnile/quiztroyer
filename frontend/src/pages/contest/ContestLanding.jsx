@@ -251,6 +251,8 @@ function SectionHeader({ label, count, countLabel, accent }) {
 export default function ContestLanding() {
   const [s, setS] = useState(DEFAULT);
   const open      = isRegistrationOpen();
+  const [gpuInfo, setGpuInfo] = useState(null);
+  const isMobile = window.innerWidth < 640;
 
   useEffect(() => {
     fetch(`${API}/api/contest/settings`, { cache: 'no-store' })
@@ -259,7 +261,25 @@ export default function ContestLanding() {
       .catch((err) => console.warn('[contest-settings]', err));
   }, []);
 
-  const [datesIn,  setDatesIn]  = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) return;
+        const ext = gl.getExtension('WEBGL_debug_renderer_info');
+        if (!ext) return;
+        const raw = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL);
+        const angleMatch = raw.match(/ANGLE \((.+?)(?:\s+Direct3D|\s+OpenGL|\s+Metal|\s+Vulkan)/i);
+        const name = angleMatch ? angleMatch[1].trim() : raw;
+        if (/mozilla|swiftshader/i.test(name)) return;
+        const worthy = /(rtx\s*4080|rtx\s*4090|rtx\s*5060\s*ti|rtx\s*507|rtx\s*508|rtx\s*5090)/i.test(name);
+        setGpuInfo({ name, worthy });
+      } catch {}
+    }, 2200);
+    return () => clearTimeout(timer);
+  }, []);
+
   const [dateSeq,  setDateSeq]  = useState(-1);
   const [stepsIn,  setStepsIn]  = useState(false);
   const [stepTick, setStepTick] = useState(0);
@@ -291,16 +311,18 @@ export default function ContestLanding() {
           <GalaxyCanvas accent={accent} />
         </motion.div>
 
-        {/* Spotlight — sweeps across the hero text like a theater light */}
-        <motion.div
-          animate={{ left: ['-10%', '60%', '110%', '-10%'] }}
-          transition={{ duration: 9, repeat: Infinity, ease: [0.4, 0, 0.6, 1], times: [0, 0.38, 0.62, 1], repeatDelay: 1.2 }}
-          style={{
-            position: 'absolute', top: '-20%', width: '80%', bottom: '-20%',
-            background: `radial-gradient(ellipse 55% 65% at 40% 50%, ${accent}2e 0%, ${accent}10 38%, transparent 68%)`,
-            pointerEvents: 'none', zIndex: 1,
-          }}
-        />
+        {/* Spotlight — sweeps across the hero text (desktop only) */}
+        {!isMobile && (
+          <motion.div
+            animate={{ left: ['-10%', '60%', '110%', '-10%'] }}
+            transition={{ duration: 9, repeat: Infinity, ease: [0.4, 0, 0.6, 1], times: [0, 0.38, 0.62, 1], repeatDelay: 1.2 }}
+            style={{
+              position: 'absolute', top: '-20%', width: '80%', bottom: '-20%',
+              background: `radial-gradient(ellipse 55% 65% at 40% 50%, ${accent}2e 0%, ${accent}10 38%, transparent 68%)`,
+              pointerEvents: 'none', zIndex: 1,
+            }}
+          />
+        )}
 
         {/* Tactical HUD — top-left (live terminal feed) */}
         <div className="gaming-flicker" style={{
@@ -333,6 +355,33 @@ export default function ContestLanding() {
             </div>
           </div>
         </div>
+
+        {/* Tactical HUD — bottom-left (GPU scan easter egg) */}
+        {gpuInfo && (
+          <div className="gaming-flicker" style={{
+            position: 'absolute', bottom: '22px', left: '22px', zIndex: 5,
+            pointerEvents: 'none', fontFamily: 'monospace',
+          }}>
+            <div style={{ borderLeft: `2px solid ${gpuInfo.worthy ? accent : '#e61f30'}77`, paddingLeft: '10px' }}>
+              <div style={{ fontSize: '0.5rem', letterSpacing: '0.14em', lineHeight: 1.9 }}>
+                <div style={{ color: `${accent}66` }}>
+                  GPU&nbsp;<span style={{ color: gpuInfo.worthy ? accent : '#e61f30' }}>
+                    <TerminalText text={gpuInfo.name} speed={28} started={true} />
+                  </span>
+                </div>
+                {!gpuInfo.worthy && (
+                  <motion.div
+                    animate={{ opacity: [1, 0.25, 1] }}
+                    transition={{ duration: 0.75, repeat: Infinity }}
+                    style={{ color: '#e61f30', letterSpacing: '0.1em' }}
+                  >
+                    ⚠ GPU ANTIGUO · TE TOCA ACTUALIZAR
+                  </motion.div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Optional hero BG image overlay */}
         {s.imagenHero && (
@@ -386,13 +435,12 @@ export default function ContestLanding() {
                 return (
                   <motion.span
                     key={i}
-                    initial={{ opacity: 0, scale: 0.3, filter: 'blur(10px)' }}
-                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                    transition={{
-                      duration: 0.9,
-                      delay: i * 0.18,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
+                    initial={isMobile ? { opacity: 0 } : { opacity: 0, scale: 0.3, filter: 'blur(10px)' }}
+                    animate={isMobile ? { opacity: 1 } : { opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                    transition={isMobile
+                      ? { duration: 0.35, delay: i * 0.07, ease: 'easeOut' }
+                      : { duration: 0.9, delay: i * 0.18, ease: [0.16, 1, 0.3, 1] }
+                    }
                     style={{ display: 'inline-block', marginRight: isAccent ? 0 : '0.25em' }}
                   >
                     {isAccent ? (
@@ -415,8 +463,8 @@ export default function ContestLanding() {
               })}
             </h1>
 
-            {/* Glitch layers delayed until title finishes animating */}
-            <motion.div
+            {/* Glitch layers (desktop only) */}
+            {!isMobile && <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: titleWords.length * 0.18 + 0.5, duration: 1 }}
@@ -455,7 +503,7 @@ export default function ContestLanding() {
               >
                 {titleMain && <>{titleMain} </>}<span>{titleAccent}</span>
               </motion.div>
-            </motion.div>
+            </motion.div>}
           </div>
 
           {s.subtitulo && (
@@ -568,7 +616,7 @@ export default function ContestLanding() {
       {/* ══════════ FECHAS ════════════════════════════════════════════ */}
       {/* seq: 0=label0  1=label1  2=label2  3=date0  4=date1  5=date2 */}
       <motion.div
-        onViewportEnter={() => { setDatesIn(true); setDateSeq(0); }}
+        onViewportEnter={() => setDateSeq(0)}
         viewport={{ once: true }}
         style={{
           marginTop: '24px',
