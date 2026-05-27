@@ -241,7 +241,7 @@ function SectionHeader({ label, count, countLabel, accent }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '52px' }}>
       <div style={{ width: '3px', height: '18px', background: accent, flexShrink: 0 }} />
       <span style={{ color: `${accent}99`, fontFamily: 'monospace', fontSize: '0.65rem', letterSpacing: '0.08em' }}>//</span>
-      <span style={{ color: '#e2e8f0', fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.28em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+      <span className="gaming-flicker" style={{ color: '#e2e8f0', fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.28em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
         {label}
       </span>
       <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, rgba(255,255,255,0.1), transparent)' }} />
