@@ -247,6 +247,82 @@ function SectionHeader({ label, count, countLabel, accent }) {
   );
 }
 
+/* ── Bottom-right system recon HUD ──────────────────────────────── */
+function SysInfoHud({ accent }) {
+  const [rows, setRows] = useState([]);
+
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    let os = 'UNKNOWN';
+    if      (/Windows NT 10/i.test(ua))      os = 'WIN 10/11';
+    else if (/Windows NT/i.test(ua))         os = 'WINDOWS';
+    else if (/Mac OS X/i.test(ua))           os = 'MACOS';
+    else if (/Android/i.test(ua))            os = 'ANDROID';
+    else if (/iPhone|iPad/i.test(ua))        os = 'IOS';
+    else if (/Linux/i.test(ua))              os = 'LINUX';
+
+    const ram    = navigator.deviceMemory   ? `${navigator.deviceMemory} GB`          : null;
+    const cores  = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} THREADS` : null;
+    const res    = `${screen.width}×${screen.height}`;
+    const depth  = `${screen.colorDepth}BIT`;
+    const touch  = navigator.maxTouchPoints > 0 ? 'TOUCH' : 'MOUSE';
+    const tz     = Intl.DateTimeFormat().resolvedOptions().timeZone.split('/').pop().replace(/_/g, ' ');
+    const conn   = navigator.connection?.effectiveType?.toUpperCase() ?? null;
+
+    const base = [
+      { label: 'OS',  value: os },
+      ...(ram   ? [{ label: 'RAM',  value: ram   }] : []),
+      ...(cores ? [{ label: 'CPU',  value: cores }] : []),
+      { label: 'RES',  value: res   },
+      { label: 'CLR',  value: depth },
+      { label: 'INP',  value: touch },
+      { label: 'TZ',   value: tz    },
+      ...(conn  ? [{ label: 'NET',  value: conn  }] : []),
+    ];
+
+    // Reveal rows one by one with stagger
+    base.forEach((row, i) => {
+      setTimeout(() => setRows((prev) => [...prev, row]), 300 + i * 220);
+    });
+
+    // Battery async — push when available
+    if (navigator.getBattery) {
+      navigator.getBattery().then((bat) => {
+        const update = () => {
+          const pct  = Math.round(bat.level * 100);
+          const icon = bat.charging ? '⚡' : pct < 20 ? '▼' : '';
+          setRows((prev) => {
+            const next = prev.filter((r) => r.label !== 'BAT');
+            return [...next, { label: 'BAT', value: `${icon}${pct}%` }];
+          });
+        };
+        update();
+        bat.addEventListener('levelchange', update);
+        bat.addEventListener('chargingchange', update);
+      }).catch(() => {});
+    }
+  }, []);
+
+  if (rows.length === 0) return null;
+
+  return (
+    <div className="gaming-flicker" style={{
+      position: 'absolute', bottom: '22px', right: '22px', zIndex: 5,
+      pointerEvents: 'none', fontFamily: 'monospace', textAlign: 'right',
+    }}>
+      <div style={{ borderRight: `2px solid ${accent}66`, paddingRight: '10px' }}>
+        {rows.map((row) => (
+          <div key={row.label} style={{ fontSize: '0.48rem', letterSpacing: '0.12em', lineHeight: 1.85, color: `${accent}44` }}>
+            {row.label}&nbsp;<span style={{ color: accent }}>
+              <TerminalText text={row.value} speed={26} started={true} />
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ── GPU terminal cycling sequence ───────────────────────────────── */
 function GpuTerminal({ gpuName, worthy, accent }) {
   const [lines, setLines] = useState([]);
@@ -417,6 +493,9 @@ export default function ContestLanding() {
 
         {/* Tactical HUD — bottom-left (GPU terminal easter egg) */}
         {gpuInfo && <GpuTerminal gpuName={gpuInfo.name} worthy={gpuInfo.worthy} accent={accent} />}
+
+        {/* Tactical HUD — bottom-right (system recon) */}
+        <SysInfoHud accent={accent} />
 
         {/* Optional hero BG image overlay */}
         {s.imagenHero && (
