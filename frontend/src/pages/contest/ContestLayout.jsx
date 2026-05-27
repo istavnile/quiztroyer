@@ -342,7 +342,7 @@ const BASE = '/concursos/el-gran-upgrade';
 const API  = import.meta.env.VITE_API_URL || '';
 
 const DEFAULT_SETTINGS = {
-  titulo: 'El Gran Upgrade',
+  titulo: 'El Upgrade de lo que realmente importa.',
   patrocinadores: [
     { nombre: 'NVIDIA',       logoUrl: '', color: '#76B900' },
     { nombre: 'ASUS ROG',     logoUrl: '', color: '#e61f30' },

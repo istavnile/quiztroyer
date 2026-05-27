@@ -11,9 +11,9 @@ const prisma = new PrismaClient();
 
 const DEFAULT_SETTINGS = {
   // Hero
-  titulo: 'El Gran Upgrade',
+  titulo: 'El Upgrade de lo que realmente importa.',
   tituloVw: 7,
-  subtitulo: 'Muéstranos tu PC y cuéntanos tu historia. Los mejores setups ganarán un upgrade épico con hardware NVIDIA y ASUS ROG.',
+  subtitulo: 'Muéstranos tu PC y cuéntanos tu historia. ¡El mejor setup ganará un upgrade épico!',
   badge: 'CONCURSO PATROCINADO POR NVIDIA · ASUS ROG · COMPUTERSHOP',
   imagenHero: '',
 
