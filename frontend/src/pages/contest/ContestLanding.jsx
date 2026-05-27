@@ -317,66 +317,91 @@ export default function ContestLanding() {
 
           {/* Glitch title */}
           <div style={{ position: 'relative', display: 'inline-block', marginBottom: '1.5rem' }}>
-            <motion.h1
-              initial={{ opacity: 0, y: 22 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+            <h1
               style={{ fontSize: `clamp(2rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em', margin: 0 }}
             >
-              {titleMain && <>{titleMain} </>}
-              <motion.span
-                animate={{ textShadow: [
-                  `0 0 40px ${accent}55, 0 0 80px ${accent}1a`,
-                  `0 0 70px ${accent}99, 0 0 140px ${accent}33`,
-                  `0 0 40px ${accent}55, 0 0 80px ${accent}1a`,
-                ] }}
-                transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-                style={{ color: accent }}
+              {titleWords.map((word, i) => {
+                const isAccent = i === titleWords.length - 1;
+                return (
+                  <motion.span
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.3, filter: 'blur(10px)' }}
+                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                    transition={{
+                      duration: 0.9,
+                      delay: i * 0.18,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    style={{ display: 'inline-block', marginRight: isAccent ? 0 : '0.25em' }}
+                  >
+                    {isAccent ? (
+                      <motion.span
+                        animate={{ textShadow: [
+                          `0 0 40px ${accent}55, 0 0 80px ${accent}1a`,
+                          `0 0 70px ${accent}99, 0 0 140px ${accent}33`,
+                          `0 0 40px ${accent}55, 0 0 80px ${accent}1a`,
+                        ] }}
+                        transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+                        style={{ color: accent }}
+                      >
+                        {word}
+                      </motion.span>
+                    ) : (
+                      word
+                    )}
+                  </motion.span>
+                );
+              })}
+            </h1>
+
+            {/* Glitch layers delayed until title finishes animating */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: titleWords.length * 0.18 + 0.5, duration: 1 }}
+              style={{ position: 'absolute', inset: 0, pointerEvents: 'none', userSelect: 'none' }}
+            >
+              {/* Glitch layer R */}
+              <motion.div aria-hidden="true"
+                animate={{
+                  opacity:  [0, 0, 0.82, 0.1, 0.75, 0],
+                  x:        [0, 0, -9,   2,   -6,   0],
+                  clipPath: ['inset(35% 0 45% 0)', 'inset(35% 0 45% 0)', 'inset(12% 0 58% 0)', 'inset(55% 0 22% 0)', 'inset(28% 0 40% 0)', 'inset(0% 0 0% 0)'],
+                }}
+                transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 1.2, times: [0, 0.52, 0.57, 0.61, 0.65, 0.70] }}
+                style={{
+                  position: 'absolute', inset: 0,
+                  fontSize: `clamp(2rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
+                  color: '#e61f30',
+                }}
               >
-                {titleAccent}
-              </motion.span>
-            </motion.h1>
+                {titleMain && <>{titleMain} </>}<span>{titleAccent}</span>
+              </motion.div>
 
-            {/* Glitch layer R */}
-            <motion.div aria-hidden="true"
-              animate={{
-                opacity:  [0, 0, 0.82, 0.1, 0.75, 0],
-                x:        [0, 0, -9,   2,   -6,   0],
-                clipPath: ['inset(35% 0 45% 0)', 'inset(35% 0 45% 0)', 'inset(12% 0 58% 0)', 'inset(55% 0 22% 0)', 'inset(28% 0 40% 0)', 'inset(0% 0 0% 0)'],
-              }}
-              transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 1.2, times: [0, 0.52, 0.57, 0.61, 0.65, 0.70] }}
-              style={{
-                position: 'absolute', inset: 0, pointerEvents: 'none', userSelect: 'none',
-                fontSize: `clamp(2rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
-                color: '#e61f30',
-              }}
-            >
-              {titleMain && <>{titleMain} </>}<span>{titleAccent}</span>
-            </motion.div>
-
-            {/* Glitch layer C */}
-            <motion.div aria-hidden="true"
-              animate={{
-                opacity:  [0, 0, 0.70, 0.08, 0.60, 0],
-                x:        [0, 0,  10,  -3,    7,   0],
-                clipPath: ['inset(62% 0 15% 0)', 'inset(62% 0 15% 0)', 'inset(70% 0 2% 0)', 'inset(40% 0 35% 0)', 'inset(58% 0 10% 0)', 'inset(0% 0 0% 0)'],
-              }}
-              transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 1.2, delay: 0.07, times: [0, 0.52, 0.57, 0.61, 0.65, 0.70] }}
-              style={{
-                position: 'absolute', inset: 0, pointerEvents: 'none', userSelect: 'none',
-                fontSize: `clamp(2rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
-                color: '#00cfff',
-              }}
-            >
-              {titleMain && <>{titleMain} </>}<span>{titleAccent}</span>
+              {/* Glitch layer C */}
+              <motion.div aria-hidden="true"
+                animate={{
+                  opacity:  [0, 0, 0.70, 0.08, 0.60, 0],
+                  x:        [0, 0,  10,  -3,    7,   0],
+                  clipPath: ['inset(62% 0 15% 0)', 'inset(62% 0 15% 0)', 'inset(70% 0 2% 0)', 'inset(40% 0 35% 0)', 'inset(58% 0 10% 0)', 'inset(0% 0 0% 0)'],
+                }}
+                transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 1.2, delay: 0.07, times: [0, 0.52, 0.57, 0.61, 0.65, 0.70] }}
+                style={{
+                  position: 'absolute', inset: 0,
+                  fontSize: `clamp(2rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
+                  color: '#00cfff',
+                }}
+              >
+                {titleMain && <>{titleMain} </>}<span>{titleAccent}</span>
+              </motion.div>
             </motion.div>
           </div>
 
           {s.subtitulo && (
             <motion.p
-              initial={{ opacity: 0, y: 14 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15, duration: 0.6 }}
+              transition={{ delay: titleWords.length * 0.18 + 0.3, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
               style={{ color: '#cbd5e1', fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto 2.5rem', lineHeight: 1.75 }}
               dangerouslySetInnerHTML={{ __html: s.subtitulo }}
             />
