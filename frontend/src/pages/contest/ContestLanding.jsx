@@ -260,7 +260,7 @@ export default function ContestLanding() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 2.5, delay: 0.8 }}
-          style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none', maskImage: 'radial-gradient(ellipse 75% 90% at 50% 50%, black 30%, transparent 80%)', WebkitMaskImage: 'radial-gradient(ellipse 75% 90% at 50% 50%, black 30%, transparent 80%)' }}
+          style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none', maskImage: 'radial-gradient(ellipse 52% 62% at 50% 50%, black 10%, transparent 88%)', WebkitMaskImage: 'radial-gradient(ellipse 52% 62% at 50% 50%, black 10%, transparent 88%)' }}
         >
           <GalaxyCanvas accent={accent} />
         </motion.div>
