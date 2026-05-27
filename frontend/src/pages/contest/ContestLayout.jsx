@@ -3,13 +3,15 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function GamingCursor({ accent = '#76B900' }) {
-  const wrapRef  = useRef(null);
-  const svgRef   = useRef(null);
-  const coordRef = useRef(null);
+  const wrapRef      = useRef(null);
+  const svgRef       = useRef(null);
+  const crosshairRef = useRef(null);
+  const coordRef     = useRef(null);
 
   useEffect(() => {
-    const wrap = wrapRef.current;
-    const svg  = svgRef.current;
+    const wrap      = wrapRef.current;
+    const svg       = svgRef.current;
+    const crosshair = crosshairRef.current;
     if (!wrap) return;
 
     let hovering = false;
@@ -23,11 +25,16 @@ function GamingCursor({ accent = '#76B900' }) {
       const hit = !!e.target.closest('a, button, [role="button"], input, select, textarea');
       if (hit === hovering) return;
       hovering = hit;
-      if (!svg) return;
-      svg.style.transform = hit ? 'scale(1.7)' : 'scale(1)';
-      svg.style.filter    = hit
-        ? `drop-shadow(0 0 6px ${accent}) drop-shadow(0 0 14px ${accent}88)`
-        : 'none';
+      if (svg) {
+        svg.style.filter = hit
+          ? `drop-shadow(0 0 6px ${accent}) drop-shadow(0 0 14px ${accent}88)`
+          : 'none';
+      }
+      if (crosshair) {
+        crosshair.style.animation = 'none';
+        void crosshair.offsetHeight; // force reflow to restart animation
+        crosshair.style.animation = hit ? 'ch-lock 0.4s ease-out forwards' : 'ch-return 0.22s ease-out forwards';
+      }
     };
 
     window.addEventListener('mousemove', onMove, { passive: true });
@@ -56,11 +63,14 @@ function GamingCursor({ accent = '#76B900' }) {
         <line x1="4" y1="36" x2="4"  y2="30" stroke={accent} strokeWidth="1" opacity="0.45" />
         <line x1="36" y1="36" x2="30" y2="36" stroke={accent} strokeWidth="1" opacity="0.45" />
         <line x1="36" y1="36" x2="36" y2="30" stroke={accent} strokeWidth="1" opacity="0.45" />
-        <line x1="20" y1="4"  x2="20" y2="14" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="20" y1="26" x2="20" y2="36" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="4"  y1="20" x2="14" y2="20" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="26" y1="20" x2="36" y2="20" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="20" cy="20" r="1.5" fill={accent} />
+        {/* Center crosshair — lock-on animation on hover */}
+        <g ref={crosshairRef} style={{ transformOrigin: '20px 20px', transformBox: 'fill-box' }}>
+          <line x1="20" y1="4"  x2="20" y2="14" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="20" y1="26" x2="20" y2="36" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="4"  y1="20" x2="14" y2="20" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="26" y1="20" x2="36" y2="20" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="20" cy="20" r="1.5" fill={accent} />
+        </g>
       </svg>
       <motion.div
         animate={{ rotate: 360 }}
@@ -407,11 +417,29 @@ export default function ContestLayout({ children }) {
 
   return (
     <div
-      style={{ background: '#06070e', minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif', display: 'flex', flexDirection: 'column', cursor: 'none' }}
+      style={{
+        background: '#06070e',
+        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.15) 2px, rgba(0,0,0,.15) 4px)',
+        backgroundAttachment: 'fixed',
+        minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif', display: 'flex', flexDirection: 'column', cursor: 'none',
+      }}
       className="text-white"
     >
       {/* Force cursor:none on all interactive elements — prevents browser pointer showing on links/buttons */}
-      <style>{`a, button, input, select, textarea, label, [role="button"] { cursor: none !important; }`}</style>
+      <style>{`
+        a, button, input, select, textarea, label, [role="button"] { cursor: none !important; }
+        @keyframes ch-lock {
+          0%   { transform: scale(1);    }
+          30%  { transform: scale(1.65); }
+          58%  { transform: scale(0.68); }
+          76%  { transform: scale(0.88); }
+          100% { transform: scale(0.80); }
+        }
+        @keyframes ch-return {
+          from { transform: scale(0.80); }
+          to   { transform: scale(1);    }
+        }
+      `}</style>
 
       <GamingCursor accent={accentColor} />
 
@@ -437,13 +465,6 @@ export default function ContestLayout({ children }) {
         }}
       />
 
-      {/* Scanlines */}
-      <div
-        style={{
-          position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 2,
-          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.13) 2px, rgba(0,0,0,.13) 4px)',
-        }}
-      />
 
       {/* Header — hide on scroll down, show on scroll up */}
       <motion.header
