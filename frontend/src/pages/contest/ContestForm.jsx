@@ -57,8 +57,42 @@ function getGridSpan(ancho) {
 }
 
 // ─── Estilos base ─────────────────────────────────────────────────────────────
+const FORM_CSS = `
+  .cf-form input:not([type=checkbox]):not([type=radio]):not([type=file]),
+  .cf-form select,
+  .cf-form textarea {
+    border-color: rgba(118,185,0,0.35) !important;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .cf-form input:not([type=checkbox]):not([type=radio]):not([type=file]):focus,
+  .cf-form select:focus,
+  .cf-form textarea:focus {
+    border-color: #76B900 !important;
+    box-shadow: 0 0 0 3px rgba(118,185,0,0.13);
+    outline: none;
+  }
+  @keyframes cf-glow {
+    0%, 100% { box-shadow: 0 0 14px rgba(118,185,0,0.45), 0 0 30px rgba(118,185,0,0.2); }
+    50%       { box-shadow: 0 0 24px rgba(118,185,0,0.8),  0 0 50px rgba(118,185,0,0.38); }
+  }
+  .cf-submit {
+    animation: cf-glow 2.6s ease-in-out infinite;
+    transition: transform .15s ease, filter .15s ease !important;
+  }
+  .cf-submit:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.006);
+    filter: brightness(1.13);
+  }
+  .cf-submit:active:not(:disabled) {
+    transform: translateY(0) scale(0.998);
+    filter: brightness(0.94);
+    animation: none;
+    box-shadow: 0 0 8px rgba(118,185,0,0.35);
+  }
+`;
+
 const inputStyle = {
-  width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid #374151',
+  width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(118,185,0,0.35)',
   borderRadius: '6px', padding: '10px 14px', color: '#fff', fontSize: '0.9rem',
   outline: 'none', boxSizing: 'border-box',
 };
@@ -389,6 +423,7 @@ function FormContent({ campos, settings, isPreview }) {
 
   return (
     <div style={{ maxWidth: '820px', margin: '0 auto' }}>
+      <style>{FORM_CSS}</style>
       {isPreview && (
         <div style={{
           background: 'rgba(250,204,21,0.1)', border: '1px solid #ca8a04',
@@ -416,7 +451,7 @@ function FormContent({ campos, settings, isPreview }) {
         />
       </motion.div>
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="cf-form">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '20px 24px' }}>
           {campos.map((campo) => (
             <DynamicField
@@ -460,13 +495,13 @@ function FormContent({ campos, settings, isPreview }) {
             <button
               type="submit"
               disabled={submitState === 'loading'}
+              className={submitState === 'loading' ? '' : 'cf-submit'}
               style={{
                 width: '100%',
                 background: submitState === 'loading' ? '#4a7400' : '#76B900',
-                color: '#000', fontWeight: 800, padding: '16px', borderRadius: '6px',
+                color: '#000', fontWeight: 800, padding: '16px', borderRadius: '8px',
                 fontSize: '1.05rem', border: 'none',
                 cursor: submitState === 'loading' ? 'not-allowed' : 'pointer',
-                transition: 'background .2s',
               }}
             >
               {submitState === 'loading' ? 'Enviando...' : 'Enviar inscripción'}

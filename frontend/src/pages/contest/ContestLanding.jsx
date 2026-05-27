@@ -517,11 +517,11 @@ export default function ContestLanding() {
           </div>
         </div>
 
-        {/* Tactical HUD — bottom-left (GPU terminal easter egg) */}
-        {gpuInfo && <GpuTerminal gpuName={gpuInfo.name} worthy={gpuInfo.worthy} accent={accent} />}
+        {/* Tactical HUD — bottom-left (GPU terminal easter egg) — desktop only */}
+        {!isMobile && gpuInfo && <GpuTerminal gpuName={gpuInfo.name} worthy={gpuInfo.worthy} accent={accent} />}
 
-        {/* Tactical HUD — bottom-right (system recon) */}
-        <SysInfoHud accent={accent} />
+        {/* Tactical HUD — bottom-right (system recon) — desktop only */}
+        {!isMobile && <SysInfoHud accent={accent} />}
 
         {/* Optional hero BG image overlay */}
         {s.imagenHero && (
@@ -765,7 +765,9 @@ export default function ContestLanding() {
           background: 'rgba(0,0,0,0.35)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
-          display: 'flex', justifyContent: 'center', alignItems: 'center',
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          justifyContent: 'center', alignItems: 'center',
         }}
       >
         {[
@@ -786,7 +788,14 @@ export default function ContestLanding() {
                 filter: `drop-shadow(0 0 10px ${color}55)`,
               }}
               transition={{ delay: i * 0.08, duration: 0.3 }}
-              style={{ padding: '16px 40px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.08)' : 'none', cursor: 'default' }}
+              style={{
+                padding: isMobile ? '14px 24px' : '16px 40px',
+                textAlign: 'center',
+                borderRight: !isMobile && i < 2 ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                borderBottom: isMobile && i < 2 ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                width: isMobile ? '100%' : 'auto',
+                cursor: 'default',
+              }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '6px' }}>
                 {live ? (

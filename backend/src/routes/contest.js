@@ -63,7 +63,7 @@ const DEFAULT_SETTINGS = {
     { id: 'nombre',    tipo: 'text',  label: 'Nombre completo',      placeholder: 'Tu nombre',            requerido: true,  ancho: 'half',  sistema: true },
     { id: 'email',     tipo: 'email', label: 'Correo electrónico',   placeholder: 'correo@ejemplo.com',   requerido: true,  ancho: 'half',  sistema: true },
     { id: 'telefono',  tipo: 'tel',   label: 'Teléfono',             placeholder: '+502 0000-0000',       requerido: true,  ancho: 'half',  sistema: true },
-    { id: 'procesador', tipo: 'select', label: 'Procesador', placeholder: 'Selecciona...', requerido: true, ancho: 'third', sistema: true,
+    { id: 'procesador', tipo: 'select', label: 'Procesador', placeholder: 'Selecciona...', requerido: true, ancho: 'half', sistema: true,
       opciones: [
         { valor: 'INTEL_I3_10A_14A', etiqueta: 'Intel Core i3 (10ª–14ª Gen)' },
         { valor: 'INTEL_I5_10A_14A', etiqueta: 'Intel Core i5 (10ª–14ª Gen)' },
@@ -76,7 +76,7 @@ const DEFAULT_SETTINGS = {
         { valor: 'OTRO', etiqueta: 'Otro' },
       ],
     },
-    { id: 'graficaActual', tipo: 'select', label: 'Gráfica actual', placeholder: 'Selecciona...', requerido: true, ancho: 'third', sistema: true,
+    { id: 'graficaActual', tipo: 'select', label: 'Gráfica actual', placeholder: 'Selecciona...', requerido: true, ancho: 'half', sistema: true,
       opciones: [
         { valor: 'GTX_10_SERIES', etiqueta: 'NVIDIA GeForce GTX 10 Series (1060/1070/1080)' },
         { valor: 'GTX_16_SERIES', etiqueta: 'NVIDIA GeForce GTX 16 Series (1650/1660)' },
@@ -91,7 +91,7 @@ const DEFAULT_SETTINGS = {
         { valor: 'OTRA',          etiqueta: 'Otra' },
       ],
     },
-    { id: 'fuentePoderWatts', tipo: 'select', label: 'Fuente de poder', placeholder: 'Selecciona...', requerido: true, ancho: 'third', sistema: true,
+    { id: 'fuentePoderWatts', tipo: 'select', label: 'Fuente de poder', placeholder: 'Selecciona...', requerido: true, ancho: 'half', sistema: true,
       opciones: [
         { valor: 'MENOS_500W', etiqueta: 'Menos de 500W' },
         { valor: 'W500_649',   etiqueta: '500W – 649W' },
