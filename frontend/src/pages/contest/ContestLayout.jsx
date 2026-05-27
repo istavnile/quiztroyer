@@ -523,13 +523,13 @@ export default function ContestLayout({ children }) {
               </div>
             )}
 
-            {/* Campaign title */}
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.04em' }}>
+            {/* Campaign title — hidden on mobile */}
+            <span className="hidden sm:inline" style={{ color: '#fff', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.04em' }}>
               {titulo}
             </span>
           </Link>
 
-          <nav className="flex gap-4 text-sm font-medium">
+          <nav className="flex gap-0 sm:gap-4 text-sm font-medium">
             <NavLink to={BASE}                      active={pathname === BASE}                     accent={accentColor} icon="⌂">Inicio</NavLink>
             <NavLink to={`${BASE}/inscripcion`}     active={pathname.includes('/inscripcion')}     accent={accentColor} icon="✎">Inscripción</NavLink>
             <NavLink to={`${BASE}/votacion`}        active={pathname.includes('/votacion')}        accent={accentColor} icon="⊙">Votación</NavLink>
@@ -589,7 +589,7 @@ export default function ContestLayout({ children }) {
       {/* Footer */}
       <footer
         style={{ borderTop: '1px solid #1a1a1a', background: '#050505' }}
-        className="mt-20 py-8 text-center text-xs text-gray-600"
+        className="mt-20 py-6 text-center text-xs text-gray-600 px-4"
       >
         <p>
           Concurso organizado por{' '}
@@ -600,14 +600,18 @@ export default function ContestLayout({ children }) {
             </span>
           ))}
         </p>
-        <p className="mt-1">
-          Inscripciones del{' '}
-          <strong className="text-white">{settings.textoFechaApertura}</strong>
-          {' '}al{' '}
-          <strong className="text-white">{settings.textoFechaCierre}</strong>
-          {' '}&nbsp;·&nbsp;{' '}
-          Gran Final en vivo:{' '}
-          <strong className="text-white">{settings.textoFechaFinal}</strong>
+        <p className="mt-2 flex flex-col sm:block items-center gap-1 leading-relaxed">
+          <span>
+            Inscripciones del{' '}
+            <strong className="text-white">{settings.textoFechaApertura}</strong>
+            {' '}al{' '}
+            <strong className="text-white">{settings.textoFechaCierre}</strong>
+          </span>
+          <span className="hidden sm:inline">&nbsp;·&nbsp;</span>
+          <span>
+            Gran Final en vivo:{' '}
+            <strong className="text-white">{settings.textoFechaFinal}</strong>
+          </span>
         </p>
       </footer>
     </div>
@@ -634,8 +638,8 @@ function NavLink({ to, children, active, accent, icon }) {
       }} />
 
       <div style={{ padding: '8px 10px 7px', display: 'flex', alignItems: 'center', gap: '5px', position: 'relative' }}>
-        {/* // prefix — only on active */}
-        <span style={{
+        {/* // prefix — only on active, hidden on mobile */}
+        <span className="hidden sm:inline" style={{
           fontFamily: 'monospace', fontSize: '0.55rem',
           color: `${accent}66`, lineHeight: 1,
           opacity: active ? 1 : 0, transition: 'opacity 0.2s',
@@ -644,14 +648,15 @@ function NavLink({ to, children, active, accent, icon }) {
 
         {icon && (
           <span style={{
-            fontSize: '0.75rem', lineHeight: 1,
+            fontSize: '1rem', lineHeight: 1,
             color: lit ? accent : '#374151',
             filter: lit ? `drop-shadow(0 0 5px ${accent}99)` : 'none',
             transition: 'color 0.15s, filter 0.15s',
           }}>{icon}</span>
         )}
 
-        <span style={{
+        {/* Label — hidden on mobile, icon is sufficient */}
+        <span className="hidden sm:inline" style={{
           fontSize: '0.68rem', fontWeight: 800,
           letterSpacing: '0.16em', textTransform: 'uppercase',
           fontFamily: 'monospace',

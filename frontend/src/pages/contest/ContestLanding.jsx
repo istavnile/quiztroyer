@@ -33,6 +33,11 @@ const DEFAULT = {
 const STEP_COLORS = ['#76B900', '#e61f30', '#facc15'];
 
 const GAMING_CSS = `
+  @media (max-width: 640px) {
+    .steps-grid    { grid-template-columns: 1fr !important; }
+    .steps-connector { display: none !important; }
+    .step-item     { padding: 0 0 20px 0 !important; }
+  }
   @keyframes pulse-ring {
     0%   { transform: scale(1);   opacity: 0.9; }
     100% { transform: scale(3);   opacity: 0; }
@@ -631,7 +636,7 @@ export default function ContestLanding() {
         >
           <SectionHeader label="Cómo participar" count={s.pasos.length} countLabel="pasos" accent={accent} />
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', position: 'relative' }}>
+          <div className="steps-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', position: 'relative' }}>
 
             {/* Sequential connector segments */}
             {[0, 1].map((seg) => {
@@ -639,6 +644,7 @@ export default function ContestLanding() {
               return (
                 <motion.div
                   key={seg}
+                  className="steps-connector"
                   animate={{
                     opacity: segActive ? [0.25, 1, 0.25] : 0.12,
                     boxShadow: segActive
@@ -667,6 +673,7 @@ export default function ContestLanding() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.55, delay: i * 0.14 }}
+                  className="step-item"
                   style={{ padding: i === 0 ? '0 32px 0 0' : '0 32px 0 32px', position: 'relative', paddingBottom: '24px', display: 'flex', flexDirection: 'column' }}
                 >
                   {/* Radar ping on active step */}
