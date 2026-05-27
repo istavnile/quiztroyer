@@ -337,9 +337,9 @@ function SysInfoHud({ accent }) {
   return (
     <div className="gaming-flicker" style={{
       position: 'absolute', bottom: '22px', right: '22px', zIndex: 5,
-      pointerEvents: 'none', fontFamily: 'monospace',
+      pointerEvents: 'none', fontFamily: 'monospace', textAlign: 'right',
     }}>
-      <div style={{ borderLeft: `2px solid ${accent}66`, paddingLeft: '10px' }}>
+      <div style={{ borderRight: `2px solid ${accent}66`, paddingRight: '10px' }}>
         {lines.map((ln) => (
           <div key={ln.k} style={{ fontSize: '0.48rem', letterSpacing: '0.12em', lineHeight: 1.85, color: ln.color || `${accent}55` }}>
             <TerminalText text={ln.text} speed={26} started={true} />
@@ -393,7 +393,7 @@ function GpuTerminal({ gpuName, worthy, accent }) {
   return (
     <div className="gaming-flicker" style={{
       position: 'absolute', bottom: '22px', left: '22px', zIndex: 5,
-      pointerEvents: 'none', fontFamily: 'monospace',
+      pointerEvents: 'none', fontFamily: 'monospace', textAlign: 'left',
     }}>
       <div style={{ borderLeft: `2px solid ${accent}66`, paddingLeft: '10px' }}>
         {lines.map((ln) => (
@@ -489,7 +489,7 @@ export default function ContestLanding() {
         {/* Tactical HUD — top-left (live terminal feed) */}
         <div className="gaming-flicker" style={{
           position: 'absolute', top: '22px', left: '22px', zIndex: 5,
-          pointerEvents: 'none', fontFamily: 'monospace',
+          pointerEvents: 'none', fontFamily: 'monospace', textAlign: 'left',
         }}>
           <div style={{ borderLeft: `2px solid ${accent}77`, paddingLeft: '10px' }}>
             <div style={{ fontSize: '0.5rem', letterSpacing: '0.14em', lineHeight: 1.9, color: `${accent}66` }}>
