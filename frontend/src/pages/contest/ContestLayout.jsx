@@ -417,15 +417,9 @@ export default function ContestLayout({ children }) {
 
   return (
     <div
-      style={{
-        background: '#06070e',
-        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.15) 2px, rgba(0,0,0,.15) 4px)',
-        backgroundAttachment: 'fixed',
-        minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif', display: 'flex', flexDirection: 'column', cursor: 'none',
-      }}
-      className="text-white"
+      style={{ background: '#06070e', minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif', display: 'flex', flexDirection: 'column', cursor: 'none' }}
+      className="qt-contest text-white"
     >
-      {/* Force cursor:none on all interactive elements — prevents browser pointer showing on links/buttons */}
       <style>{`
         a, button, input, select, textarea, label, [role="button"] { cursor: none !important; }
         @keyframes ch-lock {
@@ -438,6 +432,13 @@ export default function ContestLayout({ children }) {
         @keyframes ch-return {
           from { transform: scale(0.80); }
           to   { transform: scale(1);    }
+        }
+        /* Logos, buttons and images float above the scanline overlay */
+        .qt-contest button,
+        .qt-contest [role="button"],
+        .qt-contest img {
+          position: relative;
+          z-index: 3;
         }
       `}</style>
 
@@ -462,6 +463,14 @@ export default function ContestLayout({ children }) {
           position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 2,
           backgroundImage: 'radial-gradient(rgba(255,255,255,0.022) 1px, transparent 1px)',
           backgroundSize: '28px 28px',
+        }}
+      />
+
+      {/* Scanlines — affects background layers; logos/buttons escape via z-index:3 */}
+      <div
+        style={{
+          position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 2,
+          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.13) 2px, rgba(0,0,0,.13) 4px)',
         }}
       />
 

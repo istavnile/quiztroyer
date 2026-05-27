@@ -556,8 +556,14 @@ export default function ContestLanding() {
             <motion.div
               key={label}
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.3 }}
-              style={{ padding: '12px 36px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}
+              whileHover={{
+                background: `${color}0f`,
+                boxShadow: `inset 0 0 28px ${color}18, 0 0 18px ${color}22`,
+                scale: 1.04,
+                filter: `drop-shadow(0 0 10px ${color}55)`,
+              }}
+              transition={{ delay: i * 0.08, duration: 0.3, hover: { duration: 0.14 } }}
+              style={{ padding: '12px 36px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'default' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '4px' }}>
                 {live ? (
