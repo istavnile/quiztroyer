@@ -271,7 +271,8 @@ function GalaxyCanvas({ accent = '#76B900' }) {
     frame();
     return () => { cancelAnimationFrame(raf); ro.disconnect(); };
   }, [accent]);
-  return <canvas ref={ref} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }} />;
+  const mask = 'radial-gradient(ellipse 90% 88% at 50% 46%, black 28%, rgba(0,0,0,0.65) 54%, rgba(0,0,0,0.18) 72%, transparent 88%)';
+  return <canvas ref={ref} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block', maskImage: mask, WebkitMaskImage: mask }} />;
 }
 
 /* ═══════════════════════════════════════════════════════════════════ */
@@ -306,7 +307,7 @@ export default function ContestLanding() {
       <style>{GAMING_CSS}</style>
 
       {/* ══════════ HERO ══════════════════════════════════════════════ */}
-      <section style={{ position: 'relative', padding: '80px 0 56px', overflow: 'hidden', textAlign: 'center' }}>
+      <section style={{ position: 'relative', padding: '80px 0 56px', textAlign: 'center' }}>
 
         {/* Galaxy shader */}
         <GalaxyCanvas accent={accent} />
