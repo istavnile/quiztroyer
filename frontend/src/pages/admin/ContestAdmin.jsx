@@ -419,8 +419,16 @@ function FSel({ label, value, onChange, options }) {
 }
 
 // ─── Tab: Configuración ────────────────────────────────────────────────────────
+const DEFAULT_TECH_TERMS = [
+  'DLSS 3', 'REFLEX', 'RAY TRACING', 'RTX ON', 'TENSOR CORES',
+  'CUDA', 'G-SYNC', 'NVENC', 'FRAME GENERATION', 'ACE', 'BROADCAST',
+  'ADA LOVELACE', 'AMPERE', 'NVLINK', 'AI DENOISING', 'OVERDRIVE',
+  'DEEP LEARNING', 'BLACKWELL', 'GDDR7', 'DLSS 4', 'MULTI FRAME GEN',
+];
+
 const DEFAULTS = {
   titulo: 'El Gran Upgrade', subtitulo: '', badge: '', imagenHero: '',
+  techBgEnabled: true, techBgOpacity: 1.0, techBgTerms: DEFAULT_TECH_TERMS,
   campos: [],
   textoFechaApertura: '1 de junio, 2026', textoFechaCierre: '7 de junio, 23:59', textoFechaFinal: '12 de junio, 2026',
   patrocinadores: [
@@ -689,6 +697,20 @@ function TabConfiguracion() {
               0% = invisible · 100% = máxima intensidad (recomendado 60–80%)
             </div>
           </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '14px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #1f2937' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#e5e7eb' }}>Términos mostrados</span>
+              <span style={{ fontSize: '0.72rem', color: '#4b5563' }}>{(cfg.techBgTerms || DEFAULT_TECH_TERMS).length} términos</span>
+            </div>
+            <textarea
+              value={(cfg.techBgTerms || DEFAULT_TECH_TERMS).join('\n')}
+              onChange={(e) => set('techBgTerms', e.target.value.split('\n').map((t) => t.trim()).filter(Boolean))}
+              rows={10}
+              style={{ width: '100%', background: '#0d1117', color: '#e5e7eb', border: '1px solid #374151', borderRadius: '6px', padding: '10px', fontFamily: 'monospace', fontSize: '0.82rem', resize: 'vertical', outline: 'none', boxSizing: 'border-box' }}
+              placeholder="Un término por línea..."
+            />
+            <div style={{ fontSize: '0.74rem', color: '#4b5563' }}>Un término por línea. Puedes usar mayúsculas, espacios y números.</div>
+          </div>
         </>)}
 
         {/* FORMULARIO + CAMPOS */}
@@ -735,7 +757,7 @@ function SectionTitle({ children, style }) {
 
 // ─── Página principal ──────────────────────────────────────────────────────────
 export default function ContestAdmin() {
-  const [tab, setTab] = useState('registros');
+  const [tab, setTab] = useState('config');
 
   return (
     <div style={{ background: '#0f172a', minHeight: '100vh', color: '#fff', fontFamily: 'Inter, system-ui, sans-serif' }}>
@@ -749,7 +771,7 @@ export default function ContestAdmin() {
 
       {/* Tabs */}
       <div style={{ borderBottom: '1px solid #1f2937', padding: '0 24px', display: 'flex', gap: '2px' }}>
-        {[['registros', 'Registros'], ['config', 'Configuración de página']].map(([key, label]) => (
+        {[['config', 'Configuración'], ['registros', 'Registros']].map(([key, label]) => (
           <button key={key} onClick={() => setTab(key)} style={{ background: 'none', border: 'none', borderBottom: tab === key ? '2px solid #76B900' : '2px solid transparent', color: tab === key ? '#76B900' : '#6b7280', padding: '12px 18px', cursor: 'pointer', fontWeight: 600, fontSize: '0.88rem', transition: 'color .15s', marginBottom: '-1px' }}>
             {label}
           </button>
@@ -757,8 +779,8 @@ export default function ContestAdmin() {
       </div>
 
       <div style={{ padding: tab === 'config' ? '20px' : '24px' }}>
-        {tab === 'registros' && <TabRegistros />}
         {tab === 'config'    && <TabConfiguracion />}
+        {tab === 'registros' && <TabRegistros />}
       </div>
     </div>
   );

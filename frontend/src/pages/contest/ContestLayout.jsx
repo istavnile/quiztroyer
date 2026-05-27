@@ -283,15 +283,16 @@ const TECH_LAYERS = [
   { blur: 28, opacity: 0.28, minSz: 3.5,  maxSz: 6.5,  dur: 48,  seed: 390, count: 9  },
 ];
 
-function TechBG({ accent = '#76B900', enabled = true, globalOpacity = 1.0 }) {
+function TechBG({ accent = '#76B900', enabled = true, globalOpacity = 1.0, terms }) {
   if (!enabled) return null;
+  const pool = (terms && terms.length > 0) ? terms : TECH_TERMS;
   return (
     <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', userSelect: 'none', pointerEvents: 'none', zIndex: 0 }}>
       {TECH_LAYERS.map((layer, li) => {
         const words = Array.from({ length: layer.count }, (_, i) => {
           const s = layer.seed + i * 23;
           return {
-            text:  TECH_TERMS[Math.floor(_pr(s) * TECH_TERMS.length)],
+            text:  pool[Math.floor(_pr(s) * pool.length)],
             x:     _pr(s * 3 + 1) * 92,
             y:     _pr(s * 7 + 2) * 50,
             size:  layer.minSz + _pr(s * 5 + 3) * (layer.maxSz - layer.minSz),
@@ -407,7 +408,7 @@ export default function ContestLayout({ children }) {
       <CircuitBoardBG accent={accentColor} />
 
       {/* NVIDIA tech terms — full-page blurred depth layer */}
-      <TechBG accent={accentColor} enabled={settings.techBgEnabled !== false} globalOpacity={settings.techBgOpacity ?? 1.0} />
+      <TechBG accent={accentColor} enabled={settings.techBgEnabled !== false} globalOpacity={settings.techBgOpacity ?? 1.0} terms={settings.techBgTerms} />
 
       {/* Ambient top glow — extends well below the hero fold */}
       <div style={{
@@ -511,7 +512,7 @@ export default function ContestLayout({ children }) {
       />
 
       {/* Contenido */}
-      <main className="relative z-10 max-w-6xl mx-auto px-4 py-10" style={{ flex: 1 }}>
+      <main className="relative max-w-6xl mx-auto px-4 py-10" style={{ flex: 1 }}>
         {children}
       </main>
 

@@ -44,6 +44,12 @@ const DEFAULT_SETTINGS = {
   // Fondo de texto técnico NVIDIA
   techBgEnabled: true,
   techBgOpacity: 1.0,
+  techBgTerms: [
+    'DLSS 3', 'REFLEX', 'RAY TRACING', 'RTX ON', 'TENSOR CORES',
+    'CUDA', 'G-SYNC', 'NVENC', 'FRAME GENERATION', 'ACE', 'BROADCAST',
+    'ADA LOVELACE', 'AMPERE', 'NVLINK', 'AI DENOISING', 'OVERDRIVE',
+    'DEEP LEARNING', 'BLACKWELL', 'GDDR7', 'DLSS 4', 'MULTI FRAME GEN',
+  ],
 
   // Formulario — metadatos generales
   tituloFormulario: 'Formulario de inscripción',

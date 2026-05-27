@@ -114,6 +114,12 @@ async function main() {
         ],
         techBgEnabled:           true,
         techBgOpacity:           1.0,
+        techBgTerms: [
+          'DLSS 3', 'REFLEX', 'RAY TRACING', 'RTX ON', 'TENSOR CORES',
+          'CUDA', 'G-SYNC', 'NVENC', 'FRAME GENERATION', 'ACE', 'BROADCAST',
+          'ADA LOVELACE', 'AMPERE', 'NVLINK', 'AI DENOISING', 'OVERDRIVE',
+          'DEEP LEARNING', 'BLACKWELL', 'GDDR7', 'DLSS 4', 'MULTI FRAME GEN',
+        ],
         tituloFormulario:        'Formulario de inscripción',
         instruccionesFormulario: 'Completa todos los campos. Las inscripciones cierran el 7 de junio a las 23:59.',
         campos: [
