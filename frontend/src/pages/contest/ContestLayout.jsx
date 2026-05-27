@@ -17,7 +17,7 @@ function GamingCursor({ accent = '#76B900' }) {
     let hovering = false;
 
     const onMove = (e) => {
-      wrap.style.transform = `translate(${e.clientX - 20}px, ${e.clientY - 20}px)`;
+      wrap.style.transform = `translate3d(${e.clientX - 20}px, ${e.clientY - 20}px, 0)`;
       if (coordRef.current) coordRef.current.textContent = `${e.clientX} ${e.clientY}`;
     };
 
@@ -48,12 +48,12 @@ function GamingCursor({ accent = '#76B900' }) {
   return (
     <div
       ref={wrapRef}
-      style={{ position: 'fixed', left: 0, top: 0, zIndex: 9999, pointerEvents: 'none', transform: 'translate(-300px, -300px)', willChange: 'transform' }}
+      style={{ position: 'fixed', left: 0, top: 0, zIndex: 9999, pointerEvents: 'none', transform: 'translate3d(-300px,-300px,0)', willChange: 'transform' }}
     >
       <svg
         ref={svgRef}
         width="40" height="40" viewBox="0 0 40 40"
-        style={{ display: 'block', transition: 'transform 0.11s ease, filter 0.11s ease', transformOrigin: 'center' }}
+        style={{ display: 'block' }}
       >
         <line x1="4" y1="4" x2="10" y2="4"  stroke={accent} strokeWidth="1" opacity="0.45" />
         <line x1="4" y1="4" x2="4"  y2="10" stroke={accent} strokeWidth="1" opacity="0.45" />
@@ -63,7 +63,6 @@ function GamingCursor({ accent = '#76B900' }) {
         <line x1="4" y1="36" x2="4"  y2="30" stroke={accent} strokeWidth="1" opacity="0.45" />
         <line x1="36" y1="36" x2="30" y2="36" stroke={accent} strokeWidth="1" opacity="0.45" />
         <line x1="36" y1="36" x2="36" y2="30" stroke={accent} strokeWidth="1" opacity="0.45" />
-        {/* Center crosshair — lock-on animation on hover */}
         <g ref={crosshairRef} style={{ transformOrigin: '20px 20px', transformBox: 'fill-box' }}>
           <line x1="20" y1="4"  x2="20" y2="14" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
           <line x1="20" y1="26" x2="20" y2="36" stroke={accent} strokeWidth="1.5" strokeLinecap="round" />
@@ -72,16 +71,9 @@ function GamingCursor({ accent = '#76B900' }) {
           <circle cx="20" cy="20" r="1.5" fill={accent} />
         </g>
       </svg>
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 9, repeat: Infinity, ease: 'linear' }}
-        style={{ position: 'absolute', inset: 5, borderRadius: '50%', border: `1px dashed ${accent}55`, pointerEvents: 'none' }}
-      />
-      <motion.div
-        animate={{ scale: [0.7, 1.4], opacity: [0.55, 0] }}
-        transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut', repeatDelay: 0.6 }}
-        style={{ position: 'absolute', inset: 8, borderRadius: '50%', border: `1px solid ${accent}`, pointerEvents: 'none' }}
-      />
+      {/* Pure CSS — no JS animation loop, zero main-thread overhead */}
+      <div className="cr-spin"  style={{ position: 'absolute', inset: 5,  borderRadius: '50%', border: `1px dashed ${accent}55`, pointerEvents: 'none' }} />
+      <div className="cr-pulse" style={{ position: 'absolute', inset: 8,  borderRadius: '50%', border: `1px solid ${accent}`,    pointerEvents: 'none' }} />
       <span
         ref={coordRef}
         style={{
@@ -433,6 +425,10 @@ export default function ContestLayout({ children }) {
           from { transform: scale(0.80); }
           to   { transform: scale(1);    }
         }
+        @keyframes cr-spin  { to { transform: rotate(360deg); } }
+        @keyframes cr-pulse { 0% { transform: scale(0.7); opacity: 0.55; } 100% { transform: scale(1.4); opacity: 0; } }
+        .cr-spin  { animation: cr-spin  9s linear infinite; }
+        .cr-pulse { animation: cr-pulse 1.6s ease-out 0.6s infinite; }
         /* Logos, buttons and images float above the scanline overlay */
         .qt-contest button,
         .qt-contest [role="button"],

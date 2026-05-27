@@ -139,13 +139,17 @@ router.get('/settings', async (req, res) => {
 function esc(str) {
   return String(str ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+function stripHtml(str) {
+  return String(str ?? '').replace(/<[^>]*>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").trim();
+}
 router.get('/og', async (_req, res) => {
   const s = await readContestSettings();
   const BASE = process.env.PUBLIC_URL || 'https://quiztroyer.istavnile.cloud';
   const title = esc(`${s.titulo || 'El Gran Upgrade'} · Concurso`);
-  const desc  = esc(s.subtitulo || 'Muéstranos tu PC y cuéntanos tu historia. ¡El mejor setup ganará un upgrade épico!');
+  const desc  = esc(stripHtml(s.subtitulo) || 'Muéstranos tu PC y cuéntanos tu historia. ¡El mejor setup ganará un upgrade épico!');
   const badge = esc(s.badge || '');
-  const rawImg = s.imagenHero || `${BASE}/og-image.svg`;
+  // Use imagenHero (uploaded jpg/png) as thumbnail; fall back to generic og-image
+  const rawImg = s.imagenHero && s.imagenHero.trim() ? s.imagenHero.trim() : `${BASE}/og-image.svg`;
   const image = rawImg.startsWith('http') ? esc(rawImg) : esc(`${BASE}${rawImg}`);
   const pageUrl = esc(`${BASE}/concursos/el-gran-upgrade`);
 
