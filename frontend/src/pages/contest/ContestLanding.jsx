@@ -232,9 +232,14 @@ export default function ContestLanding() {
       <section style={{ position: 'relative', padding: '80px 0 56px', textAlign: 'center', overflow: 'hidden' }}>
 
         {/* Nebulosa Shader confined to Hero with diffuse edges */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none', maskImage: 'radial-gradient(ellipse 75% 90% at 50% 50%, black 30%, transparent 80%)', WebkitMaskImage: 'radial-gradient(ellipse 75% 90% at 50% 50%, black 30%, transparent 80%)' }}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 2.5, delay: 0.8 }}
+          style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none', maskImage: 'radial-gradient(ellipse 75% 90% at 50% 50%, black 30%, transparent 80%)', WebkitMaskImage: 'radial-gradient(ellipse 75% 90% at 50% 50%, black 30%, transparent 80%)' }}
+        >
           <GalaxyCanvas accent={accent} />
-        </div>
+        </motion.div>
 
         {/* Spotlight — sweeps across the hero text like a theater light */}
         <motion.div
