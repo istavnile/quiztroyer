@@ -456,16 +456,35 @@ function TabConfiguracion() {
   const [saving, setSaving]   = useState(false);
   const [saved, setSaved]     = useState(false);
   const [section, setSection] = useState('hero');
+  const loadedRef             = useRef(false);
+  const autoSaveTimer         = useRef(null);
 
   useEffect(() => {
-    api.get('/admin/concurso/settings').then((r) => setCfg({ ...DEFAULTS, ...r.data })).catch(() => {});
+    api.get('/admin/concurso/settings')
+      .then((r) => { setCfg({ ...DEFAULTS, ...r.data }); loadedRef.current = true; })
+      .catch(() => { loadedRef.current = true; });
   }, []);
+
+  // Auto-save 1.5s after last change
+  useEffect(() => {
+    if (!loadedRef.current) return;
+    clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      setSaving(true); setSaved(false);
+      api.patch('/admin/concurso/settings', cfg)
+        .then(() => { setSaved(true); setTimeout(() => setSaved(false), 2500); })
+        .catch((e) => alert('Error al guardar: ' + e.message))
+        .finally(() => setSaving(false));
+    }, 1500);
+    return () => clearTimeout(autoSaveTimer.current);
+  }, [cfg]);
 
   const set = (key, val) => setCfg((c) => ({ ...c, [key]: val }));
   const setNested = (key, index, field, val) =>
     setCfg((c) => ({ ...c, [key]: c[key].map((item, i) => i === index ? { ...item, [field]: val } : item) }));
 
   const save = async () => {
+    clearTimeout(autoSaveTimer.current);
     setSaving(true); setSaved(false);
     try {
       await api.patch('/admin/concurso/settings', cfg);
@@ -505,9 +524,11 @@ function TabConfiguracion() {
             borderRadius: '6px', border: 'none', cursor: saving ? 'not-allowed' : 'pointer',
             fontSize: '0.88rem', transition: 'background .2s',
           }}>
-            {saving ? 'Guardando...' : 'Guardar cambios'}
+            {saving ? 'Guardando...' : 'Guardar ahora'}
           </button>
-          {saved && <p style={{ color: '#76B900', fontSize: '0.78rem', textAlign: 'center', margin: '8px 0 0', fontWeight: 600 }}>✓ Guardado</p>}
+          <p style={{ fontSize: '0.72rem', textAlign: 'center', margin: '6px 0 0', color: saved ? '#76B900' : '#374151', fontWeight: saved ? 600 : 400 }}>
+            {saved ? '✓ Guardado' : 'Auto-guarda al editar'}
+          </p>
           <a href="/concursos/el-gran-upgrade" target="_blank" rel="noopener noreferrer"
             style={{ display: 'block', color: '#374151', fontSize: '0.76rem', textAlign: 'center', textDecoration: 'none', marginTop: '10px' }}>
             Ver página pública ↗
