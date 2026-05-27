@@ -41,6 +41,10 @@ const DEFAULT_SETTINGS = {
     { posicion: '1er lugar', descripcion: 'ASUS NVIDIA GeForce RTX 5060 Ti', color: '#76B900', imagenUrl: '' },
   ],
 
+  // Fondo de texto técnico NVIDIA
+  techBgEnabled: true,
+  techBgOpacity: 1.0,
+
   // Formulario — metadatos generales
   tituloFormulario: 'Formulario de inscripción',
   instruccionesFormulario: 'Completa todos los campos. Las inscripciones cierran el 7 de junio a las 23:59.',

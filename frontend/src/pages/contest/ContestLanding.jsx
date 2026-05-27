@@ -504,11 +504,14 @@ export default function ContestLanding() {
               </Link>
             ) : (
               <motion.span
-                animate={{ opacity: [0.75, 1, 0.75] }}
+                animate={{ opacity: [0.8, 1, 0.8] }}
                 whileHover={{
                   opacity: 1,
-                  filter: `drop-shadow(0 0 12px ${accent}bb) drop-shadow(0 0 28px ${accent}55)`,
-                  scale: 1.03,
+                  background: accent,
+                  color: '#000',
+                  boxShadow: `0 0 50px ${accent}cc, 0 0 100px ${accent}55`,
+                  filter: `drop-shadow(0 0 22px ${accent})`,
+                  scale: 1.08,
                 }}
                 transition={{ duration: 2.5, repeat: Infinity }}
                 style={{
@@ -527,13 +530,15 @@ export default function ContestLanding() {
             )}
             <Link to="/concursos/el-gran-upgrade/votacion" style={{ textDecoration: 'none' }}>
               <motion.button
-                initial={{ filter: 'none' }}
+                initial={{ background: 'rgba(255,255,255,0.05)', color: '#e2e8f0', boxShadow: '0 0 14px rgba(255,255,255,0.06)' }}
                 whileHover={{
+                  background: 'rgba(255,255,255,0.18)',
                   color: '#fff',
-                  filter: `drop-shadow(0 0 10px ${accent}99) drop-shadow(0 0 26px ${accent}44)`,
-                  scale: 1.04,
+                  boxShadow: '0 0 50px rgba(255,255,255,0.45), 0 0 100px rgba(255,255,255,0.18)',
+                  filter: 'drop-shadow(0 0 18px rgba(255,255,255,0.9))',
+                  scale: 1.08,
                 }}
-                transition={{ duration: 0.16 }}
+                transition={{ duration: 0.13 }}
                 style={{
                   background: 'rgba(255,255,255,0.05)', color: '#e2e8f0',
                   border: '1px solid rgba(255,255,255,0.38)',
@@ -542,8 +547,6 @@ export default function ContestLanding() {
                   clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)',
                   fontSize: '0.9rem', cursor: 'pointer', outline: 'none',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = `${accent}88`; e.currentTarget.style.color = accent; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.38)'; e.currentTarget.style.color = '#e2e8f0'; }}
               >
                 Ver finalistas y votar
               </motion.button>

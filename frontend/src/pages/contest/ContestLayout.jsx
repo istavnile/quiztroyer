@@ -198,14 +198,16 @@ const TECH_TERMS = [
 ];
 function _pr(seed) { const x = Math.sin(seed * 9301 + 49297) * 233280; return x - Math.floor(x); }
 
-// 3 independent layers: far (small/blurry/slow), mid, near (large/sharp/fast)
+// 4 depth layers: far · mid · near · ultra-near (bokeh, out-of-focus foreground)
 const TECH_LAYERS = [
-  { blur: 20, opacity: 0.10, minSz: 0.55, maxSz: 0.85, dur: 230, seed: 0,   count: 32 },
-  { blur: 7,  opacity: 0.17, minSz: 0.95, maxSz: 1.45, dur: 125, seed: 130, count: 22 },
-  { blur: 1,  opacity: 0.26, minSz: 1.6,  maxSz: 2.6,  dur: 62,  seed: 260, count: 13 },
+  { blur: 20, opacity: 0.16, minSz: 0.55, maxSz: 0.85, dur: 230, seed: 0,   count: 32 },
+  { blur: 7,  opacity: 0.24, minSz: 0.95, maxSz: 1.45, dur: 125, seed: 130, count: 22 },
+  { blur: 1,  opacity: 0.34, minSz: 1.6,  maxSz: 2.6,  dur: 62,  seed: 260, count: 13 },
+  { blur: 28, opacity: 0.28, minSz: 3.5,  maxSz: 6.5,  dur: 48,  seed: 390, count: 9  },
 ];
 
-function TechBG({ accent = '#76B900' }) {
+function TechBG({ accent = '#76B900', enabled = true, globalOpacity = 1.0 }) {
+  if (!enabled) return null;
   return (
     <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', userSelect: 'none', pointerEvents: 'none', zIndex: 0 }}>
       {TECH_LAYERS.map((layer, li) => {
@@ -226,7 +228,7 @@ function TechBG({ accent = '#76B900' }) {
             key={li}
             animate={{ y: ['0%', '-50%'] }}
             transition={{ duration: layer.dur, repeat: Infinity, ease: 'linear' }}
-            style={{ position: 'absolute', inset: 0, filter: `blur(${layer.blur}px)`, opacity: layer.opacity }}
+            style={{ position: 'absolute', inset: 0, filter: `blur(${layer.blur}px)`, opacity: layer.opacity * globalOpacity }}
           >
             <div style={{ position: 'relative', height: '200%' }}>
               {all.map((w, i) => (
@@ -268,6 +270,8 @@ const DEFAULT_SETTINGS = {
   textoFechaApertura: '1 de junio, 2026',
   textoFechaCierre:   '7 de junio, 23:59',
   textoFechaFinal:    '12 de junio, 2026',
+  techBgEnabled: true,
+  techBgOpacity: 1.0,
 };
 
 // Returns true if the hex color is perceptually dark (needs white text over it)
@@ -323,7 +327,7 @@ export default function ContestLayout({ children }) {
       <CircuitBoardBG accent={accentColor} />
 
       {/* NVIDIA tech terms — full-page blurred depth layer */}
-      <TechBG accent={accentColor} />
+      <TechBG accent={accentColor} enabled={settings.techBgEnabled !== false} globalOpacity={settings.techBgOpacity ?? 1.0} />
 
       {/* Ambient top glow — extends well below the hero fold */}
       <div style={{

@@ -448,6 +448,7 @@ const CONFIG_SECTIONS = [
   { id: 'pats',   label: 'Patrocinadores', icon: '★' },
   { id: 'pasos',  label: 'Pasos',          icon: '✓' },
   { id: 'premios',label: 'Premios',        icon: '▲' },
+  { id: 'techbg', label: 'Fondo NVIDIA',   icon: '◈' },
   { id: 'form',   label: 'Formulario',     icon: '≡' },
 ];
 
@@ -646,6 +647,48 @@ function TabConfiguracion() {
               <ImageUploader label="Imagen del producto (opcional)" value={premio.imagenUrl} onChange={(v) => setNested('premios', i, 'imagenUrl', v)} />
             </div>
           ))}
+        </>)}
+
+        {/* FONDO NVIDIA */}
+        {section === 'techbg' && (<>
+          <SectionTitle>Fondo de texto técnico NVIDIA</SectionTitle>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #1f2937' }}>
+            <div>
+              <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#e5e7eb' }}>Mostrar fondo de términos</div>
+              <div style={{ fontSize: '0.76rem', color: '#6b7280', marginTop: '2px' }}>Palabras DLSS, RTX, CUDA… en el fondo de la página</div>
+            </div>
+            <button
+              onClick={() => set('techBgEnabled', !(cfg.techBgEnabled !== false))}
+              style={{
+                width: '44px', height: '24px', borderRadius: '12px', border: 'none', cursor: 'pointer',
+                background: cfg.techBgEnabled !== false ? '#76B900' : '#374151',
+                position: 'relative', flexShrink: 0, transition: 'background 0.2s',
+              }}
+            >
+              <div style={{
+                position: 'absolute', top: '3px', width: '18px', height: '18px', borderRadius: '50%',
+                background: '#fff', transition: 'left 0.2s',
+                left: cfg.techBgEnabled !== false ? '23px' : '3px',
+              }} />
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '14px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #1f2937' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#e5e7eb' }}>Opacidad global</span>
+              <span style={{ fontSize: '0.82rem', color: '#76B900', fontWeight: 700, fontFamily: 'monospace' }}>
+                {Math.round((cfg.techBgOpacity ?? 1.0) * 100)}%
+              </span>
+            </div>
+            <input
+              type="range" min="0" max="1" step="0.05"
+              value={cfg.techBgOpacity ?? 1.0}
+              onChange={(e) => set('techBgOpacity', parseFloat(e.target.value))}
+              style={{ width: '100%', accentColor: '#76B900' }}
+            />
+            <div style={{ fontSize: '0.74rem', color: '#4b5563' }}>
+              0% = invisible · 100% = máxima intensidad (recomendado 60–80%)
+            </div>
+          </div>
         </>)}
 
         {/* FORMULARIO + CAMPOS */}
