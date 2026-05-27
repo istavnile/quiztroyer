@@ -10,6 +10,9 @@ const prisma = new PrismaClient();
 // ─── Contest Settings ─────────────────────────────────────────────────────────
 
 const DEFAULT_SETTINGS = {
+  // Registration gate — admin-controlled toggle
+  registrationOpen: false,
+
   // Hero
   titulo: 'El Upgrade de lo que realmente importa.',
   tituloVw: 7,
@@ -183,13 +186,10 @@ router.get('/og', async (_req, res) => {
 </html>`);
 });
 
-// Fechas del concurso (UTC-6 / hora Guatemala)
-const OPEN_DATE = new Date('2026-06-01T06:00:00Z');   // 1 jun 00:00 GT
-const CLOSE_DATE = new Date('2026-06-08T05:59:59Z');  // 7 jun 23:59 GT
-
-function isRegistrationOpen() {
-  const now = new Date();
-  return now >= OPEN_DATE && now <= CLOSE_DATE;
+// Registration is controlled by the admin toggle (registrationOpen in settings)
+async function isRegistrationOpen() {
+  const s = await readContestSettings();
+  return s.registrationOpen === true;
 }
 
 // Multer para uploads públicos del concurso
@@ -242,7 +242,7 @@ router.post(
     { name: 'fotoInterior', maxCount: 1 },
   ]),
   async (req, res) => {
-    if (!isRegistrationOpen()) {
+    if (!(await isRegistrationOpen())) {
       if (req.files) Object.values(req.files).flat().forEach((f) => fs.unlink(f.path, () => {}));
       return res.status(403).json({ error: 'Las inscripciones no están abiertas en este momento.' });
     }

@@ -6,7 +6,6 @@ import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 import ContestLayout from './ContestLayout';
-import { isRegistrationOpen } from '../../lib/contestConstants';
 
 const API = import.meta.env.VITE_API_URL || '';
 
@@ -483,7 +482,6 @@ function FormContent({ campos, settings, isPreview }) {
 export default function ContestForm() {
   const [searchParams] = useSearchParams();
   const isPreview = searchParams.get('preview') === '1';
-  const open      = isRegistrationOpen();
 
   const [campos,   setCampos]   = useState(null);
   const [settings, setSettings] = useState(null);
@@ -495,8 +493,21 @@ export default function ContestForm() {
         setCampos(data.campos || []);
         setSettings(data);
       })
-      .catch((err) => { console.warn('[contest-form-settings]', err); setCampos([]); });
+      .catch((err) => { console.warn('[contest-form-settings]', err); setCampos([]); setSettings({}); });
   }, []);
+
+  // Wait for settings before deciding open/closed
+  if (!settings) {
+    return (
+      <ContestLayout>
+        <div style={{ textAlign: 'center', padding: '80px 16px', color: '#4b5563' }}>
+          Cargando formulario...
+        </div>
+      </ContestLayout>
+    );
+  }
+
+  const open = settings.registrationOpen ?? false;
 
   if (!open && !isPreview) {
     return (
@@ -505,21 +516,10 @@ export default function ContestForm() {
           <div style={{ marginBottom: '16px', opacity: 0.5 }}><UilLockAlt size="52" color="#e61f30" /></div>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '12px' }}>Inscripciones cerradas</h1>
           <p style={{ color: '#9ca3af' }}>
-            El período de inscripción fue del 1 al 7 de junio de 2026.<br />
             Visita la página de{' '}
             <Link to="/concursos/el-gran-upgrade/votacion" style={{ color: '#76B900' }}>votación</Link>{' '}
             para apoyar a los finalistas.
           </p>
-        </div>
-      </ContestLayout>
-    );
-  }
-
-  if (!campos) {
-    return (
-      <ContestLayout>
-        <div style={{ textAlign: 'center', padding: '80px 16px', color: '#4b5563' }}>
-          Cargando formulario...
         </div>
       </ContestLayout>
     );

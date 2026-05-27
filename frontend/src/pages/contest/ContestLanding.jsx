@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ContestLayout, { GalaxyCanvas } from './ContestLayout';
-import { isRegistrationOpen } from '../../lib/contestConstants';
 
 const API = import.meta.env.VITE_API_URL || '';
 
@@ -409,7 +408,7 @@ function GpuTerminal({ gpuName, worthy, accent }) {
 /* ═══════════════════════════════════════════════════════════════════ */
 export default function ContestLanding() {
   const [s, setS] = useState(DEFAULT);
-  const open      = isRegistrationOpen();
+  const open      = s.registrationOpen ?? false;
   const [gpuInfo, setGpuInfo] = useState(null);
   const isMobile = window.innerWidth < 640;
 

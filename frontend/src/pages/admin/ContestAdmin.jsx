@@ -427,6 +427,7 @@ const DEFAULT_TECH_TERMS = [
 ];
 
 const DEFAULTS = {
+  registrationOpen: false,
   titulo: 'El Gran Upgrade', subtitulo: '', badge: '', imagenHero: '',
   techBgEnabled: true, techBgOpacity: 1.0, techBgTerms: DEFAULT_TECH_TERMS,
   campos: [],
@@ -518,7 +519,37 @@ function TabConfiguracion() {
 
       {/* ── Sidebar ── */}
       <div style={{ background: '#060a10', borderRight: '1px solid #1f2937', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-        <div style={{ flex: 1, paddingTop: '8px' }}>
+
+        {/* Registration toggle — always visible */}
+        <div style={{
+          margin: '12px 12px 4px',
+          padding: '12px 14px',
+          borderRadius: '8px',
+          border: `1px solid ${cfg.registrationOpen ? '#76B900' : '#374151'}`,
+          background: cfg.registrationOpen ? 'rgba(118,185,0,0.08)' : 'rgba(255,255,255,0.02)',
+          transition: 'border-color .2s, background .2s',
+        }}>
+          <p style={{ fontSize: '0.68rem', fontWeight: 700, color: '#6b7280', margin: '0 0 8px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Formulario
+          </p>
+          <button
+            onClick={() => set('registrationOpen', !cfg.registrationOpen)}
+            style={{
+              width: '100%', padding: '8px 12px',
+              border: 'none', borderRadius: '6px', cursor: 'pointer',
+              fontWeight: 800, fontSize: '0.82rem', letterSpacing: '0.06em',
+              background: cfg.registrationOpen ? '#76B900' : '#1f2937',
+              color: cfg.registrationOpen ? '#000' : '#6b7280',
+              transition: 'background .2s, color .2s',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
+            }}
+          >
+            <span style={{ fontSize: '0.85rem' }}>{cfg.registrationOpen ? '🟢' : '🔴'}</span>
+            {cfg.registrationOpen ? 'ABIERTO' : 'CERRADO'}
+          </button>
+        </div>
+
+        <div style={{ flex: 1, paddingTop: '4px' }}>
           {CONFIG_SECTIONS.map((s) => (
             <button key={s.id} onClick={() => setSection(s.id)} style={sidebarBtnSt(section === s.id)}>
               <span style={{ fontSize: '0.9rem', width: '16px', textAlign: 'center' }}>{s.icon}</span>
