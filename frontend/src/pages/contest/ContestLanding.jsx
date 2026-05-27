@@ -231,8 +231,10 @@ export default function ContestLanding() {
       {/* ══════════ HERO ══════════════════════════════════════════════ */}
       <section style={{ position: 'relative', padding: '80px 0 56px', textAlign: 'center', overflow: 'hidden' }}>
 
-        {/* Nebulosa Shader confined to Hero */}
-        <GalaxyCanvas accent={accent} />
+        {/* Nebulosa Shader confined to Hero with diffuse edges */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none', maskImage: 'radial-gradient(ellipse 75% 90% at 50% 50%, black 30%, transparent 80%)', WebkitMaskImage: 'radial-gradient(ellipse 75% 90% at 50% 50%, black 30%, transparent 80%)' }}>
+          <GalaxyCanvas accent={accent} />
+        </div>
 
         {/* Spotlight — sweeps across the hero text like a theater light */}
         <motion.div
@@ -283,6 +285,9 @@ export default function ContestLanding() {
 
         {/* Content */}
         <div style={{ position: 'relative', zIndex: 2 }}>
+
+          {/* Text Vignette (Dark halo behind text for readability and aesthetic) */}
+          <div style={{ position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%, -50%)', width: '120%', maxWidth: '1200px', height: '180%', background: 'radial-gradient(ellipse at center, rgba(6,7,14,0.85) 0%, rgba(6,7,14,0.4) 40%, transparent 70%)', pointerEvents: 'none', zIndex: -1, filter: 'blur(30px)' }} />
 
           {/* Badge — angular Valorant cut */}
           {s.badge && (
