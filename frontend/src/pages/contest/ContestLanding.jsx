@@ -178,6 +178,27 @@ function TerminalText({ text, delay = 0, speed = 54, started = true, showCursor 
   );
 }
 
+/* ── Live cycling terminal value ────────────────────────────────── */
+function LiveDataLine({ values, color, interval = 3400 }) {
+  const [idx, setIdx] = useState(0);
+  const [flash, setFlash] = useState(false);
+  useEffect(() => {
+    const id = setInterval(() => {
+      setFlash(true);
+      setTimeout(() => { setIdx((i) => (i + 1) % values.length); setFlash(false); }, 110);
+    }, interval);
+    return () => clearInterval(id);
+  }, [values.length, interval]);
+  return (
+    <span style={{
+      color: flash ? `${color}33` : color,
+      filter: flash ? 'blur(1.5px)' : 'none',
+      transition: flash ? 'none' : 'color 0.18s, filter 0.18s',
+      fontVariantNumeric: 'tabular-nums',
+    }}>{values[idx]}</span>
+  );
+}
+
 /* ── Valorant-style section header ───────────────────────────────── */
 function SectionHeader({ label, count, countLabel, accent }) {
   return (
@@ -276,28 +297,34 @@ export default function ContestLanding() {
           }}
         />
 
-        {/* Tactical HUD — top-left */}
+        {/* Tactical HUD — top-left (live terminal feed) */}
         <div className="gaming-flicker" style={{
           position: 'absolute', top: '22px', left: '22px', zIndex: 5,
           pointerEvents: 'none', fontFamily: 'monospace',
         }}>
           <div style={{ borderLeft: `2px solid ${accent}77`, paddingLeft: '10px' }}>
-            <div style={{ fontSize: '0.5rem', letterSpacing: '0.14em', lineHeight: 1.9, color: `${accent}aa` }}>
-              <div>SYS <span style={{ color: accent }}>ONLINE</span></div>
-              <div>NET <span style={{ color: accent }}>SECURED</span></div>
+            <div style={{ fontSize: '0.5rem', letterSpacing: '0.14em', lineHeight: 1.9, color: `${accent}66` }}>
+              <div>SYS&nbsp;<LiveDataLine values={['ONLINE','CPU:76%','GPU:94%','RAM:38%','TMP:62C']} color={accent} interval={2800} /></div>
+              <div>NET&nbsp;<LiveDataLine values={['SECURED','PKT:1.2K','PING:4ms','BW:940M','ENC:AES']} color={accent} interval={3500} /></div>
             </div>
           </div>
         </div>
 
-        {/* Tactical HUD — top-right */}
+        {/* Tactical HUD — top-right (live terminal feed) */}
         <div className="gaming-flicker" style={{
           position: 'absolute', top: '22px', right: '22px', zIndex: 5,
           pointerEvents: 'none', textAlign: 'right', fontFamily: 'monospace',
         }}>
           <div style={{ borderRight: '2px solid rgba(255,255,255,0.1)', paddingRight: '10px' }}>
-            <div style={{ fontSize: '0.5rem', letterSpacing: '0.12em', lineHeight: 1.9, color: 'rgba(255,255,255,0.25)' }}>
-              <div>GU_2026</div>
-              <div style={{ color: open ? '#76B900' : '#e61f30' }}>{open ? 'REG_OPEN' : 'REG_CLOSED'}</div>
+            <div style={{ fontSize: '0.5rem', letterSpacing: '0.12em', lineHeight: 1.9, color: 'rgba(255,255,255,0.2)' }}>
+              <div><LiveDataLine values={['GU_2026','BUILD_01','V2.0.1','REV_047','GU_2026']} color="rgba(255,255,255,0.35)" interval={4100} /></div>
+              <div><LiveDataLine
+                values={open
+                  ? ['REG_OPEN','ENT:12','DAYS:6','QUOTA:500','REG_OPEN']
+                  : ['REG_CLSD','DL_PAST','REV_MODE','JUDGING','REG_CLSD']}
+                color={open ? '#76B900' : '#e61f30'}
+                interval={3200}
+              /></div>
             </div>
           </div>
         </div>

@@ -493,7 +493,7 @@ export default function ContestLayout({ children }) {
         }}
         className="sticky top-0 z-50"
       >
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="mx-auto px-4 py-3 flex items-center justify-between" style={{ maxWidth: 'min(92vw, 1440px)' }}>
           <Link to={BASE} className="flex items-center gap-3 no-underline">
 
             {/* Primary sponsor — bare logo or colored text badge */}
@@ -571,7 +571,7 @@ export default function ContestLayout({ children }) {
       </AnimatePresence>
 
       {/* Contenido */}
-      <main className="relative max-w-6xl mx-auto px-4 py-10" style={{ flex: 1 }}>
+      <main className="relative mx-auto px-6 py-10" style={{ flex: 1, width: '100%', maxWidth: 'min(92vw, 1440px)' }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}
@@ -579,6 +579,7 @@ export default function ContestLayout({ children }) {
             animate={{ opacity: 1, y: 0, filter: 'brightness(1) blur(0px) saturate(1)' }}
             exit={{ opacity: 0, y: -10, filter: 'brightness(0) blur(2px) saturate(0)' }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            style={{ position: 'relative', zIndex: 3 }}
           >
             {children}
           </motion.div>
