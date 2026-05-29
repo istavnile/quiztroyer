@@ -831,7 +831,43 @@ function TabConfiguracion() {
                   </div>
                 </div>
               </div>
-              <ImageUploader label="Imagen del producto (opcional)" value={premio.imagenUrl} onChange={(v) => setNested('premios', i, 'imagenUrl', v)} />
+              {/* Multi-image slideshow */}
+              <div>
+                <label style={labelSt}>Imágenes del producto — slideshow si hay más de 1</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {(() => {
+                    const imgs = premio.imagenesUrl?.length ? premio.imagenesUrl : premio.imagenUrl ? [premio.imagenUrl] : [''];
+                    return imgs.map((url, j) => (
+                      <div key={j} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                        <div style={{ flex: 1 }}>
+                          <ImageUploader
+                            label={`Imagen ${j + 1}`}
+                            value={url}
+                            onChange={(v) => {
+                              const next = [...imgs]; next[j] = v;
+                              setNested('premios', i, 'imagenesUrl', next);
+                              if (j === 0) setNested('premios', i, 'imagenUrl', v);
+                            }}
+                          />
+                        </div>
+                        {imgs.length > 1 && (
+                          <button
+                            onClick={() => setNested('premios', i, 'imagenesUrl', imgs.filter((_, k) => k !== j))}
+                            style={{ flexShrink: 0, marginTop: '22px', background: '#7f1d1d', border: 'none', color: '#fff', borderRadius: '6px', padding: '7px 11px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}
+                          >✕</button>
+                        )}
+                      </div>
+                    ));
+                  })()}
+                  <button
+                    onClick={() => {
+                      const imgs = premio.imagenesUrl?.length ? premio.imagenesUrl : premio.imagenUrl ? [premio.imagenUrl] : [];
+                      setNested('premios', i, 'imagenesUrl', [...imgs, '']);
+                    }}
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid #374151', color: '#9ca3af', padding: '7px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, alignSelf: 'flex-start' }}
+                  >+ Agregar imagen</button>
+                </div>
+              </div>
             </div>
           ))}
         </>)}

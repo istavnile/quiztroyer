@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ContestLayout, { GalaxyCanvas } from './ContestLayout';
@@ -405,6 +406,49 @@ function GpuTerminal({ gpuName, worthy, accent }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/* ── Prize image slideshow ──────────────────────────────────────── */
+function PrizeSlideshow({ images, color, imgScale }) {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const id = setInterval(() => setIdx((p) => (p + 1) % images.length), 3500);
+    return () => clearInterval(id);
+  }, [images.length]);
+  if (!images.length) return null;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={idx}
+          src={images[idx]}
+          alt=""
+          className="gaming-float"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.45 }}
+          style={{ width: `${imgScale * 35}vw`, height: 'auto', maxWidth: 'none', flexShrink: 0, display: 'block' }}
+        />
+      </AnimatePresence>
+      {images.length > 1 && (
+        <div style={{ display: 'flex', gap: '8px', marginTop: '14px', position: 'relative', zIndex: 2 }}>
+          {images.map((_, i) => (
+            <button
+              key={i} onClick={() => setIdx(i)}
+              style={{
+                width: i === idx ? '22px' : '8px', height: '8px',
+                borderRadius: '4px', background: i === idx ? color : `${color}44`,
+                border: 'none', cursor: 'pointer',
+                transition: 'all 0.35s ease', padding: 0,
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1000,7 +1044,7 @@ export default function ContestLanding() {
           <SectionHeader label="Premio" count={s.premios.length} countLabel={s.premios.length === 1 ? 'premio' : 'premios'} accent={accent} />
 
           <div style={{ maxWidth: `${s.premioCardWidth ?? 1080}px`, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px', transform: `translateX(${s.premioCardOffset ?? 0}%)` }}>
-            {s.premios.map(({ posicion, descripcion, color, imagenUrl }) => (
+            {s.premios.map(({ posicion, descripcion, color, imagenUrl, imagenesUrl }) => (
               /* overflow:visible so the scaled image can extend beyond card bounds */
               <div key={posicion} style={{ position: 'relative', overflow: 'visible' }}>
 
@@ -1066,33 +1110,27 @@ export default function ContestLanding() {
                     </motion.p>
                   </div>
 
-                  {/* Image — explicit vw width so it grows beyond card bounds */}
-                  {imagenUrl && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.7 }}
-                      style={{
-                        display: 'flex', justifyContent: 'center', alignItems: 'center',
-                        height: `${s.premioCardHeight ?? 400}px`,
-                        overflow: 'visible',
-                        background: `radial-gradient(ellipse at center, ${color}08 0%, transparent 70%)`,
-                      }}
-                    >
-                      <img
-                        src={imagenUrl} alt={descripcion}
-                        className="gaming-float"
+                  {/* Slideshow — uses imagenesUrl array, falls back to imagenUrl */}
+                  {(() => {
+                    const imgs = (imagenesUrl?.length ? imagenesUrl : imagenUrl ? [imagenUrl] : []).filter(Boolean);
+                    if (!imgs.length) return null;
+                    return (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.7 }}
                         style={{
-                          width: `${(s.premioImgScale ?? 2) * 35}vw`,
-                          height: 'auto',
-                          maxWidth: 'none',
-                          flexShrink: 0,
-                          display: 'block',
+                          display: 'flex', justifyContent: 'center', alignItems: 'center',
+                          height: `${s.premioCardHeight ?? 400}px`,
+                          overflow: 'visible',
+                          background: `radial-gradient(ellipse at center, ${color}08 0%, transparent 70%)`,
                         }}
-                      />
-                    </motion.div>
-                  )}
+                      >
+                        <PrizeSlideshow images={imgs} color={color} imgScale={s.premioImgScale ?? 2} />
+                      </motion.div>
+                    );
+                  })()}
                 </div>
               </div>
             ))}
