@@ -412,6 +412,8 @@ function GpuTerminal({ gpuName, worthy, accent }) {
 /* ═══════════════════════════════════════════════════════════════════ */
 export default function ContestLanding() {
   const [s, setS] = useState(DEFAULT);
+  const [btnHero, setBtnHero] = useState(false);
+  const [btnCta,  setBtnCta]  = useState(false);
   const open      = s.registrationOpen ?? false;
   const [gpuInfo, setGpuInfo] = useState(null);
   const isMobile = window.innerWidth < 640;
@@ -688,15 +690,18 @@ export default function ContestLanding() {
             {open ? (
               <Link to="/concursos/el-gran-upgrade/inscripcion" style={{ textDecoration: 'none' }}>
                 <motion.button
-                  className="cta-btn"
+                  onMouseEnter={() => setBtnHero(true)}
+                  onMouseLeave={() => setBtnHero(false)}
                   style={{
-                    '--glow': accent,
                     background: accent, color: '#000', fontWeight: 900,
                     padding: '14px 52px', border: 'none', cursor: 'pointer',
                     letterSpacing: '0.1em', textTransform: 'uppercase',
                     clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)',
                     fontSize: '0.9rem', position: 'relative', overflow: 'hidden',
-                    filter: `drop-shadow(0 0 10px ${accent}77)`,
+                    filter: btnHero
+                      ? `drop-shadow(0 0 22px ${accent}) drop-shadow(0 0 55px ${accent}99)`
+                      : `drop-shadow(0 0 10px ${accent}77)`,
+                    transition: 'filter 0.28s ease',
                   }}
                 >
                   <motion.div
@@ -1049,7 +1054,7 @@ export default function ContestLanding() {
                     </motion.p>
                   </div>
 
-                  {/* Image — overflow:visible so scale can exceed card width */}
+                  {/* Image — explicit vw width so it grows beyond card bounds */}
                   {imagenUrl && (
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -1057,7 +1062,9 @@ export default function ContestLanding() {
                       viewport={{ once: true }}
                       transition={{ duration: 0.7 }}
                       style={{
-                        overflow: 'visible', height: '360px',
+                        display: 'flex', justifyContent: 'center', alignItems: 'center',
+                        minHeight: `${Math.max(160, (s.premioImgScale ?? 2) * 80)}px`,
+                        overflow: 'visible',
                         background: `radial-gradient(ellipse at center, ${color}08 0%, transparent 70%)`,
                       }}
                     >
@@ -1065,10 +1072,11 @@ export default function ContestLanding() {
                         src={imagenUrl} alt={descripcion}
                         className="gaming-float"
                         style={{
-                          width: '100%', height: '100%',
-                          objectFit: 'contain',
-                          transform: `scale(${s.premioImgScale ?? 2})`,
-                          transformOrigin: 'center center',
+                          width: `${(s.premioImgScale ?? 2) * 35}vw`,
+                          height: 'auto',
+                          maxWidth: 'none',
+                          flexShrink: 0,
+                          display: 'block',
                         }}
                       />
                     </motion.div>
@@ -1120,15 +1128,18 @@ export default function ContestLanding() {
               ))}
 
               <motion.button
-                className="cta-btn"
+                onMouseEnter={() => setBtnCta(true)}
+                onMouseLeave={() => setBtnCta(false)}
                 style={{
-                  '--glow': accent,
                   background: accent, color: '#000', fontWeight: 900,
                   padding: '18px 72px', border: 'none', cursor: 'pointer',
                   letterSpacing: '0.1em', textTransform: 'uppercase',
                   clipPath: 'polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%)',
                   fontSize: '1rem', position: 'relative', overflow: 'hidden',
-                  filter: `drop-shadow(0 0 10px ${accent}77)`,
+                  filter: btnCta
+                    ? `drop-shadow(0 0 28px ${accent}) drop-shadow(0 0 70px ${accent}99)`
+                    : `drop-shadow(0 0 10px ${accent}77)`,
+                  transition: 'filter 0.28s ease',
                 }}
               >
                 <motion.div

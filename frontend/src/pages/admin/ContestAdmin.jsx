@@ -698,13 +698,13 @@ function TabConfiguracion() {
             <label style={labelSt}>Escala de la imagen del premio</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <input
-                type="range" min="1" max="4" step="0.1"
+                type="range" min="0.5" max="16" step="0.5"
                 value={cfg.premioImgScale ?? 2}
                 onChange={(e) => set('premioImgScale', parseFloat(e.target.value))}
                 style={{ flex: 1, accentColor: '#6366f1' }}
               />
               <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', minWidth: '40px', textAlign: 'right' }}>
-                ×{cfg.premioImgScale ?? 2}
+                ×{(cfg.premioImgScale ?? 2).toFixed(1)}
               </span>
             </div>
           </div>
