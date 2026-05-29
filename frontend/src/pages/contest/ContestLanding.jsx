@@ -977,7 +977,7 @@ export default function ContestLanding() {
         >
           <SectionHeader label="Premio" count={s.premios.length} countLabel={s.premios.length === 1 ? 'premio' : 'premios'} accent={accent} />
 
-          <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ maxWidth: '960px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {s.premios.map(({ posicion, descripcion, color, imagenUrl }) => (
               <div key={posicion} style={{ position: 'relative', overflow: 'hidden' }}>
                 <ScanningHudCorners color={color} size={22} />
@@ -998,12 +998,12 @@ export default function ContestLanding() {
                   animate={{ boxShadow: [`-4px 0 12px ${color}44`, `-4px 0 28px ${color}99`, `-4px 0 12px ${color}44`] }}
                   transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
                   style={{
-                    display: 'flex', alignItems: 'stretch',
+                    display: 'flex', flexDirection: 'column',
                     borderLeft: `3px solid ${color}`,
                     background: `linear-gradient(90deg, ${color}0d 0%, transparent 60%)`,
                   }}
                 >
-                  <div style={{ flex: 1, padding: '36px 32px' }}>
+                  <div style={{ padding: '36px 32px 24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
                       <PulsingDot color={color} size={8} />
                       <p style={{ color, fontSize: '0.58rem', fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', margin: 0, fontFamily: 'monospace' }}>
@@ -1025,14 +1025,15 @@ export default function ContestLanding() {
 
                   {imagenUrl && (
                     <div style={{
-                      flexShrink: 0, width: '220px',
+                      width: '100%', borderTop: `1px solid ${color}18`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      padding: '20px', borderLeft: `1px solid ${color}18`,
+                      padding: '32px 40px',
+                      background: `radial-gradient(ellipse at center, ${color}0a 0%, transparent 70%)`,
                     }}>
                       <img
                         src={imagenUrl} alt={descripcion}
                         className="gaming-float"
-                        style={{ maxWidth: '100%', maxHeight: '155px', objectFit: 'contain' }}
+                        style={{ width: '100%', maxHeight: '420px', objectFit: 'contain' }}
                       />
                     </div>
                   )}
