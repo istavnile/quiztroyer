@@ -672,6 +672,22 @@ function TabConfiguracion() {
         {section === 'premios' && (<>
           <SectionTitle>Premios</SectionTitle>
 
+          {/* Ancho del bloque */}
+          <div>
+            <label style={labelSt}>Ancho del bloque del premio</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <input
+                type="range" min="300" max="1400" step="20"
+                value={cfg.premioCardWidth ?? 1080}
+                onChange={(e) => set('premioCardWidth', parseInt(e.target.value))}
+                style={{ flex: 1, accentColor: '#6366f1' }}
+              />
+              <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', minWidth: '52px', textAlign: 'right' }}>
+                {cfg.premioCardWidth ?? 1080}px
+              </span>
+            </div>
+          </div>
+
           {/* Tamaño de imagen */}
           <div>
             <label style={labelSt}>Escala de la imagen del premio</label>

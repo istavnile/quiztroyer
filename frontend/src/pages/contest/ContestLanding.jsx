@@ -984,25 +984,28 @@ export default function ContestLanding() {
         >
           <SectionHeader label="Premio" count={s.premios.length} countLabel={s.premios.length === 1 ? 'premio' : 'premios'} accent={accent} />
 
-          <div style={{ maxWidth: '1080px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ maxWidth: `${s.premioCardWidth ?? 1080}px`, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {s.premios.map(({ posicion, descripcion, color, imagenUrl }) => (
-              <div key={posicion} style={{ position: 'relative', overflow: 'hidden' }}>
+              /* overflow:visible so the scaled image can extend beyond card bounds */
+              <div key={posicion} style={{ position: 'relative', overflow: 'visible' }}>
 
-                {/* Crosshairs wrap the full card (text + image) */}
+                {/* Crosshairs anchored to card layout boundary */}
                 <ScanningHudCorners color={color} size={s.premioHudSize ?? 16} />
 
-                {/* Sweeping highlight */}
-                <motion.div
-                  animate={{ left: ['-80%', '130%'] }}
-                  transition={{ duration: 3.5, repeat: Infinity, repeatDelay: 1.8, ease: 'easeInOut' }}
-                  style={{
-                    position: 'absolute', top: 0, width: '50%', height: '100%',
-                    background: `linear-gradient(90deg, transparent, ${color}14, transparent)`,
-                    pointerEvents: 'none', zIndex: 1,
-                  }}
-                />
+                {/* Sweeping highlight — clipped by its own wrapper */}
+                <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 1 }}>
+                  <motion.div
+                    animate={{ left: ['-80%', '130%'] }}
+                    transition={{ duration: 3.5, repeat: Infinity, repeatDelay: 1.8, ease: 'easeInOut' }}
+                    style={{
+                      position: 'absolute', top: 0, width: '50%', height: '100%',
+                      background: `linear-gradient(90deg, transparent, ${color}14, transparent)`,
+                      pointerEvents: 'none',
+                    }}
+                  />
+                </div>
 
-                {/* Pulsing left border glow — wraps text + image */}
+                {/* Pulsing left border glow */}
                 <motion.div
                   animate={{ boxShadow: [`-4px 0 12px ${color}44`, `-4px 0 28px ${color}99`, `-4px 0 12px ${color}44`] }}
                   transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
@@ -1042,7 +1045,7 @@ export default function ContestLanding() {
                     </motion.p>
                   </div>
 
-                  {/* Image — scaled up from center, clipped by card boundary */}
+                  {/* Image — overflow:visible so scale can exceed card width */}
                   {imagenUrl && (
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -1050,7 +1053,7 @@ export default function ContestLanding() {
                       viewport={{ once: true }}
                       transition={{ duration: 0.7 }}
                       style={{
-                        overflow: 'hidden', height: '360px',
+                        overflow: 'visible', height: '360px',
                         background: `radial-gradient(ellipse at center, ${color}08 0%, transparent 70%)`,
                       }}
                     >
