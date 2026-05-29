@@ -43,7 +43,7 @@ function ImageUploader({ label, value, onChange }) {
     try {
       const fd = new FormData();
       fd.append('image', file);
-      const res = await api.post('/admin/upload-image', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const res = await api.post('/admin/upload-image', fd);
       onChange(`${API_BASE}${res.data.url}`);
     } catch (e) {
       alert('Error al subir imagen: ' + e.message);
