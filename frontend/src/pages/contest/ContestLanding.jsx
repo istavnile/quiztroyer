@@ -1036,28 +1036,29 @@ export default function ContestLanding() {
                     </motion.p>
                   </div>
 
-                  {/* Image — absolutely centered, large, below title */}
+                  {/* Image — scaled up from center, clipped by card boundary */}
                   {imagenUrl && (
-                    <div style={{
-                      position: 'relative', height: '400px',
-                      background: `radial-gradient(ellipse at center, ${color}08 0%, transparent 70%)`,
-                    }}>
-                      <motion.img
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.7 }}
+                      style={{
+                        overflow: 'hidden', height: '360px',
+                        background: `radial-gradient(ellipse at center, ${color}08 0%, transparent 70%)`,
+                      }}
+                    >
+                      <img
                         src={imagenUrl} alt={descripcion}
                         className="gaming-float"
-                        initial={{ opacity: 0, scale: 0.92 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.7, ease: 'easeOut' }}
                         style={{
-                          position: 'absolute',
-                          left: '50%', top: '50%',
-                          transform: 'translate(-50%, -50%)',
-                          width: '200%',
+                          width: '100%', height: '100%',
                           objectFit: 'contain',
+                          transform: 'scale(2)',
+                          transformOrigin: 'center center',
                         }}
                       />
-                    </div>
+                    </motion.div>
                   )}
                 </motion.div>
               </div>
