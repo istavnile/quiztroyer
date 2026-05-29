@@ -983,7 +983,7 @@ export default function ContestLanding() {
               <div key={posicion} style={{ position: 'relative', overflow: 'hidden' }}>
 
                 {/* Crosshairs wrap the full card (text + image) */}
-                <ScanningHudCorners color={color} size={16} />
+                <ScanningHudCorners color={color} size={10} />
 
                 {/* Sweeping highlight */}
                 <motion.div
@@ -1036,29 +1036,28 @@ export default function ContestLanding() {
                     </motion.p>
                   </div>
 
-                  {/* Image — large, centered, below title, inside the card boundary */}
+                  {/* Image — absolutely centered, large, below title */}
                   {imagenUrl && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.92 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.7, ease: 'easeOut' }}
-                      style={{
-                        display: 'flex', justifyContent: 'center', alignItems: 'center',
-                        padding: '0 0 40px',
-                        background: `radial-gradient(ellipse at center, ${color}0a 0%, transparent 70%)`,
-                        overflow: 'visible',
-                      }}
-                    >
-                      <img
+                    <div style={{
+                      position: 'relative', height: '400px',
+                      background: `radial-gradient(ellipse at center, ${color}08 0%, transparent 70%)`,
+                    }}>
+                      <motion.img
                         src={imagenUrl} alt={descripcion}
                         className="gaming-float"
+                        initial={{ opacity: 0, scale: 0.92 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.7, ease: 'easeOut' }}
                         style={{
-                          width: '210%', objectFit: 'contain',
-                          marginLeft: '-55%',
+                          position: 'absolute',
+                          left: '50%', top: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          width: '200%',
+                          objectFit: 'contain',
                         }}
                       />
-                    </motion.div>
+                    </div>
                   )}
                 </motion.div>
               </div>
