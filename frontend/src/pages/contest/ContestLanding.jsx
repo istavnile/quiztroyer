@@ -983,7 +983,7 @@ export default function ContestLanding() {
               <div key={posicion} style={{ position: 'relative', overflow: 'hidden' }}>
 
                 {/* Crosshairs wrap the full card (text + image) */}
-                <ScanningHudCorners color={color} size={22} />
+                <ScanningHudCorners color={color} size={16} />
 
                 {/* Sweeping highlight */}
                 <motion.div
@@ -1054,8 +1054,8 @@ export default function ContestLanding() {
                         src={imagenUrl} alt={descripcion}
                         className="gaming-float"
                         style={{
-                          width: '140%', objectFit: 'contain',
-                          marginLeft: '-20%',
+                          width: '210%', objectFit: 'contain',
+                          marginLeft: '-55%',
                         }}
                       />
                     </motion.div>
