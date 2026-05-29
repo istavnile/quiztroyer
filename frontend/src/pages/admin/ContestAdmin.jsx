@@ -679,7 +679,7 @@ function TabConfiguracion() {
 
           {/* Ancho del bloque */}
           <div>
-            <label style={labelSt}>Ancho del bloque del premio</label>
+            <label style={labelSt}>Ancho del bloque del premio (HUD)</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <input
                 type="range" min="300" max="1400" step="20"
@@ -691,6 +691,23 @@ function TabConfiguracion() {
                 {cfg.premioCardWidth ?? 1080}px
               </span>
             </div>
+          </div>
+
+          {/* Posición horizontal */}
+          <div>
+            <label style={labelSt}>Posición horizontal del bloque</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <input
+                type="range" min="-40" max="40" step="2"
+                value={cfg.premioCardOffset ?? 0}
+                onChange={(e) => set('premioCardOffset', parseInt(e.target.value))}
+                style={{ flex: 1, accentColor: '#6366f1' }}
+              />
+              <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', minWidth: '52px', textAlign: 'right' }}>
+                {cfg.premioCardOffset ?? 0}%
+              </span>
+            </div>
+            <p style={{ color: '#4b5563', fontSize: '0.72rem', margin: '4px 0 0' }}>0 = centrado · negativo = izquierda · positivo = derecha</p>
           </div>
 
           {/* Altura del bloque */}

@@ -993,7 +993,7 @@ export default function ContestLanding() {
         >
           <SectionHeader label="Premio" count={s.premios.length} countLabel={s.premios.length === 1 ? 'premio' : 'premios'} accent={accent} />
 
-          <div style={{ maxWidth: `${s.premioCardWidth ?? 1080}px`, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ maxWidth: `${s.premioCardWidth ?? 1080}px`, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px', transform: `translateX(${s.premioCardOffset ?? 0}%)` }}>
             {s.premios.map(({ posicion, descripcion, color, imagenUrl }) => (
               /* overflow:visible so the scaled image can extend beyond card bounds */
               <div key={posicion} style={{ position: 'relative', overflow: 'visible' }}>
