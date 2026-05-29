@@ -166,8 +166,8 @@ function TyCModal({ content, onClose }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           background: '#0d1117', border: '1px solid rgba(118,185,0,0.35)',
-          borderRadius: '12px', width: '100%', maxWidth: '580px',
-          maxHeight: '82vh', display: 'flex', flexDirection: 'column',
+          borderRadius: '12px', width: '100%', maxWidth: '900px',
+          height: '90vh', display: 'flex', flexDirection: 'column',
           boxShadow: '0 0 48px rgba(118,185,0,0.12), 0 24px 64px rgba(0,0,0,0.6)',
         }}
       >
