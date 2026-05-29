@@ -185,6 +185,19 @@ export default function ContestVoting() {
     }
   }, []);
 
+  useEffect(() => {
+    fetch(`${API}/api/contest/settings`, { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.titulo) {
+          const prev = document.title;
+          document.title = data.titulo;
+          return () => { document.title = prev; };
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Verificar estado de voto: primero cookie, luego backend
   useEffect(() => {
     const cookieVote = getCookieVote();

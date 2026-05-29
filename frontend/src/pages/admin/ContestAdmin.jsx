@@ -590,7 +590,7 @@ function TabConfiguracion() {
             <label style={labelSt}>Tamaño del título</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <input
-                type="range" min="2" max="12" step="0.5"
+                type="range" min="0.5" max="12" step="0.25"
                 value={cfg.tituloVw ?? 7}
                 onChange={(e) => set('tituloVw', parseFloat(e.target.value))}
                 style={{ flex: 1, accentColor: '#6366f1' }}
@@ -600,7 +600,7 @@ function TabConfiguracion() {
               </span>
             </div>
             <p style={{ color: '#4b5563', fontSize: '0.72rem', margin: '4px 0 0' }}>
-              Rango 2–12vw · actual: clamp(1rem, {cfg.tituloVw ?? 7}vw, 9rem)
+              Rango 0.5–12vw · actual: clamp(0.5rem, {cfg.tituloVw ?? 7}vw, 9rem)
             </p>
           </div>
 
