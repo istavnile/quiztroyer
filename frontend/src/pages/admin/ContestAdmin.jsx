@@ -671,6 +671,39 @@ function TabConfiguracion() {
         {/* PREMIOS */}
         {section === 'premios' && (<>
           <SectionTitle>Premios</SectionTitle>
+
+          {/* Tamaño de imagen */}
+          <div>
+            <label style={labelSt}>Escala de la imagen del premio</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <input
+                type="range" min="1" max="4" step="0.1"
+                value={cfg.premioImgScale ?? 2}
+                onChange={(e) => set('premioImgScale', parseFloat(e.target.value))}
+                style={{ flex: 1, accentColor: '#6366f1' }}
+              />
+              <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', minWidth: '40px', textAlign: 'right' }}>
+                ×{cfg.premioImgScale ?? 2}
+              </span>
+            </div>
+          </div>
+
+          {/* Tamaño del HUD */}
+          <div>
+            <label style={labelSt}>Tamaño del HUD (crosshairs)</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <input
+                type="range" min="6" max="40" step="1"
+                value={cfg.premioHudSize ?? 16}
+                onChange={(e) => set('premioHudSize', parseInt(e.target.value))}
+                style={{ flex: 1, accentColor: '#6366f1' }}
+              />
+              <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', minWidth: '40px', textAlign: 'right' }}>
+                {cfg.premioHudSize ?? 16}px
+              </span>
+            </div>
+          </div>
+
           {cfg.premios.map((premio, i) => (
             <div key={i} style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid #1f2937', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr 100px', gap: '12px' }}>

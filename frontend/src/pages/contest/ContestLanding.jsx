@@ -984,12 +984,12 @@ export default function ContestLanding() {
         >
           <SectionHeader label="Premio" count={s.premios.length} countLabel={s.premios.length === 1 ? 'premio' : 'premios'} accent={accent} />
 
-          <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ maxWidth: '1080px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {s.premios.map(({ posicion, descripcion, color, imagenUrl }) => (
               <div key={posicion} style={{ position: 'relative', overflow: 'hidden' }}>
 
                 {/* Crosshairs wrap the full card (text + image) */}
-                <ScanningHudCorners color={color} size={10} />
+                <ScanningHudCorners color={color} size={s.premioHudSize ?? 16} />
 
                 {/* Sweeping highlight */}
                 <motion.div
@@ -1060,7 +1060,7 @@ export default function ContestLanding() {
                         style={{
                           width: '100%', height: '100%',
                           objectFit: 'contain',
-                          transform: 'scale(2)',
+                          transform: `scale(${s.premioImgScale ?? 2})`,
                           transformOrigin: 'center center',
                         }}
                       />
