@@ -462,6 +462,14 @@ export default function ContestLanding() {
       {/* ══════════ HERO ══════════════════════════════════════════════ */}
       <section style={{ position: 'relative', padding: '80px 0 56px', textAlign: 'center', overflow: 'hidden' }}>
 
+        {/* Hero BG image — rendered first so the nebula blends on top via mixBlendMode:screen */}
+        {s.imagenHero && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
+            <img src={s.imagenHero} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.45 }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, #06070e)' }} />
+          </div>
+        )}
+
         {/* Nebulosa Shader confined to Hero with diffuse edges */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -523,13 +531,6 @@ export default function ContestLanding() {
         {/* Tactical HUD — bottom-right (system recon) — desktop only */}
         {!isMobile && <SysInfoHud accent={accent} />}
 
-        {/* Optional hero BG image overlay */}
-        {s.imagenHero && (
-          <div style={{ position: 'absolute', inset: 0, zIndex: 1, overflow: 'hidden' }}>
-            <img src={s.imagenHero} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08 }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, #06070e)' }} />
-          </div>
-        )}
 
         {/* Fade divs removed for a seamless look */}
 
