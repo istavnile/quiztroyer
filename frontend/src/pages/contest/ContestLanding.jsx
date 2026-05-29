@@ -685,7 +685,7 @@ export default function ContestLanding() {
               <Link to="/concursos/el-gran-upgrade/inscripcion" style={{ textDecoration: 'none' }}>
                 <motion.button
                   animate={{ filter: [`drop-shadow(0 0 12px ${accent}55)`, `drop-shadow(0 0 28px ${accent}cc) drop-shadow(0 0 50px ${accent}44)`, `drop-shadow(0 0 12px ${accent}55)`] }}
-                  whileHover={{ filter: `drop-shadow(0 0 22px ${accent}) drop-shadow(0 0 60px ${accent}88)`, scale: 1.06 }}
+                  whileHover={{ filter: `drop-shadow(0 0 22px ${accent}) drop-shadow(0 0 60px ${accent}88)`, scale: 1.06, transition: { duration: 0.18, repeat: 0 } }}
                   transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
                   style={{
                     background: accent, color: '#000', fontWeight: 900,
@@ -1114,7 +1114,7 @@ export default function ContestLanding() {
 
               <motion.button
                 animate={{ filter: [`drop-shadow(0 0 14px ${accent}55)`, `drop-shadow(0 0 36px ${accent}cc) drop-shadow(0 0 64px ${accent}44)`, `drop-shadow(0 0 14px ${accent}55)`] }}
-                whileHover={{ filter: `drop-shadow(0 0 28px ${accent}) drop-shadow(0 0 70px ${accent}88)`, scale: 1.07 }}
+                whileHover={{ filter: `drop-shadow(0 0 28px ${accent}) drop-shadow(0 0 70px ${accent}88)`, scale: 1.07, transition: { duration: 0.18, repeat: 0 } }}
                 transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
                 style={{
                   background: accent, color: '#000', fontWeight: 900,
