@@ -1011,15 +1011,24 @@ export default function ContestLanding() {
                       </p>
                     </div>
                     <motion.p
-                      animate={{ textShadow: [`0 0 20px ${color}00`, `0 0 40px ${color}44`, `0 0 20px ${color}00`] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                       style={{
                         color: '#f9fafb', fontSize: 'clamp(1.3rem, 3vw, 2rem)',
                         fontWeight: 900, lineHeight: 1.15, margin: 0, letterSpacing: '-0.02em',
-                        textTransform: 'uppercase',
+                        textTransform: 'uppercase', display: 'flex', flexWrap: 'wrap', gap: '0.3em',
                       }}
                     >
-                      {descripcion}
+                      {descripcion.split(' ').map((word, i) => (
+                        <motion.span
+                          key={i}
+                          initial={{ opacity: 0, y: 18, filter: 'blur(4px)' }}
+                          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.4, delay: i * 0.12, ease: 'easeOut' }}
+                          animate={{ textShadow: [`0 0 20px ${color}00`, `0 0 40px ${color}44`, `0 0 20px ${color}00`] }}
+                        >
+                          {word}
+                        </motion.span>
+                      ))}
                     </motion.p>
                   </div>
 
@@ -1033,7 +1042,7 @@ export default function ContestLanding() {
                       <img
                         src={imagenUrl} alt={descripcion}
                         className="gaming-float"
-                        style={{ width: '100%', maxHeight: '420px', objectFit: 'contain' }}
+                        style={{ width: '100%', maxHeight: '560px', objectFit: 'contain' }}
                       />
                     </div>
                   )}
