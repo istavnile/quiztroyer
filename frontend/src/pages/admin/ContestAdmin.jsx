@@ -693,6 +693,22 @@ function TabConfiguracion() {
             </div>
           </div>
 
+          {/* Altura del bloque */}
+          <div>
+            <label style={labelSt}>Altura del bloque del premio</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <input
+                type="range" min="100" max="1200" step="20"
+                value={cfg.premioCardHeight ?? 400}
+                onChange={(e) => set('premioCardHeight', parseInt(e.target.value))}
+                style={{ flex: 1, accentColor: '#6366f1' }}
+              />
+              <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', minWidth: '52px', textAlign: 'right' }}>
+                {cfg.premioCardHeight ?? 400}px
+              </span>
+            </div>
+          </div>
+
           {/* Tamaño de imagen */}
           <div>
             <label style={labelSt}>Escala de la imagen del premio</label>
