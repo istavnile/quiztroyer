@@ -689,19 +689,24 @@ export default function ContestLanding() {
           >
             {open ? (
               <Link to="/concursos/el-gran-upgrade/inscripcion" style={{ textDecoration: 'none' }}>
-                <motion.button
+                <div
                   onMouseEnter={() => setBtnHero(true)}
                   onMouseLeave={() => setBtnHero(false)}
+                  style={{
+                    display: 'inline-block',
+                    filter: btnHero
+                      ? `drop-shadow(0 0 22px ${accent}) drop-shadow(0 0 55px ${accent}99)`
+                      : 'none',
+                    transition: 'filter 0.28s ease',
+                  }}
+                >
+                <motion.button
                   style={{
                     background: accent, color: '#000', fontWeight: 900,
                     padding: '14px 52px', border: 'none', cursor: 'pointer',
                     letterSpacing: '0.1em', textTransform: 'uppercase',
                     clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)',
                     fontSize: '0.9rem', position: 'relative', overflow: 'hidden',
-                    filter: btnHero
-                      ? `drop-shadow(0 0 22px ${accent}) drop-shadow(0 0 55px ${accent}99)`
-                      : `drop-shadow(0 0 10px ${accent}77)`,
-                    transition: 'filter 0.28s ease',
                   }}
                 >
                   <motion.div
@@ -715,6 +720,7 @@ export default function ContestLanding() {
                   />
                   Inscribirme ahora
                 </motion.button>
+                </div>
               </Link>
             ) : (
               <motion.span
@@ -1014,10 +1020,8 @@ export default function ContestLanding() {
                   />
                 </div>
 
-                {/* Pulsing left border glow */}
-                <motion.div
-                  animate={{ boxShadow: [`-4px 0 12px ${color}44`, `-4px 0 28px ${color}99`, `-4px 0 12px ${color}44`] }}
-                  transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                {/* Left border */}
+                <div
                   style={{
                     display: 'flex', flexDirection: 'column',
                     borderLeft: `3px solid ${color}`,
@@ -1081,7 +1085,7 @@ export default function ContestLanding() {
                       />
                     </motion.div>
                   )}
-                </motion.div>
+                </div>
               </div>
             ))}
           </div>
@@ -1127,19 +1131,24 @@ export default function ContestLanding() {
                 />
               ))}
 
-              <motion.button
+              <div
                 onMouseEnter={() => setBtnCta(true)}
                 onMouseLeave={() => setBtnCta(false)}
+                style={{
+                  display: 'inline-block',
+                  filter: btnCta
+                    ? `drop-shadow(0 0 28px ${accent}) drop-shadow(0 0 70px ${accent}99)`
+                    : 'none',
+                  transition: 'filter 0.28s ease',
+                }}
+              >
+              <motion.button
                 style={{
                   background: accent, color: '#000', fontWeight: 900,
                   padding: '18px 72px', border: 'none', cursor: 'pointer',
                   letterSpacing: '0.1em', textTransform: 'uppercase',
                   clipPath: 'polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%)',
                   fontSize: '1rem', position: 'relative', overflow: 'hidden',
-                  filter: btnCta
-                    ? `drop-shadow(0 0 28px ${accent}) drop-shadow(0 0 70px ${accent}99)`
-                    : `drop-shadow(0 0 10px ${accent}77)`,
-                  transition: 'filter 0.28s ease',
                 }}
               >
                 <motion.div
@@ -1153,6 +1162,7 @@ export default function ContestLanding() {
                 />
                 Inscribirme ahora
               </motion.button>
+              </div>
             </div>
           </Link>
         </motion.section>
