@@ -420,6 +420,12 @@ export default function ContestLanding() {
   }, []);
 
   useEffect(() => {
+    const prev = document.title;
+    if (s.titulo) document.title = s.titulo;
+    return () => { document.title = prev; };
+  }, [s.titulo]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       try {
         const canvas = document.createElement('canvas');
