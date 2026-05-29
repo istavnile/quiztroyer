@@ -978,7 +978,7 @@ export default function ContestLanding() {
         >
           <SectionHeader label="Premio" count={s.premios.length} countLabel={s.premios.length === 1 ? 'premio' : 'premios'} accent={accent} />
 
-          <div style={{ maxWidth: '960px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {s.premios.map(({ posicion, descripcion, color, imagenUrl }) => (
               <div key={posicion} style={{ position: 'relative', overflow: 'hidden' }}>
                 <ScanningHudCorners color={color} size={22} />
@@ -1043,7 +1043,7 @@ export default function ContestLanding() {
                       <img
                         src={imagenUrl} alt={descripcion}
                         className="gaming-float"
-                        style={{ width: '100%', maxHeight: '560px', objectFit: 'contain' }}
+                        style={{ width: '100%', maxHeight: '900px', objectFit: 'contain' }}
                       />
                     </div>
                   )}
