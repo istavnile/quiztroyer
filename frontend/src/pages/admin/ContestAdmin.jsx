@@ -742,6 +742,22 @@ function TabConfiguracion() {
             </div>
           </div>
 
+          {/* Ancho del HUD */}
+          <div>
+            <label style={labelSt}>Ancho del HUD (crosshairs)</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <input
+                type="range" min="200" max="1600" step="20"
+                value={cfg.premioHudWidth ?? 1080}
+                onChange={(e) => set('premioHudWidth', parseInt(e.target.value))}
+                style={{ flex: 1, accentColor: '#6366f1' }}
+              />
+              <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', minWidth: '52px', textAlign: 'right' }}>
+                {cfg.premioHudWidth ?? 1080}px
+              </span>
+            </div>
+          </div>
+
           {/* Altura del HUD */}
           <div>
             <label style={labelSt}>Altura del HUD (crosshairs)</label>

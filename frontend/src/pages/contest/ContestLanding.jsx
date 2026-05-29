@@ -1006,9 +1006,10 @@ export default function ContestLanding() {
 
                 {/* HUD crosshairs — independently positionable and sized */}
                 <div style={{
-                  position: 'absolute', top: 0, left: 0, right: 0,
+                  position: 'absolute', top: 0, left: '50%',
+                  width: `${s.premioHudWidth ?? s.premioCardWidth ?? 1080}px`,
                   height: `${s.premioHudHeight ?? 600}px`,
-                  transform: `translate(${s.premioHudOffsetX ?? 0}px, ${s.premioHudOffsetY ?? 0}px)`,
+                  transform: `translateX(-50%) translate(${s.premioHudOffsetX ?? 0}px, ${s.premioHudOffsetY ?? 0}px)`,
                   pointerEvents: 'none', zIndex: 10,
                 }}>
                   <ScanningHudCorners color={color} size={s.premioHudSize ?? 16} />
