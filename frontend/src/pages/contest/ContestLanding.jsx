@@ -1004,8 +1004,15 @@ export default function ContestLanding() {
               /* overflow:visible so the scaled image can extend beyond card bounds */
               <div key={posicion} style={{ position: 'relative', overflow: 'visible' }}>
 
-                {/* Crosshairs anchored to card layout boundary */}
-                <ScanningHudCorners color={color} size={s.premioHudSize ?? 16} />
+                {/* HUD crosshairs — independently positionable and sized */}
+                <div style={{
+                  position: 'absolute', top: 0, left: 0, right: 0,
+                  height: `${s.premioHudHeight ?? 600}px`,
+                  transform: `translate(${s.premioHudOffsetX ?? 0}px, ${s.premioHudOffsetY ?? 0}px)`,
+                  pointerEvents: 'none', zIndex: 10,
+                }}>
+                  <ScanningHudCorners color={color} size={s.premioHudSize ?? 16} />
+                </div>
 
                 {/* Sweeping highlight — clipped by its own wrapper */}
                 <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 1 }}>

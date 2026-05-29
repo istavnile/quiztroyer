@@ -742,9 +742,25 @@ function TabConfiguracion() {
             </div>
           </div>
 
-          {/* Tamaño del HUD */}
+          {/* Altura del HUD */}
           <div>
-            <label style={labelSt}>Tamaño del HUD (crosshairs)</label>
+            <label style={labelSt}>Altura del HUD (crosshairs)</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <input
+                type="range" min="100" max="1400" step="20"
+                value={cfg.premioHudHeight ?? 600}
+                onChange={(e) => set('premioHudHeight', parseInt(e.target.value))}
+                style={{ flex: 1, accentColor: '#6366f1' }}
+              />
+              <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', minWidth: '52px', textAlign: 'right' }}>
+                {cfg.premioHudHeight ?? 600}px
+              </span>
+            </div>
+          </div>
+
+          {/* Tamaño de brazos HUD */}
+          <div>
+            <label style={labelSt}>Tamaño de brazos del HUD (crosshairs)</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <input
                 type="range" min="6" max="40" step="1"
@@ -755,6 +771,34 @@ function TabConfiguracion() {
               <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', minWidth: '40px', textAlign: 'right' }}>
                 {cfg.premioHudSize ?? 16}px
               </span>
+            </div>
+          </div>
+
+          {/* Posición HUD */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <div>
+              <label style={labelSt}>Posición HUD — horizontal</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input type="range" min="-300" max="300" step="10"
+                  value={cfg.premioHudOffsetX ?? 0}
+                  onChange={(e) => set('premioHudOffsetX', parseInt(e.target.value))}
+                  style={{ flex: 1, accentColor: '#6366f1' }} />
+                <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', minWidth: '52px', textAlign: 'right' }}>
+                  {cfg.premioHudOffsetX ?? 0}px
+                </span>
+              </div>
+            </div>
+            <div>
+              <label style={labelSt}>Posición HUD — vertical</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input type="range" min="-300" max="300" step="10"
+                  value={cfg.premioHudOffsetY ?? 0}
+                  onChange={(e) => set('premioHudOffsetY', parseInt(e.target.value))}
+                  style={{ flex: 1, accentColor: '#6366f1' }} />
+                <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', minWidth: '52px', textAlign: 'right' }}>
+                  {cfg.premioHudOffsetY ?? 0}px
+                </span>
+              </div>
             </div>
           </div>
 
