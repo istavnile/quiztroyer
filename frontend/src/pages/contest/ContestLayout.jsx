@@ -497,7 +497,7 @@ export default function ContestLayout({ children }) {
               <img
                 src={primary.logoUrl}
                 alt={primary.nombre || ''}
-                style={{ height: `${Math.min(primary.logoAltura || 28, 34)}px`, maxWidth: '110px', width: 'auto', objectFit: 'contain', display: 'block', flexShrink: 0 }}
+                style={{ height: `${Math.min(primary.logoAltura || 38, 46)}px`, maxWidth: '149px', width: 'auto', objectFit: 'contain', display: 'block', flexShrink: 0 }}
               />
             ) : (
               <div
@@ -588,7 +588,7 @@ export default function ContestLayout({ children }) {
         className="mt-20 py-6 text-center text-xs text-gray-600 px-4"
       >
         <p>
-          Concurso organizado por{' '}
+          {settings.textoOrganizador || 'Concurso organizado por'}{' '}
           {sponsors.map((s, i) => (
             <span key={i}>
               {i > 0 && <span className="text-gray-700">{i < sponsors.length - 1 ? ', ' : ' y '}</span>}
@@ -605,7 +605,7 @@ export default function ContestLayout({ children }) {
           </span>
           <span className="hidden sm:inline">&nbsp;·&nbsp;</span>
           <span>
-            Gran Final en vivo:{' '}
+            {settings.textoGranFinal || 'Gran Final en vivo:'}{' '}
             <strong className="text-white">{settings.textoFechaFinal}</strong>
           </span>
         </p>

@@ -618,6 +618,11 @@ function TabConfiguracion() {
             <TextField label="Cierre"      value={cfg.textoFechaCierre}   onChange={(v) => set('textoFechaCierre', v)}   placeholder="7 de junio, 23:59" />
             <TextField label="Gran Final"  value={cfg.textoFechaFinal}    onChange={(v) => set('textoFechaFinal', v)}    placeholder="12 de junio, 2026" />
           </div>
+          <SectionTitle>Texto del footer</SectionTitle>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <TextField label='Prefijo "organizado por"' value={cfg.textoOrganizador} onChange={(v) => set('textoOrganizador', v)} placeholder="Concurso organizado por" />
+            <TextField label='Etiqueta "Gran Final"'    value={cfg.textoGranFinal}   onChange={(v) => set('textoGranFinal', v)}   placeholder="Gran Final en vivo:" />
+          </div>
         </>)}
 
         {/* PATROCINADORES */}

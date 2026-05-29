@@ -11,6 +11,8 @@ const DEFAULT = {
   subtitulo: 'Muéstranos tu PC y cuéntanos tu historia. ¡El mejor setup ganará un upgrade épico!',
   badge: 'CONCURSO PATROCINADO POR NVIDIA · ASUS ROG · COMPUTERSHOP',
   imagenHero: '',
+  textoOrganizador: 'Concurso organizado por',
+  textoGranFinal: 'Gran Final en vivo:',
   textoFechaApertura: '1 de junio, 2026',
   textoFechaCierre:   '7 de junio, 23:59',
   textoFechaFinal:    '12 de junio, 2026',
@@ -59,6 +61,8 @@ const GAMING_CSS = `
   .gaming-float   { animation: float-bob   3.8s ease-in-out infinite; }
   .gaming-flicker { animation: hud-flicker 7s   ease-in-out infinite; }
   .tactical-blink { animation: tactical-blink 1.1s step-start infinite; }
+  .cta-btn { transition: filter 0.28s ease, box-shadow 0.28s ease !important; }
+  .cta-btn:hover  { filter: drop-shadow(0 0 22px var(--glow)) drop-shadow(0 0 55px var(--glow)) !important; }
 `;
 
 /* ── HUD corner brackets ─────────────────────────────────────────── */
@@ -671,7 +675,7 @@ export default function ContestLanding() {
             >
               {s.patrocinadores.filter((p) => p.logoUrl).map((p) => (
                 <img key={p.nombre} src={p.logoUrl} alt={p.nombre}
-                  style={{ height: `${p.logoAltura || 52}px`, objectFit: 'contain', opacity: 0.88 }} />
+                  style={{ height: `${p.logoAltura || 65}px`, objectFit: 'contain', opacity: 0.88 }} />
               ))}
             </motion.div>
           )}
@@ -684,15 +688,15 @@ export default function ContestLanding() {
             {open ? (
               <Link to="/concursos/el-gran-upgrade/inscripcion" style={{ textDecoration: 'none' }}>
                 <motion.button
-                  animate={{ filter: [`drop-shadow(0 0 12px ${accent}55)`, `drop-shadow(0 0 28px ${accent}cc) drop-shadow(0 0 50px ${accent}44)`, `drop-shadow(0 0 12px ${accent}55)`] }}
-                  whileHover={{ filter: `drop-shadow(0 0 22px ${accent}) drop-shadow(0 0 60px ${accent}88)`, scale: 1.06, transition: { duration: 0.18, repeat: 0 } }}
-                  transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                  className="cta-btn"
                   style={{
+                    '--glow': accent,
                     background: accent, color: '#000', fontWeight: 900,
                     padding: '14px 52px', border: 'none', cursor: 'pointer',
                     letterSpacing: '0.1em', textTransform: 'uppercase',
                     clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)',
                     fontSize: '0.9rem', position: 'relative', overflow: 'hidden',
+                    filter: `drop-shadow(0 0 10px ${accent}77)`,
                   }}
                 >
                   <motion.div
@@ -1116,15 +1120,15 @@ export default function ContestLanding() {
               ))}
 
               <motion.button
-                animate={{ filter: [`drop-shadow(0 0 14px ${accent}55)`, `drop-shadow(0 0 36px ${accent}cc) drop-shadow(0 0 64px ${accent}44)`, `drop-shadow(0 0 14px ${accent}55)`] }}
-                whileHover={{ filter: `drop-shadow(0 0 28px ${accent}) drop-shadow(0 0 70px ${accent}88)`, scale: 1.07, transition: { duration: 0.18, repeat: 0 } }}
-                transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+                className="cta-btn"
                 style={{
+                  '--glow': accent,
                   background: accent, color: '#000', fontWeight: 900,
                   padding: '18px 72px', border: 'none', cursor: 'pointer',
                   letterSpacing: '0.1em', textTransform: 'uppercase',
                   clipPath: 'polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%)',
                   fontSize: '1rem', position: 'relative', overflow: 'hidden',
+                  filter: `drop-shadow(0 0 10px ${accent}77)`,
                 }}
               >
                 <motion.div
