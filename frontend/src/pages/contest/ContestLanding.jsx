@@ -978,76 +978,88 @@ export default function ContestLanding() {
         >
           <SectionHeader label="Premio" count={s.premios.length} countLabel={s.premios.length === 1 ? 'premio' : 'premios'} accent={accent} />
 
-          <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {s.premios.map(({ posicion, descripcion, color, imagenUrl }) => (
-              <div key={posicion} style={{ position: 'relative', overflow: 'hidden' }}>
-                <ScanningHudCorners color={color} size={22} />
+              <div key={posicion} style={{ position: 'relative' }}>
 
-                {/* Sweeping highlight */}
-                <motion.div
-                  animate={{ left: ['-80%', '130%'] }}
-                  transition={{ duration: 3.5, repeat: Infinity, repeatDelay: 1.8, ease: 'easeInOut' }}
-                  style={{
-                    position: 'absolute', top: 0, width: '50%', height: '100%',
-                    background: `linear-gradient(90deg, transparent, ${color}14, transparent)`,
-                    pointerEvents: 'none', zIndex: 1,
-                  }}
-                />
+                {/* Large background image — behind the card */}
+                {imagenUrl && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.92 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.7, ease: 'easeOut' }}
+                    style={{
+                      position: 'absolute', top: '60px', left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '160%', zIndex: 0, pointerEvents: 'none',
+                    }}
+                  >
+                    <img
+                      src={imagenUrl} alt={descripcion}
+                      className="gaming-float"
+                      style={{ width: '100%', objectFit: 'contain' }}
+                    />
+                  </motion.div>
+                )}
 
-                {/* Pulsing left border glow */}
-                <motion.div
-                  animate={{ boxShadow: [`-4px 0 12px ${color}44`, `-4px 0 28px ${color}99`, `-4px 0 12px ${color}44`] }}
-                  transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-                  style={{
-                    display: 'flex', flexDirection: 'column',
-                    borderLeft: `3px solid ${color}`,
-                    background: `linear-gradient(90deg, ${color}0d 0%, transparent 60%)`,
-                  }}
-                >
-                  <div style={{ padding: '36px 32px 24px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-                      <PulsingDot color={color} size={8} />
-                      <p style={{ color, fontSize: '0.58rem', fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', margin: 0, fontFamily: 'monospace' }}>
-                        // {posicion}
-                      </p>
+                {/* Card — sits on top of the image */}
+                <div style={{ position: 'relative', zIndex: 1, overflow: 'hidden' }}>
+                  <ScanningHudCorners color={color} size={22} />
+
+                  {/* Sweeping highlight */}
+                  <motion.div
+                    animate={{ left: ['-80%', '130%'] }}
+                    transition={{ duration: 3.5, repeat: Infinity, repeatDelay: 1.8, ease: 'easeInOut' }}
+                    style={{
+                      position: 'absolute', top: 0, width: '50%', height: '100%',
+                      background: `linear-gradient(90deg, transparent, ${color}14, transparent)`,
+                      pointerEvents: 'none', zIndex: 1,
+                    }}
+                  />
+
+                  {/* Pulsing left border glow */}
+                  <motion.div
+                    animate={{ boxShadow: [`-4px 0 12px ${color}44`, `-4px 0 28px ${color}99`, `-4px 0 12px ${color}44`] }}
+                    transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{
+                      borderLeft: `3px solid ${color}`,
+                      background: `linear-gradient(90deg, ${color}0d 0%, transparent 60%)`,
+                    }}
+                  >
+                    <div style={{ padding: '36px 32px 36px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                        <PulsingDot color={color} size={8} />
+                        <p style={{ color, fontSize: '0.58rem', fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', margin: 0, fontFamily: 'monospace' }}>
+                          // {posicion}
+                        </p>
+                      </div>
+                      <motion.p
+                        style={{
+                          color: '#f9fafb', fontSize: 'clamp(1.3rem, 3vw, 2rem)',
+                          fontWeight: 900, lineHeight: 1.15, margin: 0, letterSpacing: '-0.02em',
+                          textTransform: 'uppercase', display: 'flex', flexWrap: 'wrap', gap: '0.3em',
+                        }}
+                      >
+                        {descripcion.split(' ').map((word, i) => (
+                          <motion.span
+                            key={i}
+                            initial={{ opacity: 0, y: 18, filter: 'blur(4px)' }}
+                            whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.4, delay: i * 0.12, ease: 'easeOut' }}
+                            animate={{ textShadow: [`0 0 20px ${color}00`, `0 0 40px ${color}44`, `0 0 20px ${color}00`] }}
+                          >
+                            {word}
+                          </motion.span>
+                        ))}
+                      </motion.p>
                     </div>
-                    <motion.p
-                      style={{
-                        color: '#f9fafb', fontSize: 'clamp(1.3rem, 3vw, 2rem)',
-                        fontWeight: 900, lineHeight: 1.15, margin: 0, letterSpacing: '-0.02em',
-                        textTransform: 'uppercase', display: 'flex', flexWrap: 'wrap', gap: '0.3em',
-                      }}
-                    >
-                      {descripcion.split(' ').map((word, i) => (
-                        <motion.span
-                          key={i}
-                          initial={{ opacity: 0, y: 18, filter: 'blur(4px)' }}
-                          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.4, delay: i * 0.12, ease: 'easeOut' }}
-                          animate={{ textShadow: [`0 0 20px ${color}00`, `0 0 40px ${color}44`, `0 0 20px ${color}00`] }}
-                        >
-                          {word}
-                        </motion.span>
-                      ))}
-                    </motion.p>
-                  </div>
+                  </motion.div>
+                </div>
 
-                  {imagenUrl && (
-                    <div style={{
-                      width: '100%', borderTop: `1px solid ${color}18`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      padding: '32px 40px',
-                      background: `radial-gradient(ellipse at center, ${color}0a 0%, transparent 70%)`,
-                    }}>
-                      <img
-                        src={imagenUrl} alt={descripcion}
-                        className="gaming-float"
-                        style={{ width: '100%', maxHeight: '900px', objectFit: 'contain' }}
-                      />
-                    </div>
-                  )}
-                </motion.div>
+                {/* Spacer so the background image is visible below the card */}
+                {imagenUrl && <div style={{ height: '480px' }} />}
               </div>
             ))}
           </div>
