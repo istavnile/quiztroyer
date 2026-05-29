@@ -1063,7 +1063,7 @@ export default function ContestLanding() {
                       transition={{ duration: 0.7 }}
                       style={{
                         display: 'flex', justifyContent: 'center', alignItems: 'center',
-                        minHeight: `${s.premioCardHeight ?? 400}px`,
+                        height: `${s.premioCardHeight ?? 400}px`,
                         overflow: 'visible',
                         background: `radial-gradient(ellipse at center, ${color}08 0%, transparent 70%)`,
                       }}
