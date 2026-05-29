@@ -465,7 +465,7 @@ export default function ContestLanding() {
         {/* Hero BG image — rendered first so the nebula blends on top via mixBlendMode:screen */}
         {s.imagenHero && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
-            <img src={s.imagenHero} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.45 }} />
+            <img src={s.imagenHero} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center', opacity: 0.45 }} />
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, #06070e)' }} />
           </div>
         )}
