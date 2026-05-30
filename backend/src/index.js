@@ -94,7 +94,7 @@ app.get('/index-ssr.html', async (req, res) => {
     const desc = settings.subtitulo ?
       settings.subtitulo.replace(/<[^>]*>/g, '').substring(0, 160) :
       'Muéstranos tu PC y cuéntanos tu historia';
-    const image = settings.imagenHero ? `http://localhost:4000${settings.imagenHero}` : 'https://quiztroyer.istavnile.cloud/og-image.svg';
+    const image = 'https://i.imgur.com/oggG8lX.png';
     const badge = settings.badge || '';
 
     const html = `<!DOCTYPE html>
