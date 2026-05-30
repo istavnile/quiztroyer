@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { CONTEST_PATHS } from '../../lib/contestPaths';
 import ContestLayout, { GalaxyCanvas } from './ContestLayout';
 
 const API = import.meta.env.VITE_API_URL || '';
@@ -770,7 +771,7 @@ export default function ContestLanding() {
             className="flex flex-row flex-wrap gap-3 justify-center"
           >
             {open ? (
-              <Link to="/concursos/el-gran-upgrade/inscripcion" style={{ textDecoration: 'none' }}>
+              <Link to={CONTEST_PATHS.FORM} style={{ textDecoration: 'none' }}>
                 <div
                   onMouseEnter={() => setBtnHero(true)}
                   onMouseLeave={() => setBtnHero(false)}
@@ -831,7 +832,7 @@ export default function ContestLanding() {
                 Inscripciones abren el {s.textoFechaApertura}
               </motion.span>
             )}
-            <Link to="/concursos/el-gran-upgrade/votacion" style={{ textDecoration: 'none' }}>
+            <Link to={CONTEST_PATHS.VOTING} style={{ textDecoration: 'none' }}>
               <motion.button
                 initial={{ background: 'rgba(255,255,255,0.05)', color: '#e2e8f0', boxShadow: '0 0 14px rgba(255,255,255,0.06)' }}
                 whileHover={{
@@ -1236,7 +1237,7 @@ export default function ContestLanding() {
             // INSCRIPCIONES CIERRAN EL <span style={{ color: '#e2e8f0' }}>{s.textoFechaCierre}</span>
           </p>
 
-          <Link to="/concursos/el-gran-upgrade/inscripcion" style={{ textDecoration: 'none' }}>
+          <Link to={CONTEST_PATHS.FORM} style={{ textDecoration: 'none' }}>
             <div style={{ position: 'relative', display: 'inline-block' }}>
               {/* Expanding pulse rings */}
               {[0, 0.6, 1.2].map((delay, i) => (

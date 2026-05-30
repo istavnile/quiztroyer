@@ -6,6 +6,12 @@ import { ADMIN_PATH } from './lib/adminPath';
 
 // Pages
 import Home from './pages/Home';
+
+// Root route selector
+function RootRoute() {
+  const isConcursoHost = window.location.hostname === 'concurso.intercutmedia.com';
+  return isConcursoHost ? <ContestLanding /> : <Home />;
+}
 import JoinPage from './pages/JoinPage';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -38,7 +44,7 @@ export default function App() {
       <AdminProvider>
         <GameProvider>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<RootRoute />} />
             <Route path="/join/:slug" element={<JoinPage />} />
             <Route path="/play/:slug" element={<GameRoom />} />
             <Route path="/sorteo/:slug" element={<RaffleJoin />} />
@@ -83,6 +89,9 @@ export default function App() {
             <Route path="/concursos/el-gran-upgrade" element={<ContestLanding />} />
             <Route path="/concursos/el-gran-upgrade/inscripcion" element={<ContestForm />} />
             <Route path="/concursos/el-gran-upgrade/votacion" element={<ContestVoting />} />
+            {/* Concurso — rutas alternativas para concurso.intercutmedia.com */}
+            <Route path="/inscripcion" element={<ContestForm />} />
+            <Route path="/votacion" element={<ContestVoting />} />
 
             {/* Concurso externo — panel admin */}
             <Route

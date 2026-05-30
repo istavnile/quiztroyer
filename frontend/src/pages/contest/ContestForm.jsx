@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
+import { CONTEST_PATHS } from '../../lib/contestPaths';
 import ContestLayout from './ContestLayout';
 
 const API = import.meta.env.VITE_API_URL || '';
@@ -483,7 +484,7 @@ function FormContent({ campos, settings, isPreview }) {
           Tu participación fue registrada exitosamente. Nuestro equipo revisará tu historia y setup.
           Si eres seleccionado finalista, tu perfil aparecerá en la galería de votación.
         </p>
-        <Link to="/concursos/el-gran-upgrade">
+        <Link to={CONTEST_PATHS.LANDING}>
           <button style={{
             marginTop: '32px', background: '#76B900', color: '#000',
             fontWeight: 800, padding: '12px 32px', borderRadius: '6px',
@@ -634,7 +635,7 @@ export default function ContestForm() {
           <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '12px' }}>Inscripciones cerradas</h1>
           <p style={{ color: '#9ca3af' }}>
             Visita la página de{' '}
-            <Link to="/concursos/el-gran-upgrade/votacion" style={{ color: '#76B900' }}>votación</Link>{' '}
+            <Link to={CONTEST_PATHS.VOTING} style={{ color: '#76B900' }}>votación</Link>{' '}
             para apoyar a los finalistas.
           </p>
         </div>
