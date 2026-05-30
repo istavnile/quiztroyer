@@ -471,12 +471,24 @@ export default function ContestLanding() {
   const [gpuInfo, setGpuInfo] = useState(null);
   const isMobile = window.innerWidth < 640;
 
-  useEffect(() => {
+  const fetchSettings = () => {
     fetch(`${API}/api/contest/settings`, { cache: 'no-store' })
       .then((r) => r.json())
       .then((data) => setS({ ...DEFAULT, ...data }))
       .catch((err) => console.warn('[contest-settings]', err));
+  };
+
+  useEffect(() => {
+    fetchSettings();
   }, []);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) fetchSettings();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [API]);
 
   useEffect(() => {
     const prev = document.title;
