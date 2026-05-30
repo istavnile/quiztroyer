@@ -1232,7 +1232,7 @@ export default function ContestLanding() {
               Gran Upgrade?
             </motion.span>
           </h2>
-          <p style={{ color: '#4b5563', marginBottom: '44px', fontSize: '0.9rem', fontFamily: 'monospace', letterSpacing: '0.05em', maxWidth: isMobile ? '260px' : 'none', margin: '0 auto 44px' }}>
+          <p style={{ color: '#4b5563', marginBottom: '44px', fontSize: '0.9rem', fontFamily: 'monospace', letterSpacing: '0.05em', maxWidth: isMobile ? '150px' : 'none', margin: '0 auto 44px' }}>
             // INSCRIPCIONES CIERRAN EL <span style={{ color: '#e2e8f0' }}>{s.textoFechaCierre}</span>
           </p>
 
