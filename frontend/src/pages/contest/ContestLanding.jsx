@@ -947,26 +947,26 @@ export default function ContestLanding() {
               {s.pasos.map(({ numero, titulo, descripcion }, i) => {
                 const clr = STEP_COLORS[i % STEP_COLORS.length];
                 return (
-                  <div key={numero} style={{ flexShrink: 0, width: '85vw', scrollSnapAlign: 'start' }}>
+                  <div key={numero} style={{ flexShrink: 0, width: '75vw', scrollSnapAlign: 'start' }}>
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.5, delay: i * 0.1 }}
                       style={{
-                        position: 'relative', padding: '20px', border: `1px solid ${clr}66`,
+                        position: 'relative', padding: '14px', border: `1px solid ${clr}66`,
                         clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)',
                         background: `${clr}0c`, borderRadius: 0,
                       }}
                     >
-                      <div style={{ marginBottom: '16px', position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-                        <PulsingDot color={clr} size={10} />
+                      <div style={{ marginBottom: '12px', position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                        <PulsingDot color={clr} size={8} />
                       </div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: clr, letterSpacing: '0.06em', marginBottom: '8px' }}>
+                      <div style={{ fontSize: '0.65rem', fontWeight: 700, color: clr, letterSpacing: '0.06em', marginBottom: '6px' }}>
                         PASO {numero}
                       </div>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '10px', color: '#fff' }}>{titulo}</h3>
-                      <p style={{ color: '#9ca3af', fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }} dangerouslySetInnerHTML={{ __html: descripcion }} />
+                      <h3 style={{ fontSize: '0.95rem', fontWeight: 800, marginBottom: '8px', color: '#fff' }}>{titulo}</h3>
+                      <p style={{ color: '#9ca3af', fontSize: '0.75rem', lineHeight: 1.5, margin: 0 }} dangerouslySetInnerHTML={{ __html: descripcion }} />
                     </motion.div>
                   </div>
                 );
