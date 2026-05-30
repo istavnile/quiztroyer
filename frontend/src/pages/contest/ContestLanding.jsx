@@ -471,6 +471,7 @@ export default function ContestLanding() {
   const open      = s.registrationOpen ?? false;
   const [gpuInfo, setGpuInfo] = useState(null);
   const isMobile = window.innerWidth < 640;
+  const audioRef = useRef(null);
 
   const fetchSettings = () => {
     fetch(`${API}/api/contest/settings`, { cache: 'no-store' })
@@ -544,6 +545,12 @@ export default function ContestLanding() {
     carousel.scrollTo({ left: carouselIdx * (itemWidth + 20), behavior: 'smooth' });
   }, [carouselIdx, isMobile]);
 
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.4;
+    }
+  }, [s.ambientAudioUrl]);
+
   const titleWords  = s.titulo.trim().split(/\s+/);
   const titleMain   = titleWords.slice(0, -1).join(' ');
   const titleAccent = titleWords.slice(-1)[0];
@@ -553,6 +560,17 @@ export default function ContestLanding() {
   return (
     <ContestLayout>
       <style>{GAMING_CSS}</style>
+
+      {/* Ambient Audio */}
+      {s.ambientAudioUrl && (
+        <audio
+          ref={audioRef}
+          autoPlay
+          loop
+          src={s.ambientAudioUrl}
+          style={{ display: 'none' }}
+        />
+      )}
 
       {/* ══════════ HERO ══════════════════════════════════════════════ */}
       <section style={{ position: 'relative', padding: '80px 0 56px', textAlign: 'center', overflow: 'hidden' }}>

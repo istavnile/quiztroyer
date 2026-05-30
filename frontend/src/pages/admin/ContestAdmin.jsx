@@ -83,6 +83,56 @@ function ImageUploader({ label, value, onChange }) {
   );
 }
 
+function AudioUploader({ label, value, onChange }) {
+  const ref = useRef();
+  const [uploading, setUploading] = useState(false);
+
+  const handleFile = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('audio', file);
+      const res = await api.post('/admin/upload-audio', fd);
+      onChange(`${API_BASE}${res.data.url}`);
+    } catch (e) {
+      alert('Error al subir audio: ' + e.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div>
+      <label style={labelSt}>{label}</label>
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        {value && (
+          <div style={{ position: 'relative' }}>
+            <audio src={value} controls style={{ height: '40px', borderRadius: '6px', border: '1px solid #374151' }} />
+            <button onClick={() => onChange('')} style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#e61f30', border: 'none', color: '#fff', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+          </div>
+        )}
+        <div style={{ flex: 1 }}>
+          <input
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="https://... o sube un archivo MP3"
+            style={{ ...inputSt, marginBottom: '6px' }}
+          />
+          <button
+            onClick={() => ref.current?.click()}
+            disabled={uploading}
+            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid #374151', color: '#9ca3af', padding: '5px 12px', borderRadius: '5px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600 }}
+          >
+            {uploading ? 'Subiendo...' : '🎵 Subir MP3'}
+          </button>
+          <input ref={ref} type="file" accept="audio/mpeg,audio/*" style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files[0])} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Sección colapsable ───────────────────────────────────────────────────────
 function Accordion({ title, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -490,6 +540,7 @@ const DEFAULTS = {
   premios: [
     { posicion: '1er lugar', descripcion: 'ASUS NVIDIA GeForce RTX 5060 Ti', color: '#76B900', imagenUrl: '' },
   ],
+  ambientAudioUrl: '',
   tituloFormulario: 'Formulario de inscripción', instruccionesFormulario: '',
   labelHistoria: '¿Por qué mereces el Gran Upgrade?', placeholderHistoria: '',
   maxPalabrasHistoria: 150, textoTyC: 'Acepto los Términos y Condiciones del concurso',
@@ -503,6 +554,7 @@ const CONFIG_SECTIONS = [
   { id: 'pats',   label: 'Patrocinadores', icon: '★' },
   { id: 'pasos',  label: 'Pasos',          icon: '✓' },
   { id: 'premios',label: 'Premios',        icon: '▲' },
+  { id: 'audio',  label: 'Música',         icon: '🎵' },
   { id: 'techbg', label: 'Fondo NVIDIA',   icon: '◈' },
   { id: 'form',   label: 'Formulario',     icon: '≡' },
 ];
@@ -915,6 +967,19 @@ function TabConfiguracion() {
               </div>
             </div>
           ))}
+        </>)}
+
+        {/* MÚSICA AMBIENTE */}
+        {section === 'audio' && (<>
+          <SectionTitle>Música de ambiente</SectionTitle>
+          <AudioUploader
+            label="Archivo MP3 (autoplay, volumen bajito)"
+            value={cfg.ambientAudioUrl || ''}
+            onChange={(v) => set('ambientAudioUrl', v)}
+          />
+          <p style={{ color: '#6b7280', fontSize: '0.85rem', marginTop: '10px' }}>
+            La música se reproducirá automáticamente al cargar la página, en loop infinito, con volumen reducido.
+          </p>
         </>)}
 
         {/* FONDO NVIDIA */}

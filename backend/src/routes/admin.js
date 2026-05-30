@@ -299,6 +299,13 @@ router.post('/upload-image', requireAdmin, upload.single('image'), (req, res) =>
   res.json({ url });
 });
 
+// POST /api/admin/upload-audio
+router.post('/upload-audio', requireAdmin, upload.single('audio'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  const url = `/uploads/${req.file.filename}`;
+  res.json({ url });
+});
+
 // --- RESULTS ---
 
 // GET /api/admin/challenges/:id/results
