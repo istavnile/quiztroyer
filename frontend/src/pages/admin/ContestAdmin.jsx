@@ -303,6 +303,7 @@ function TabRegistros() {
   const [graficaActual, setGrafica]     = useState('');
   const [fuentePoderWatts, setFuente]   = useState('');
   const [isFinalist, setIsFinalist]     = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
@@ -336,17 +337,45 @@ function TabRegistros() {
   };
 
   const deleteLead = async (lead) => {
-    if (!confirm(`¿Eliminar a ${lead.nombre}? Esta acción no se puede deshacer.`)) return;
+    setConfirmDelete(lead);
+  };
+
+  const confirmDeleteLead = async () => {
+    if (!confirmDelete) return;
     try {
-      await api.delete(`/admin/concurso/${lead.id}`);
-      setLeads((p) => p.filter((l) => l.id !== lead.id));
-      if (fullLead?.id === lead.id) { setSelectedLead(null); setFullLead(null); }
-    } catch (e) { alert('Error al eliminar: ' + e.message); }
+      await api.delete(`/admin/concurso/${confirmDelete.id}`);
+      setLeads((p) => p.filter((l) => l.id !== confirmDelete.id));
+      if (fullLead?.id === confirmDelete.id) { setSelectedLead(null); setFullLead(null); }
+      setConfirmDelete(null);
+    } catch (e) {
+      alert('Error al eliminar: ' + e.message);
+      setConfirmDelete(null);
+    }
   };
 
   return (
     <>
       <LeadModal lead={modalLoading ? selectedLead : fullLead} onClose={() => { setSelectedLead(null); setFullLead(null); }} onToggleFinalist={toggleFinalist} />
+
+      {/* Modal de confirmación de eliminación */}
+      {confirmDelete && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px', padding: '24px', maxWidth: '400px', boxShadow: '0 20px 60px rgba(0,0,0,0.8)' }}>
+            <h3 style={{ color: '#f1f5f9', marginBottom: '8px', fontWeight: 700, fontSize: '1.1rem' }}>Eliminar registro</h3>
+            <p style={{ color: '#cbd5e1', marginBottom: '20px', fontSize: '0.95rem', lineHeight: 1.5 }}>
+              ¿Eliminar a <strong>{confirmDelete.nombre}</strong>? Esta acción no se puede deshacer.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setConfirmDelete(null)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid #374151', color: '#cbd5e1', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}>
+                Cancelar
+              </button>
+              <button onClick={confirmDeleteLead} style={{ background: '#dc2626', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem' }}>
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filtros */}
       <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #1f2937', borderRadius: '10px', padding: '16px 20px', marginBottom: '20px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
