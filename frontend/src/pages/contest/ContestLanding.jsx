@@ -64,6 +64,9 @@ const GAMING_CSS = `
   .tactical-blink { animation: tactical-blink 1.1s step-start infinite; }
   .cta-btn { transition: filter 0.28s ease, box-shadow 0.28s ease !important; }
   .cta-btn:hover  { filter: drop-shadow(0 0 22px var(--glow)) drop-shadow(0 0 55px var(--glow)) !important; }
+  @media (max-width: 640px) {
+    .cta-mobile { padding: 11px 16px !important; font-size: 0.78rem !important; }
+  }
 `;
 
 /* ── HUD corner brackets ─────────────────────────────────────────── */
@@ -625,7 +628,7 @@ export default function ContestLanding() {
           {/* Glitch title */}
           <div style={{ position: 'relative', display: 'inline-block', marginBottom: '1.5rem' }}>
             <h1
-              style={{ fontSize: `clamp(0.5rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em', margin: 0 }}
+              style={{ fontSize: `clamp(1.5rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em', margin: 0 }}
             >
               {titleWords.map((word, i) => {
                 const isAccent = i === titleWords.length - 1;
@@ -677,7 +680,7 @@ export default function ContestLanding() {
                 transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 1.2, times: [0, 0.52, 0.57, 0.61, 0.65, 0.70] }}
                 style={{
                   position: 'absolute', inset: 0,
-                  fontSize: `clamp(0.5rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
+                  fontSize: `clamp(1.5rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
                   color: '#e61f30',
                 }}
               >
@@ -694,7 +697,7 @@ export default function ContestLanding() {
                 transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 1.2, delay: 0.07, times: [0, 0.52, 0.57, 0.61, 0.65, 0.70] }}
                 style={{
                   position: 'absolute', inset: 0,
-                  fontSize: `clamp(0.5rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
+                  fontSize: `clamp(1.5rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
                   color: '#00cfff',
                 }}
               >
@@ -729,7 +732,7 @@ export default function ContestLanding() {
           {/* CTA buttons — parallelogram shape */}
           <motion.div
             initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28, duration: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            className="flex flex-row flex-wrap gap-3 justify-center"
           >
             {open ? (
               <Link to="/concursos/el-gran-upgrade/inscripcion" style={{ textDecoration: 'none' }}>
