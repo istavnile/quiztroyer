@@ -786,10 +786,10 @@ export default function ContestLanding() {
                   className="cta-mobile"
                   style={{
                     background: accent, color: '#000', fontWeight: 900,
-                    padding: '14px 52px', border: 'none', cursor: 'pointer',
-                    letterSpacing: '0.1em', textTransform: 'uppercase',
+                    padding: isMobile ? '9px 16px' : '14px 52px', border: 'none', cursor: 'pointer',
+                    letterSpacing: isMobile ? '0.04em' : '0.1em', textTransform: 'uppercase',
                     clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)',
-                    fontSize: '0.9rem', position: 'relative', overflow: 'hidden',
+                    fontSize: isMobile ? '0.65rem' : '0.9rem', position: 'relative', overflow: 'hidden',
                   }}
                 >
                   <motion.div
@@ -846,9 +846,9 @@ export default function ContestLanding() {
                   background: 'rgba(255,255,255,0.05)', color: '#e2e8f0',
                   border: '1px solid rgba(255,255,255,0.38)',
                   boxShadow: '0 0 14px rgba(255,255,255,0.06), inset 0 0 8px rgba(255,255,255,0.03)',
-                  fontWeight: 600, padding: '14px 44px',
+                  fontWeight: 600, padding: isMobile ? '9px 16px' : '14px 44px',
                   clipPath: 'polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%)',
-                  fontSize: '0.9rem', cursor: 'pointer', outline: 'none',
+                  fontSize: isMobile ? '0.65rem' : '0.9rem', cursor: 'pointer', outline: 'none',
                 }}
               >
                 Ver finalistas y votar
@@ -1265,10 +1265,10 @@ export default function ContestLanding() {
                 className="cta-mobile"
                 style={{
                   background: accent, color: '#000', fontWeight: 900,
-                  padding: '18px 72px', border: 'none', cursor: 'pointer',
-                  letterSpacing: '0.1em', textTransform: 'uppercase',
+                  padding: isMobile ? '9px 16px' : '18px 72px', border: 'none', cursor: 'pointer',
+                  letterSpacing: isMobile ? '0.04em' : '0.1em', textTransform: 'uppercase',
                   clipPath: 'polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%)',
-                  fontSize: '1rem', position: 'relative', overflow: 'hidden',
+                  fontSize: isMobile ? '0.65rem' : '1rem', position: 'relative', overflow: 'hidden',
                 }}
               >
                 <motion.div
