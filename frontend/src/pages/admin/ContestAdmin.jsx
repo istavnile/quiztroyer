@@ -168,7 +168,7 @@ function RichTextEditor({ label, value, onChange, placeholder }) {
 
 // ─── CSV / PDF export helpers ─────────────────────────────────────────────────
 function exportCSV(leads) {
-  const headers = ['Nombre', 'Email', 'Teléfono', 'Procesador', 'Gráfica', 'Fuente de poder', 'Finalista', 'Votos', 'Fecha registro'];
+  const headers = ['Nombre', 'Email', 'Teléfono', 'Procesador', 'Gráfica', 'Fuente de poder', 'Historia', 'Finalista', 'Votos', 'Fecha registro'];
   const rows = leads.map((l) => [
     l.nombre,
     l.email,
@@ -176,6 +176,7 @@ function exportCSV(leads) {
     PROCESADOR_LABELS[l.procesador]       ?? l.procesador,
     GRAFICA_LABELS[l.graficaActual]       ?? l.graficaActual,
     FUENTE_LABELS[l.fuentePoderWatts]     ?? l.fuentePoderWatts,
+    l.historia ?? '',
     l.isFinalist ? 'Sí' : 'No',
     l.voteCount ?? 0,
     new Date(l.createdAt).toLocaleString('es-GT'),
@@ -188,29 +189,30 @@ function exportCSV(leads) {
 }
 
 async function exportPDF(leads) {
-  const doc = new jsPDF();
+  const doc = new jsPDF({ orientation: 'landscape' });
   const GREEN = [118, 185, 0];
-  doc.setFillColor(10, 10, 10); doc.rect(0, 0, 210, 36, 'F');
+  doc.setFillColor(10, 10, 10); doc.rect(0, 0, 297, 36, 'F');
   doc.setTextColor(...GREEN); doc.setFontSize(15); doc.setFont('helvetica', 'bold');
   doc.text('El Gran Upgrade — Registros', 14, 16);
   doc.setTextColor(150, 150, 150); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
   doc.text(`Total: ${leads.length} registros  ·  ${new Date().toLocaleDateString('es-GT')}`, 14, 26);
-  doc.setDrawColor(...GREEN); doc.setLineWidth(0.6); doc.line(14, 33, 196, 33);
+  doc.setDrawColor(...GREEN); doc.setLineWidth(0.6); doc.line(14, 33, 283, 33);
   autoTable(doc, {
     startY: 38,
-    head: [['#', 'Nombre', 'Email', 'CPU', 'GPU', 'Fuente', 'Finalista', 'Votos']],
+    head: [['#', 'Nombre', 'Email', 'CPU', 'GPU', 'Fuente', 'Historia', 'Finalista', 'Votos']],
     body: leads.map((l, i) => [
       i + 1, l.nombre, l.email,
       (PROCESADOR_LABELS[l.procesador] ?? l.procesador).replace('Intel Core ', '').replace(/ \(.*\)/, ''),
       (GRAFICA_LABELS[l.graficaActual] ?? l.graficaActual).replace('NVIDIA GeForce ', '').replace('AMD Radeon ', '').replace(' Series', ''),
       FUENTE_LABELS[l.fuentePoderWatts] ?? l.fuentePoderWatts,
+      l.historia ?? '',
       l.isFinalist ? 'Sí' : '',
       l.voteCount ?? 0,
     ]),
     headStyles: { fillColor: GREEN, textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7.5 },
-    bodyStyles: { fontSize: 7, textColor: [30, 30, 30] },
+    bodyStyles: { fontSize: 6.5, textColor: [30, 30, 30] },
     alternateRowStyles: { fillColor: [244, 249, 240] },
-    columnStyles: { 0: { cellWidth: 8 }, 6: { textColor: GREEN, fontStyle: 'bold' } },
+    columnStyles: { 0: { cellWidth: 8 }, 6: { cellWidth: 55 }, 7: { textColor: GREEN, fontStyle: 'bold' } },
     margin: { left: 14, right: 14 },
   });
   doc.save('registros-el-gran-upgrade.pdf');
@@ -333,6 +335,15 @@ function TabRegistros() {
     } catch (e) { alert('Error: ' + e.message); }
   };
 
+  const deleteLead = async (lead) => {
+    if (!confirm(`¿Eliminar a ${lead.nombre}? Esta acción no se puede deshacer.`)) return;
+    try {
+      await api.delete(`/admin/concurso/${lead.id}`);
+      setLeads((p) => p.filter((l) => l.id !== lead.id));
+      if (fullLead?.id === lead.id) { setSelectedLead(null); setFullLead(null); }
+    } catch (e) { alert('Error al eliminar: ' + e.message); }
+  };
+
   return (
     <>
       <LeadModal lead={modalLoading ? selectedLead : fullLead} onClose={() => { setSelectedLead(null); setFullLead(null); }} onToggleFinalist={toggleFinalist} />
@@ -372,7 +383,7 @@ function TabRegistros() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #1f2937' }}>
-                {['Nombre', 'Email', 'CPU', 'GPU', 'Fuente', 'Votos', 'Finalista', 'Fecha', ''].map((h) => (
+                {['Nombre', 'Email', 'CPU', 'GPU', 'Fuente', 'Historia', 'Votos', 'Finalista', 'Fecha', ''].map((h) => (
                   <th key={h} style={{ padding: '10px 12px', textAlign: 'left', color: '#6b7280', fontWeight: 600, fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
@@ -389,6 +400,7 @@ function TabRegistros() {
                   <td style={tdStyle}><span style={chipStyle}>{cpuShort(lead.procesador)}</span></td>
                   <td style={tdStyle}><span style={chipStyle}>{gpuShort(lead.graficaActual)}</span></td>
                   <td style={tdStyle}><span style={chipStyle}>{FUENTE_LABELS[lead.fuentePoderWatts] ?? lead.fuentePoderWatts}</span></td>
+                  <td style={{ ...tdStyle, maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#9ca3af', fontSize: '0.8rem' }}>{lead.historia ?? '(sin historia)'}</td>
                   <td style={{ ...tdStyle, fontWeight: 700, color: '#76B900' }}>{lead.isFinalist ? (lead.voteCount ?? 0) : '—'}</td>
                   <td style={tdStyle}>
                     <button onClick={(e) => { e.stopPropagation(); toggleFinalist(lead); }} style={{ background: lead.isFinalist ? 'rgba(118,185,0,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${lead.isFinalist ? '#76B900' : '#374151'}`, color: lead.isFinalist ? '#76B900' : '#6b7280', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
@@ -396,7 +408,11 @@ function TabRegistros() {
                     </button>
                   </td>
                   <td style={{ ...tdStyle, color: '#4b5563', whiteSpace: 'nowrap' }}>{fmtDate(lead.createdAt)}</td>
-                  <td style={tdStyle}><span style={{ color: '#6b7280', fontSize: '0.8rem' }}>Ver →</span></td>
+                  <td style={tdStyle}>
+                    <button onClick={(e) => { e.stopPropagation(); deleteLead(lead); }} style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', color: '#ef4444', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}>
+                      ✕
+                    </button>
+                  </td>
                 </motion.tr>
               ))}
             </tbody>
