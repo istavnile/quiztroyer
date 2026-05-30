@@ -663,7 +663,7 @@ export default function ContestLanding() {
           {/* Glitch title */}
           <div style={{ position: 'relative', display: 'inline-block', marginBottom: '1.5rem' }}>
             <h1
-              style={{ fontSize: `clamp(1.5rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em', margin: 0 }}
+              style={{ fontSize: `clamp(1.8rem, ${s.tituloVw ?? 8.4}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em', margin: 0 }}
             >
               {titleWords.map((word, i) => {
                 const isAccent = i === titleWords.length - 1;
@@ -715,7 +715,7 @@ export default function ContestLanding() {
                 transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 1.2, times: [0, 0.52, 0.57, 0.61, 0.65, 0.70] }}
                 style={{
                   position: 'absolute', inset: 0,
-                  fontSize: `clamp(1.5rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
+                  fontSize: `clamp(1.8rem, ${s.tituloVw ?? 8.4}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
                   color: '#e61f30',
                 }}
               >
@@ -732,7 +732,7 @@ export default function ContestLanding() {
                 transition={{ duration: 4.5, repeat: Infinity, repeatDelay: 1.2, delay: 0.07, times: [0, 0.52, 0.57, 0.61, 0.65, 0.70] }}
                 style={{
                   position: 'absolute', inset: 0,
-                  fontSize: `clamp(1.5rem, ${s.tituloVw ?? 7}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
+                  fontSize: `clamp(1.8rem, ${s.tituloVw ?? 8.4}vw, 9rem)`, fontWeight: 900, lineHeight: 1.0, letterSpacing: '-0.03em',
                   color: '#00cfff',
                 }}
               >
@@ -746,7 +746,7 @@ export default function ContestLanding() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: titleWords.length * 0.18 + 0.3, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              style={{ color: '#cbd5e1', fontSize: isMobile ? '0.85rem' : '1.05rem', maxWidth: isMobile ? '280px' : '520px', margin: '0 auto 2.5rem', lineHeight: 1.75 }}
+              style={{ color: '#cbd5e1', fontSize: isMobile ? '0.85rem' : '1.05rem', maxWidth: isMobile ? '220px' : '520px', margin: '0 auto 2.5rem', lineHeight: 1.75 }}
               dangerouslySetInnerHTML={{ __html: s.subtitulo }}
             />
           )}
