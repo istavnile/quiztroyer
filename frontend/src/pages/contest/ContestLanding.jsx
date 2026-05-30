@@ -8,7 +8,7 @@ const API = import.meta.env.VITE_API_URL || '';
 
 const DEFAULT = {
   titulo: 'El Upgrade de lo que realmente importa.',
-  tituloVw: 7,
+  tituloVw: 8.4,
   subtitulo: 'Muéstranos tu PC y cuéntanos tu historia. ¡El mejor setup ganará un upgrade épico!',
   badge: 'CONCURSO PATROCINADO POR NVIDIA · ASUS ROG · COMPUTERSHOP',
   imagenHero: '',
@@ -509,10 +509,27 @@ export default function ContestLanding() {
   const [dateSeq,  setDateSeq]  = useState(-1);
   const [stepsIn,  setStepsIn]  = useState(false);
   const [stepTick, setStepTick] = useState(0);
+  const carouselRef = useRef(null);
+  const [carouselIdx, setCarouselIdx] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setStepTick((t) => t + 1), 1800);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    if (!isMobile || !carouselRef.current || !s.pasos?.length) return;
+    const timer = setInterval(() => {
+      setCarouselIdx((p) => (p + 1) % s.pasos.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [isMobile, s.pasos?.length]);
+
+  useEffect(() => {
+    if (!isMobile || !carouselRef.current) return;
+    const carousel = carouselRef.current;
+    const itemWidth = window.innerWidth * 0.85;
+    carousel.scrollTo({ left: carouselIdx * (itemWidth + 20), behavior: 'smooth' });
+  }, [carouselIdx, isMobile]);
 
   const titleWords  = s.titulo.trim().split(/\s+/);
   const titleMain   = titleWords.slice(0, -1).join(' ');
@@ -717,7 +734,7 @@ export default function ContestLanding() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: titleWords.length * 0.18 + 0.3, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              style={{ color: '#cbd5e1', fontSize: '1.05rem', maxWidth: '520px', margin: '0 auto 2.5rem', lineHeight: 1.75 }}
+              style={{ color: '#cbd5e1', fontSize: isMobile ? '0.85rem' : '1.05rem', maxWidth: isMobile ? '280px' : '520px', margin: '0 auto 2.5rem', lineHeight: 1.75 }}
               dangerouslySetInnerHTML={{ __html: s.subtitulo }}
             />
           )}
@@ -914,7 +931,7 @@ export default function ContestLanding() {
 
           {isMobile ? (
             // Mobile: horizontal carousel
-            <div className="steps-carousel" style={{ display: 'flex', gap: '20px', overflowX: 'auto', paddingBottom: '12px', scrollSnapType: 'x mandatory' }}>
+            <div ref={carouselRef} className="steps-carousel" style={{ display: 'flex', gap: '20px', overflowX: 'auto', paddingBottom: '12px', scrollSnapType: 'x mandatory' }}>
               {s.pasos.map(({ numero, titulo, descripcion }, i) => {
                 const clr = STEP_COLORS[i % STEP_COLORS.length];
                 return (
@@ -937,7 +954,7 @@ export default function ContestLanding() {
                         PASO {numero}
                       </div>
                       <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '10px', color: '#fff' }}>{titulo}</h3>
-                      <p style={{ color: '#9ca3af', fontSize: '0.85rem', lineHeight: 1.6 }}>{descripcion}</p>
+                      <p style={{ color: '#9ca3af', fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }} dangerouslySetInnerHTML={{ __html: descripcion }} />
                     </motion.div>
                   </div>
                 );
@@ -1166,7 +1183,7 @@ export default function ContestLanding() {
                         transition={{ duration: 0.7 }}
                         style={{
                           display: 'flex', justifyContent: 'center', alignItems: 'center',
-                          height: `${s.premioCardHeight ?? 400}px`,
+                          height: isMobile ? `${(s.premioCardHeight ?? 400) * 0.6}px` : `${s.premioCardHeight ?? 400}px`,
                           overflow: 'visible',
                           background: `radial-gradient(ellipse at center, ${color}08 0%, transparent 70%)`,
                         }}
