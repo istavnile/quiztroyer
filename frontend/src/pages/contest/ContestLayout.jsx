@@ -596,15 +596,15 @@ export default function ContestLayout({ children }) {
             </span>
           ))}
         </p>
-        <p className="mt-2 flex flex-col sm:block items-center gap-1 leading-relaxed">
-          <span>
+        <p className="mt-2 text-center leading-relaxed">
+          <span className="block sm:inline">
             Inscripciones del{' '}
             <strong className="text-white">{settings.textoFechaApertura}</strong>
             {' '}al{' '}
             <strong className="text-white">{settings.textoFechaCierre}</strong>
           </span>
           <span className="hidden sm:inline">&nbsp;·&nbsp;</span>
-          <span>
+          <span className="block sm:inline">
             {settings.textoGranFinal || 'Gran Final en vivo:'}{' '}
             <strong className="text-white">{settings.textoFechaFinal}</strong>
           </span>

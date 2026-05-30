@@ -65,7 +65,12 @@ const GAMING_CSS = `
   .cta-btn { transition: filter 0.28s ease, box-shadow 0.28s ease !important; }
   .cta-btn:hover  { filter: drop-shadow(0 0 22px var(--glow)) drop-shadow(0 0 55px var(--glow)) !important; }
   @media (max-width: 640px) {
-    .cta-mobile { padding: 11px 16px !important; font-size: 0.78rem !important; }
+    .cta-mobile { padding: 9px 14px !important; font-size: 0.75rem !important; }
+    .cierre-nowrap { white-space: nowrap; }
+    .steps-carousel { overflow-x: auto; scroll-behavior: smooth; }
+    .steps-carousel::-webkit-scrollbar { height: 3px; }
+    .steps-carousel::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+    .steps-carousel::-webkit-scrollbar-thumb { background: #76B900; border-radius: 2px; }
   }
 `;
 
@@ -414,7 +419,7 @@ function GpuTerminal({ gpuName, worthy, accent }) {
 }
 
 /* ── Prize image slideshow ──────────────────────────────────────── */
-function PrizeSlideshow({ images, color, imgScale }) {
+function PrizeSlideshow({ images, color, imgScale, isMobile }) {
   const [idx, setIdx] = useState(0);
   useEffect(() => {
     if (images.length <= 1) return;
@@ -422,8 +427,9 @@ function PrizeSlideshow({ images, color, imgScale }) {
     return () => clearInterval(id);
   }, [images.length]);
   if (!images.length) return null;
+  const imgWidth = isMobile ? `clamp(80px, 95vw, ${imgScale * 100}%)` : `${imgScale * 100}%`;
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', overflow: 'hidden' }}>
       <AnimatePresence mode="wait">
         <motion.img
           key={idx}
@@ -434,7 +440,7 @@ function PrizeSlideshow({ images, color, imgScale }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.45 }}
-          style={{ width: `${imgScale * 100}%`, height: 'auto', maxWidth: 'none', flexShrink: 0, display: 'block' }}
+          style={{ width: imgWidth, height: 'auto', maxWidth: 'none', flexShrink: 0, display: 'block' }}
         />
       </AnimatePresence>
       {images.length > 1 && (
@@ -748,6 +754,7 @@ export default function ContestLanding() {
                   }}
                 >
                 <motion.button
+                  className="cta-mobile"
                   style={{
                     background: accent, color: '#000', fontWeight: 900,
                     padding: '14px 52px', border: 'none', cursor: 'pointer',
@@ -905,32 +912,65 @@ export default function ContestLanding() {
         >
           <SectionHeader label="Cómo participar" count={s.pasos.length} countLabel="pasos" accent={accent} />
 
-          <div className="steps-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', position: 'relative' }}>
+          {isMobile ? (
+            // Mobile: horizontal carousel
+            <div className="steps-carousel" style={{ display: 'flex', gap: '20px', overflowX: 'auto', paddingBottom: '12px', scrollSnapType: 'x mandatory' }}>
+              {s.pasos.map(({ numero, titulo, descripcion }, i) => {
+                const clr = STEP_COLORS[i % STEP_COLORS.length];
+                return (
+                  <div key={numero} style={{ flexShrink: 0, width: '85vw', scrollSnapAlign: 'start' }}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: i * 0.1 }}
+                      style={{
+                        position: 'relative', padding: '20px', border: `1px solid ${clr}66`,
+                        clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)',
+                        background: `${clr}0c`, borderRadius: 0,
+                      }}
+                    >
+                      <div style={{ marginBottom: '16px', position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                        <PulsingDot color={clr} size={10} />
+                      </div>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: clr, letterSpacing: '0.06em', marginBottom: '8px' }}>
+                        PASO {numero}
+                      </div>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '10px', color: '#fff' }}>{titulo}</h3>
+                      <p style={{ color: '#9ca3af', fontSize: '0.85rem', lineHeight: 1.6 }}>{descripcion}</p>
+                    </motion.div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            // Desktop: 3-column grid
+            <div className="steps-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', position: 'relative' }}>
 
-            {/* Sequential connector segments */}
-            {[0, 1].map((seg) => {
-              const segActive = (stepTick % s.pasos.length) === seg;
-              return (
-                <motion.div
-                  key={seg}
-                  className="steps-connector"
-                  animate={{
-                    opacity: segActive ? [0.25, 1, 0.25] : 0.12,
-                    boxShadow: segActive
-                      ? [`0 0 3px ${STEP_COLORS[seg]}44`, `0 0 10px ${STEP_COLORS[seg]}bb`, `0 0 3px ${STEP_COLORS[seg]}44`]
-                      : 'none',
-                  }}
-                  transition={{ duration: 1.8, repeat: segActive ? Infinity : 0, ease: 'easeInOut' }}
-                  style={{
-                    position: 'absolute', top: '6px', height: '1px',
-                    left:  seg === 0 ? '18px'                  : 'calc(33.33% + 38px)',
-                    right: seg === 0 ? 'calc(66.66% - 32px)'  : '18px',
-                    background: STEP_COLORS[seg],
-                    zIndex: 0,
-                  }}
-                />
-              );
-            })}
+              {/* Sequential connector segments */}
+              {[0, 1].map((seg) => {
+                const segActive = (stepTick % s.pasos.length) === seg;
+                return (
+                  <motion.div
+                    key={seg}
+                    className="steps-connector"
+                    animate={{
+                      opacity: segActive ? [0.25, 1, 0.25] : 0.12,
+                      boxShadow: segActive
+                        ? [`0 0 3px ${STEP_COLORS[seg]}44`, `0 0 10px ${STEP_COLORS[seg]}bb`, `0 0 3px ${STEP_COLORS[seg]}44`]
+                        : 'none',
+                    }}
+                    transition={{ duration: 1.8, repeat: segActive ? Infinity : 0, ease: 'easeInOut' }}
+                    style={{
+                      position: 'absolute', top: '6px', height: '1px',
+                      left:  seg === 0 ? '18px'                  : 'calc(33.33% + 38px)',
+                      right: seg === 0 ? 'calc(66.66% - 32px)'  : '18px',
+                      background: STEP_COLORS[seg],
+                      zIndex: 0,
+                    }}
+                  />
+                );
+              })}
 
             {s.pasos.map(({ numero, titulo, descripcion }, i) => {
               const clr = STEP_COLORS[i % STEP_COLORS.length];
@@ -1031,7 +1071,8 @@ export default function ContestLanding() {
                 </motion.div>
               );
             })}
-          </div>
+            </div>
+          )}
         </motion.section>
       )}
 
@@ -1130,7 +1171,7 @@ export default function ContestLanding() {
                           background: `radial-gradient(ellipse at center, ${color}08 0%, transparent 70%)`,
                         }}
                       >
-                        <PrizeSlideshow images={imgs} color={color} imgScale={s.premioImgScale ?? 2} />
+                        <PrizeSlideshow images={imgs} color={color} imgScale={s.premioImgScale ?? 2} isMobile={isMobile} />
                       </motion.div>
                     );
                   })()}
@@ -1162,7 +1203,7 @@ export default function ContestLanding() {
               Gran Upgrade?
             </motion.span>
           </h2>
-          <p style={{ color: '#4b5563', marginBottom: '44px', fontSize: '0.9rem', fontFamily: 'monospace', letterSpacing: '0.05em' }}>
+          <p className="cierre-nowrap" style={{ color: '#4b5563', marginBottom: '44px', fontSize: '0.9rem', fontFamily: 'monospace', letterSpacing: '0.05em' }}>
             // INSCRIPCIONES CIERRAN EL <span style={{ color: '#e2e8f0' }}>{s.textoFechaCierre}</span>
           </p>
 
@@ -1192,6 +1233,7 @@ export default function ContestLanding() {
                 }}
               >
               <motion.button
+                className="cta-mobile"
                 style={{
                   background: accent, color: '#000', fontWeight: 900,
                   padding: '18px 72px', border: 'none', cursor: 'pointer',
