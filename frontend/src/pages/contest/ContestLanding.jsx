@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { CONTEST_PATHS } from '../../lib/contestPaths';
 import ContestLayout, { GalaxyCanvas } from './ContestLayout';
 
-const API = import.meta.env.VITE_API_URL || '';
+const API = '';
 
 const DEFAULT = {
   titulo: 'El Upgrade de lo que realmente importa.',
