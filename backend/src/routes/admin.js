@@ -489,6 +489,7 @@ router.get('/concurso', requireAdmin, async (req, res) => {
     select: {
       id: true, nombre: true, email: true, telefono: true,
       procesador: true, graficaActual: true, fuentePoderWatts: true,
+      historia: true,
       isFinalist: true, voteCount: true, createdAt: true,
     },
   });
