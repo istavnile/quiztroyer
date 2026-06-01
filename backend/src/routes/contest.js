@@ -151,9 +151,12 @@ async function readContestSettings() {
     }
 
     // Ensure nombre + apellidos are always side-by-side when both exist
-    if (merged.campos.some((c) => c.id === 'nombre') && merged.campos.some((c) => c.id === 'apellidos')) {
+    const isNombreField = (c) => c && (c.id === 'nombre' || (typeof c.label === 'string' && /^\s*nombre(s|(\s+completo))?\s*$/i.test(c.label)));
+    const isApellidosField = (c) => c && (c.id === 'apellidos' || (typeof c.label === 'string' && /^\s*apellidos?\s*$/i.test(c.label)));
+
+    if (merged.campos.some(isNombreField) && merged.campos.some(isApellidosField)) {
       merged.campos = merged.campos.map((c) =>
-        (c.id === 'nombre' || c.id === 'apellidos') ? { ...c, ancho: 'half' } : c
+        (isNombreField(c) || isApellidosField(c)) ? { ...c, ancho: 'half' } : c
       );
     }
 

@@ -417,14 +417,18 @@ function FormContent({ campos, settings, isPreview }) {
   const [tycOpen, setTycOpen]       = useState(false);
 
   const normalizedCampos = useMemo(() => {
-    const hasNombre    = campos.some((c) => c.id === 'nombre');
-    const hasApellidos = campos.some((c) => c.id === 'apellidos');
+    const isNombreField = (c) => c && (c.id === 'nombre' || (typeof c.label === 'string' && /^\s*nombre(s|(\s+completo))?\s*$/i.test(c.label)));
+    const isApellidosField = (c) => c && (c.id === 'apellidos' || (typeof c.label === 'string' && /^\s*apellidos?\s*$/i.test(c.label)));
+
+    const list = campos || [];
+    const hasNombre    = list.some(isNombreField);
+    const hasApellidos = list.some(isApellidosField);
     if (hasNombre && hasApellidos) {
-      return campos.map((c) =>
-        (c.id === 'nombre' || c.id === 'apellidos') ? { ...c, ancho: 'half' } : c
+      return list.map((c) =>
+        (isNombreField(c) || isApellidosField(c)) ? { ...c, ancho: 'half' } : c
       );
     }
-    return campos;
+    return list;
   }, [campos]);
 
   const fileCampos = campos.filter((c) => c.tipo === 'file');
