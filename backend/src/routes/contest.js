@@ -150,6 +150,13 @@ async function readContestSettings() {
       ];
     }
 
+    // Ensure nombre + apellidos are always side-by-side when both exist
+    if (merged.campos.some((c) => c.id === 'nombre') && merged.campos.some((c) => c.id === 'apellidos')) {
+      merged.campos = merged.campos.map((c) =>
+        (c.id === 'nombre' || c.id === 'apellidos') ? { ...c, ancho: 'half' } : c
+      );
+    }
+
     return sanitizeUrls(merged);
   } catch (err) {
     console.error('[readContestSettings]', err.message);

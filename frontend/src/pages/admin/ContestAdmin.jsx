@@ -216,21 +216,74 @@ function RichTextEditor({ label, value, onChange, placeholder }) {
   );
 }
 
+// ─── Column definitions ───────────────────────────────────────────────────────
+const SISTEMA_IDS = new Set([
+  'nombre', 'email', 'telefono', 'procesador', 'graficaActual',
+  'fuentePoderWatts', 'historia', 'aceptaTyC', 'aceptaMarketing',
+]);
+
+function buildColDefs(campos) {
+  const cols = [];
+  for (const c of campos) {
+    if (c.tipo === 'file') continue;
+
+    let getValue, renderCell;
+    if (c.id === 'procesador') {
+      getValue   = (l) => PROCESADOR_LABELS[l.procesador] ?? l.procesador;
+      renderCell = (l) => <span style={chipStyle}>{cpuShort(l.procesador)}</span>;
+    } else if (c.id === 'graficaActual') {
+      getValue   = (l) => GRAFICA_LABELS[l.graficaActual] ?? l.graficaActual;
+      renderCell = (l) => <span style={chipStyle}>{gpuShort(l.graficaActual)}</span>;
+    } else if (c.id === 'fuentePoderWatts') {
+      getValue   = (l) => FUENTE_LABELS[l.fuentePoderWatts] ?? l.fuentePoderWatts;
+      renderCell = (l) => <span style={chipStyle}>{FUENTE_LABELS[l.fuentePoderWatts] ?? l.fuentePoderWatts}</span>;
+    } else if (c.id === 'nombre') {
+      getValue   = (l) => l.nombre ?? '';
+      renderCell = (l) => <span style={{ fontWeight: 600, color: '#e5e7eb' }}>{l.nombre}</span>;
+    } else if (c.id === 'email') {
+      getValue   = (l) => l.email ?? '';
+      renderCell = (l) => <span style={{ color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', maxWidth: '180px' }}>{l.email}</span>;
+    } else if (c.id === 'historia') {
+      getValue   = (l) => l.historia ?? '';
+      renderCell = (l) => <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', maxWidth: '200px', color: '#9ca3af', fontSize: '0.8rem' }}>{l.historia ?? '(sin historia)'}</span>;
+    } else if (c.id === 'aceptaTyC' || c.id === 'aceptaMarketing') {
+      getValue   = (l) => (l[c.id] ? 'Sí' : 'No');
+      renderCell = (l) => <span style={{ color: l[c.id] ? '#76B900' : '#6b7280' }}>{l[c.id] ? 'Sí' : 'No'}</span>;
+    } else if (SISTEMA_IDS.has(c.id)) {
+      getValue   = (l) => l[c.id] ?? '';
+      renderCell = (l) => String(l[c.id] ?? '');
+    } else {
+      getValue = (l) => {
+        const v = l.camposExtra?.[c.id];
+        return Array.isArray(v) ? v.join(', ') : (v ?? '');
+      };
+      renderCell = (l) => {
+        const v = l.camposExtra?.[c.id];
+        return Array.isArray(v) ? v.join(', ') : (v ?? '');
+      };
+    }
+    cols.push({ id: c.id, label: c.label, getValue, renderCell });
+  }
+
+  cols.push({
+    id: '_votos', label: 'Votos',
+    getValue:   (l) => (l.isFinalist ? (l.voteCount ?? 0) : '—'),
+    renderCell: (l) => <span style={{ fontWeight: 700, color: '#76B900' }}>{l.isFinalist ? (l.voteCount ?? 0) : '—'}</span>,
+  });
+  cols.push({
+    id: '_fecha', label: 'Fecha',
+    getValue:   (l) => new Date(l.createdAt).toLocaleString('es-GT'),
+    renderCell: (l) => <span style={{ color: '#4b5563', whiteSpace: 'nowrap' }}>{fmtDate(l.createdAt)}</span>,
+  });
+  return cols;
+}
+
 // ─── CSV / PDF export helpers ─────────────────────────────────────────────────
-function exportCSV(leads) {
-  const headers = ['Nombre', 'Email', 'Teléfono', 'Procesador', 'Gráfica', 'Fuente de poder', 'Historia', 'Finalista', 'Votos', 'Fecha registro'];
-  const rows = leads.map((l) => [
-    l.nombre,
-    l.email,
-    l.telefono,
-    PROCESADOR_LABELS[l.procesador]       ?? l.procesador,
-    GRAFICA_LABELS[l.graficaActual]       ?? l.graficaActual,
-    FUENTE_LABELS[l.fuentePoderWatts]     ?? l.fuentePoderWatts,
-    l.historia ?? '',
-    l.isFinalist ? 'Sí' : 'No',
-    l.voteCount ?? 0,
-    new Date(l.createdAt).toLocaleString('es-GT'),
-  ].map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`));
+function exportCSV(leads, cols) {
+  const headers = cols.map((c) => c.label);
+  const rows = leads.map((l) =>
+    cols.map((c) => `"${String(c.getValue(l) ?? '').replace(/"/g, '""')}"`)
+  );
   const csv = [headers.map((h) => `"${h}"`), ...rows].map((r) => r.join(',')).join('\n');
   const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -238,7 +291,7 @@ function exportCSV(leads) {
   URL.revokeObjectURL(url);
 }
 
-async function exportPDF(leads) {
+async function exportPDF(leads, cols) {
   const doc = new jsPDF({ orientation: 'landscape' });
   const GREEN = [118, 185, 0];
   doc.setFillColor(10, 10, 10); doc.rect(0, 0, 297, 36, 'F');
@@ -249,20 +302,12 @@ async function exportPDF(leads) {
   doc.setDrawColor(...GREEN); doc.setLineWidth(0.6); doc.line(14, 33, 283, 33);
   autoTable(doc, {
     startY: 38,
-    head: [['#', 'Nombre', 'Email', 'CPU', 'GPU', 'Fuente', 'Historia', 'Finalista', 'Votos']],
-    body: leads.map((l, i) => [
-      i + 1, l.nombre, l.email,
-      (PROCESADOR_LABELS[l.procesador] ?? l.procesador).replace('Intel Core ', '').replace(/ \(.*\)/, ''),
-      (GRAFICA_LABELS[l.graficaActual] ?? l.graficaActual).replace('NVIDIA GeForce ', '').replace('AMD Radeon ', '').replace(' Series', ''),
-      FUENTE_LABELS[l.fuentePoderWatts] ?? l.fuentePoderWatts,
-      l.historia ?? '',
-      l.isFinalist ? 'Sí' : '',
-      l.voteCount ?? 0,
-    ]),
+    head: [['#', ...cols.map((c) => c.label)]],
+    body: leads.map((l, i) => [i + 1, ...cols.map((c) => String(c.getValue(l) ?? ''))]),
     headStyles: { fillColor: GREEN, textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7.5 },
     bodyStyles: { fontSize: 6.5, textColor: [30, 30, 30] },
     alternateRowStyles: { fillColor: [244, 249, 240] },
-    columnStyles: { 0: { cellWidth: 8 }, 6: { cellWidth: 55 }, 7: { textColor: GREEN, fontStyle: 'bold' } },
+    columnStyles: { 0: { cellWidth: 8 } },
     margin: { left: 14, right: 14 },
   });
   doc.save('registros-el-gran-upgrade.pdf');
@@ -354,6 +399,37 @@ function TabRegistros() {
   const [fuentePoderWatts, setFuente]   = useState('');
   const [isFinalist, setIsFinalist]     = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [allCols, setAllCols]           = useState([]);
+  const [visibleIds, setVisibleIds]     = useState(null); // null = all
+  const [colPickerOpen, setColPickerOpen] = useState(false);
+  const colPickerRef = useRef(null);
+
+  // Load campos from settings to build column definitions
+  useEffect(() => {
+    api.get('/admin/concurso/settings')
+      .then((r) => {
+        const cols = buildColDefs(r.data.campos || []);
+        setAllCols(cols);
+        setVisibleIds(new Set(cols.map((c) => c.id)));
+      })
+      .catch(() => {});
+  }, []);
+
+  // Close column picker on outside click
+  useEffect(() => {
+    if (!colPickerOpen) return;
+    const handler = (e) => {
+      if (colPickerRef.current && !colPickerRef.current.contains(e.target)) {
+        setColPickerOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [colPickerOpen]);
+
+  const visibleCols = visibleIds
+    ? allCols.filter((c) => visibleIds.has(c.id))
+    : allCols;
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
@@ -386,9 +462,7 @@ function TabRegistros() {
     } catch (e) { alert('Error: ' + e.message); }
   };
 
-  const deleteLead = async (lead) => {
-    setConfirmDelete(lead);
-  };
+  const deleteLead = (lead) => setConfirmDelete(lead);
 
   const confirmDeleteLead = async () => {
     if (!confirmDelete) return;
@@ -401,6 +475,14 @@ function TabRegistros() {
       alert('Error al eliminar: ' + e.message);
       setConfirmDelete(null);
     }
+  };
+
+  const toggleCol = (id, checked) => {
+    setVisibleIds((prev) => {
+      const next = new Set(prev ?? allCols.map((c) => c.id));
+      if (checked) next.add(id); else next.delete(id);
+      return next;
+    });
   };
 
   return (
@@ -440,17 +522,54 @@ function TabRegistros() {
         <button onClick={() => { setSearch(''); setProcesador(''); setGrafica(''); setFuente(''); setIsFinalist(''); }} style={{ background: 'none', border: '1px solid #374151', color: '#6b7280', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', alignSelf: 'flex-end' }}>Limpiar</button>
       </div>
 
-      {/* Acciones de exportación */}
-      {leads.length > 0 && (
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '14px', justifyContent: 'flex-end' }}>
-          <button onClick={() => exportCSV(leads)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid #374151', color: '#9ca3af', padding: '7px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
-            ↓ CSV
-          </button>
-          <button onClick={() => exportPDF(leads)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(118,185,0,0.08)', border: '1px solid #4a7400', color: '#76B900', padding: '7px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}>
-            ↓ PDF
-          </button>
-        </div>
-      )}
+      {/* Barra de acciones: columnas + export */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '14px', justifyContent: 'flex-end', alignItems: 'center' }}>
+        {/* Column picker */}
+        {allCols.length > 0 && (
+          <div style={{ position: 'relative' }} ref={colPickerRef}>
+            <button
+              onClick={() => setColPickerOpen((o) => !o)}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', background: colPickerOpen ? 'rgba(118,185,0,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${colPickerOpen ? '#76B900' : '#374151'}`, color: colPickerOpen ? '#76B900' : '#9ca3af', padding: '7px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}
+            >
+              ≡ Columnas {visibleIds && visibleIds.size < allCols.length ? `(${visibleIds.size}/${allCols.length})` : ''}
+            </button>
+            {colPickerOpen && (
+              <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 6px)', zIndex: 200, background: '#0d1117', border: '1px solid #374151', borderRadius: '8px', padding: '12px 14px', minWidth: '220px', boxShadow: '0 8px 32px rgba(0,0,0,0.6)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#6b7280', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Columnas visibles</span>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button onClick={() => setVisibleIds(new Set(allCols.map((c) => c.id)))} style={{ background: 'none', border: 'none', color: '#76B900', cursor: 'pointer', fontSize: '0.72rem', padding: '2px 4px' }}>Todas</button>
+                    <span style={{ color: '#374151' }}>|</span>
+                    <button onClick={() => setVisibleIds(new Set())} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '0.72rem', padding: '2px 4px' }}>Ninguna</button>
+                  </div>
+                </div>
+                {allCols.map((col) => (
+                  <label key={col.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0', cursor: 'pointer', userSelect: 'none' }}>
+                    <input
+                      type="checkbox"
+                      checked={!visibleIds || visibleIds.has(col.id)}
+                      onChange={(e) => toggleCol(col.id, e.target.checked)}
+                      style={{ accentColor: '#76B900', width: '14px', height: '14px', flexShrink: 0 }}
+                    />
+                    <span style={{ color: '#d1d5db', fontSize: '0.85rem' }}>{col.label}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {leads.length > 0 && (
+          <>
+            <button onClick={() => exportCSV(leads, visibleCols)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid #374151', color: '#9ca3af', padding: '7px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+              ↓ CSV
+            </button>
+            <button onClick={() => exportPDF(leads, visibleCols)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(118,185,0,0.08)', border: '1px solid #4a7400', color: '#76B900', padding: '7px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}>
+              ↓ PDF
+            </button>
+          </>
+        )}
+      </div>
 
       {/* Tabla */}
       {loading ? (
@@ -462,9 +581,11 @@ function TabRegistros() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #1f2937' }}>
-                {['Nombre', 'Email', 'CPU', 'GPU', 'Fuente', 'Historia', 'Votos', 'Finalista', 'Fecha', ''].map((h) => (
-                  <th key={h} style={{ padding: '10px 12px', textAlign: 'left', color: '#6b7280', fontWeight: 600, fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
+                {visibleCols.map((col) => (
+                  <th key={col.id} style={{ padding: '10px 12px', textAlign: 'left', color: '#6b7280', fontWeight: 600, fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{col.label}</th>
                 ))}
+                <th style={{ padding: '10px 12px', textAlign: 'left', color: '#6b7280', fontWeight: 600, fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Finalista</th>
+                <th style={{ padding: '10px 12px' }} />
               </tr>
             </thead>
             <tbody>
@@ -474,19 +595,14 @@ function TabRegistros() {
                   onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                 >
-                  <td style={tdStyle}><span style={{ fontWeight: 600, color: '#e5e7eb' }}>{lead.nombre}</span></td>
-                  <td style={{ ...tdStyle, color: '#6b7280', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lead.email}</td>
-                  <td style={tdStyle}><span style={chipStyle}>{cpuShort(lead.procesador)}</span></td>
-                  <td style={tdStyle}><span style={chipStyle}>{gpuShort(lead.graficaActual)}</span></td>
-                  <td style={tdStyle}><span style={chipStyle}>{FUENTE_LABELS[lead.fuentePoderWatts] ?? lead.fuentePoderWatts}</span></td>
-                  <td style={{ ...tdStyle, maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#9ca3af', fontSize: '0.8rem' }}>{lead.historia ?? '(sin historia)'}</td>
-                  <td style={{ ...tdStyle, fontWeight: 700, color: '#76B900' }}>{lead.isFinalist ? (lead.voteCount ?? 0) : '—'}</td>
+                  {visibleCols.map((col) => (
+                    <td key={col.id} style={tdStyle}>{col.renderCell(lead)}</td>
+                  ))}
                   <td style={tdStyle}>
                     <button onClick={(e) => { e.stopPropagation(); toggleFinalist(lead); }} style={{ background: lead.isFinalist ? 'rgba(118,185,0,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${lead.isFinalist ? '#76B900' : '#374151'}`, color: lead.isFinalist ? '#76B900' : '#6b7280', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
                       {lead.isFinalist ? '★ Finalista' : '☆ Nominado'}
                     </button>
                   </td>
-                  <td style={{ ...tdStyle, color: '#4b5563', whiteSpace: 'nowrap' }}>{fmtDate(lead.createdAt)}</td>
                   <td style={tdStyle}>
                     <button onClick={(e) => { e.stopPropagation(); deleteLead(lead); }} style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', color: '#ef4444', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}>
                       ✕
