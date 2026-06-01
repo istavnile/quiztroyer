@@ -314,7 +314,8 @@ async function exportPDF(leads, cols) {
 }
 
 // ─── Modal de detalle de lead ─────────────────────────────────────────────────
-function LeadModal({ lead, onClose, onToggleFinalist }) {
+// ─── Modal de detalle de lead ─────────────────────────────────────────────────
+function LeadModal({ lead, campos = [], onClose, onToggleFinalist }) {
   if (!lead) return null;
   return (
     <AnimatePresence>
@@ -343,22 +344,76 @@ function LeadModal({ lead, onClose, onToggleFinalist }) {
               <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '1.4rem', lineHeight: 1 }}>×</button>
             </div>
           </div>
-          <div style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
+          <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <Bdg label="CPU"   value={PROCESADOR_LABELS[lead.procesador]   ?? lead.procesador} />
               <Bdg label="GPU"   value={GRAFICA_LABELS[lead.graficaActual]   ?? lead.graficaActual} />
               <Bdg label="PSU"   value={FUENTE_LABELS[lead.fuentePoderWatts] ?? lead.fuentePoderWatts} />
               {lead.isFinalist && <Bdg label="Votos" value={lead.voteCount} color="#76B900" />}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+
+            {/* Fotos por defecto */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <Photo src={lead.fotoExteriorUrl} label="Exterior" />
               <Photo src={lead.fotoInteriorUrl} label="Interior" />
             </div>
+
+            {/* Detalle dinámico de todos los campos del formulario */}
+            {campos.length > 0 && (
+              <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid #1f2937', borderRadius: '10px', padding: '18px' }}>
+                <p style={{ color: '#76B900', fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '14px', borderBottom: '1px solid #1f2937', paddingBottom: '6px' }}>
+                  Datos del Formulario
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px 20px' }}>
+                  {campos.map((c) => {
+                    // Skip history (shown separately) and standard photos (shown separately)
+                    if (c.id === 'historia' || c.id === 'fotoExterior' || c.id === 'fotoInterior') return null;
+
+                    let val = '';
+                    if (c.tipo === 'file') {
+                      const url = lead.camposExtra?.[c.id];
+                      if (!url) return null;
+                      return (
+                        <div key={c.id} style={{ gridColumn: '1 / -1', marginTop: '6px' }}>
+                          <span style={{ color: '#6b7280', fontSize: '0.75rem', fontWeight: 600, display: 'block', marginBottom: '6px' }}>{c.label}</span>
+                          <Photo src={url} label={c.label} />
+                        </div>
+                      );
+                    }
+
+                    if (c.id === 'nombre') val = lead.nombre;
+                    else if (c.id === 'email') val = lead.email;
+                    else if (c.id === 'telefono') val = lead.telefono;
+                    else if (c.id === 'procesador') val = PROCESADOR_LABELS[lead.procesador] ?? lead.procesador;
+                    else if (c.id === 'graficaActual') val = GRAFICA_LABELS[lead.graficaActual] ?? lead.graficaActual;
+                    else if (c.id === 'fuentePoderWatts') val = FUENTE_LABELS[lead.fuentePoderWatts] ?? lead.fuentePoderWatts;
+                    else if (c.id === 'aceptaTyC') val = lead.aceptaTyC ? 'Sí' : 'No';
+                    else if (c.id === 'aceptaMarketing') val = lead.aceptaMarketing ? 'Sí' : 'No';
+                    else {
+                      // Custom fields (like apellidos, dni_ce, etc.)
+                      const rawVal = lead.camposExtra?.[c.id];
+                      val = Array.isArray(rawVal) ? rawVal.join(', ') : (rawVal ?? '');
+                    }
+
+                    if (val === undefined || val === null || val === '') return null;
+
+                    return (
+                      <div key={c.id} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        <span style={{ color: '#6b7280', fontSize: '0.75rem', fontWeight: 600 }}>{c.label}</span>
+                        <span style={{ color: '#e5e7eb', fontSize: '0.85rem', wordBreak: 'break-word' }}>{String(val)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Historia */}
             <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #1f2937', borderRadius: '8px', padding: '16px' }}>
               <p style={{ color: '#6b7280', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '10px' }}>Historia</p>
               <p style={{ color: '#d1d5db', fontSize: '0.9rem', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{lead.historia}</p>
             </div>
-            <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', color: '#4b5563', fontSize: '0.78rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#4b5563', fontSize: '0.78rem' }}>
               <span>Marketing: <strong style={{ color: lead.aceptaMarketing ? '#76B900' : '#6b7280' }}>{lead.aceptaMarketing ? 'Sí' : 'No'}</strong></span>
               <span>Registrado: {fmtDate(lead.createdAt)}</span>
             </div>
@@ -386,6 +441,97 @@ function Photo({ src, label }) {
   );
 }
 
+// ─── Modal de Exportación ─────────────────────────────────────────────────────
+function ExportModal({ allCols, isOpen, onClose, onExportCSV, onExportPDF }) {
+  const [selectedIds, setSelectedIds] = useState(new Set());
+
+  // Initialize with all columns when modal opens
+  useEffect(() => {
+    if (isOpen && allCols.length > 0) {
+      setSelectedIds(new Set(allCols.map((c) => c.id)));
+    }
+  }, [isOpen, allCols]);
+
+  if (!isOpen) return null;
+
+  const toggleId = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAll = () => setSelectedIds(new Set(allCols.map((c) => c.id)));
+  const selectNone = () => setSelectedIds(new Set());
+
+  const getFilteredCols = () => allCols.filter((c) => selectedIds.has(c.id));
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={onClose}
+        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+          onClick={(e) => e.stopPropagation()}
+          style={{ background: '#111', border: '1px solid #1f2937', borderRadius: '14px', width: '100%', maxWidth: '540px', padding: '24px', boxShadow: '0 20px 60px rgba(0,0,0,0.8)' }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #1f2937', paddingBottom: '12px' }}>
+            <h3 style={{ color: '#fff', fontWeight: 800, fontSize: '1.1rem', margin: 0 }}>Exportar Registros</h3>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '1.4rem', lineHeight: 1 }}>×</button>
+          </div>
+
+          <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginBottom: '20px', lineHeight: 1.5 }}>
+            Selecciona los campos que deseas incluir en la exportación de archivos.
+          </p>
+
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
+            <button onClick={selectAll} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid #374151', color: '#76B900', padding: '5px 12px', borderRadius: '5px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}>Seleccionar todos</button>
+            <button onClick={selectNone} style={{ background: 'none', border: '1px solid #374151', color: '#6b7280', padding: '5px 12px', borderRadius: '5px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}>Deseleccionar todos</button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', maxHeight: '280px', overflowY: 'auto', padding: '10px', background: 'rgba(0,0,0,0.2)', border: '1px solid #1f2937', borderRadius: '8px', marginBottom: '24px' }}>
+            {allCols.map((col) => (
+              <label key={col.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 0', userSelect: 'none' }}>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(col.id)}
+                  onChange={() => toggleId(col.id)}
+                  style={{ accentColor: '#76B900', width: '15px', height: '15px', flexShrink: 0 }}
+                />
+                <span style={{ color: '#d1d5db', fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{col.label}</span>
+              </label>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+            <button onClick={onClose} style={{ background: 'none', border: '1px solid #374151', color: '#6b7280', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 600 }}>
+              Cancelar
+            </button>
+            <button
+              onClick={() => { onExportCSV(getFilteredCols()); onClose(); }}
+              disabled={selectedIds.size === 0}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.06)', border: '1px solid #374151', color: selectedIds.size === 0 ? '#374151' : '#9ca3af', padding: '10px 20px', borderRadius: '6px', cursor: selectedIds.size === 0 ? 'not-allowed' : 'pointer', fontSize: '0.88rem', fontWeight: 600 }}
+            >
+              ↓ CSV
+            </button>
+            <button
+              onClick={() => { onExportPDF(getFilteredCols()); onClose(); }}
+              disabled={selectedIds.size === 0}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#76B900', border: 'none', color: '#000', padding: '10px 20px', borderRadius: '6px', cursor: selectedIds.size === 0 ? 'not-allowed' : 'pointer', fontSize: '0.88rem', fontWeight: 800 }}
+            >
+              ↓ PDF
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 // ─── Tab: Registros ────────────────────────────────────────────────────────────
 function TabRegistros() {
   const [leads, setLeads]               = useState([]);
@@ -403,12 +549,16 @@ function TabRegistros() {
   const [visibleIds, setVisibleIds]     = useState(null); // null = all
   const [colPickerOpen, setColPickerOpen] = useState(false);
   const colPickerRef = useRef(null);
+  const [campos, setCampos]             = useState([]);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   // Load campos from settings to build column definitions
   useEffect(() => {
     api.get('/admin/concurso/settings')
       .then((r) => {
-        const cols = buildColDefs(r.data.campos || []);
+        const rawCampos = r.data.campos || [];
+        setCampos(rawCampos);
+        const cols = buildColDefs(rawCampos);
         setAllCols(cols);
         setVisibleIds(new Set(cols.map((c) => c.id)));
       })
@@ -487,7 +637,15 @@ function TabRegistros() {
 
   return (
     <>
-      <LeadModal lead={modalLoading ? selectedLead : fullLead} onClose={() => { setSelectedLead(null); setFullLead(null); }} onToggleFinalist={toggleFinalist} />
+      <LeadModal lead={modalLoading ? selectedLead : fullLead} campos={campos} onClose={() => { setSelectedLead(null); setFullLead(null); }} onToggleFinalist={toggleFinalist} />
+
+      <ExportModal
+        allCols={allCols}
+        isOpen={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+        onExportCSV={(cols) => exportCSV(leads, cols)}
+        onExportPDF={(cols) => exportPDF(leads, cols)}
+      />
 
       {/* Modal de confirmación de eliminación */}
       {confirmDelete && (
@@ -560,18 +718,11 @@ function TabRegistros() {
         )}
 
         <button
-          onClick={() => exportCSV(leads, visibleCols)}
-          disabled={leads.length === 0}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid #374151', color: leads.length === 0 ? '#374151' : '#9ca3af', padding: '7px 14px', borderRadius: '6px', cursor: leads.length === 0 ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: 600, opacity: leads.length === 0 ? 0.4 : 1 }}
-        >
-          ↓ CSV
-        </button>
-        <button
-          onClick={() => exportPDF(leads, visibleCols)}
+          onClick={() => setExportModalOpen(true)}
           disabled={leads.length === 0}
           style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(118,185,0,0.08)', border: `1px solid ${leads.length === 0 ? '#374151' : '#4a7400'}`, color: leads.length === 0 ? '#374151' : '#76B900', padding: '7px 14px', borderRadius: '6px', cursor: leads.length === 0 ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: 700, opacity: leads.length === 0 ? 0.4 : 1 }}
         >
-          ↓ PDF
+          ↓ Exportar
         </button>
       </div>
 
