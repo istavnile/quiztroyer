@@ -222,6 +222,21 @@ const SISTEMA_IDS = new Set([
   'fuentePoderWatts', 'historia', 'aceptaTyC', 'aceptaMarketing',
 ]);
 
+function shortenLabel(id, label) {
+  if (id === 'email') return 'Email';
+  if (id === 'telefono') return 'Teléfono';
+  if (id === 'procesador') return 'CPU';
+  if (id === 'graficaActual') return 'GPU';
+  if (id === 'fuentePoderWatts') return 'PSU';
+  if (id === 'aceptaTyC') return 'T&C';
+  if (id === 'aceptaMarketing') return 'Marketing';
+  if (id === 'historia') return 'Historia';
+  if (typeof label === 'string' && label.length > 15) {
+    return label.substring(0, 13) + '...';
+  }
+  return label;
+}
+
 function buildColDefs(campos) {
   const cols = [];
   for (const c of campos) {
@@ -251,7 +266,10 @@ function buildColDefs(campos) {
       renderCell = (l) => <span style={{ color: l[c.id] ? '#76B900' : '#6b7280' }}>{l[c.id] ? 'Sí' : 'No'}</span>;
     } else if (SISTEMA_IDS.has(c.id)) {
       getValue   = (l) => l[c.id] ?? '';
-      renderCell = (l) => String(l[c.id] ?? '');
+      renderCell = (l) => {
+        const str = String(l[c.id] ?? '');
+        return <span style={{ display: 'block', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={str}>{str}</span>;
+      };
     } else {
       getValue = (l) => {
         const v = l.camposExtra?.[c.id];
@@ -259,7 +277,8 @@ function buildColDefs(campos) {
       };
       renderCell = (l) => {
         const v = l.camposExtra?.[c.id];
-        return Array.isArray(v) ? v.join(', ') : (v ?? '');
+        const str = Array.isArray(v) ? v.join(', ') : String(v ?? '');
+        return <span style={{ display: 'block', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={str}>{str}</span>;
       };
     }
     cols.push({ id: c.id, label: c.label, getValue, renderCell });
@@ -737,7 +756,25 @@ function TabRegistros() {
             <thead>
               <tr style={{ borderBottom: '1px solid #1f2937' }}>
                 {visibleCols.map((col) => (
-                  <th key={col.id} style={{ padding: '10px 12px', textAlign: 'left', color: '#6b7280', fontWeight: 600, fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{col.label}</th>
+                  <th
+                    key={col.id}
+                    title={col.label}
+                    style={{
+                      padding: '10px 12px',
+                      textAlign: 'left',
+                      color: '#6b7280',
+                      fontWeight: 600,
+                      fontSize: '0.75rem',
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      maxWidth: '140px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {shortenLabel(col.id, col.label)}
+                  </th>
                 ))}
                 <th style={{ padding: '10px 12px', textAlign: 'left', color: '#6b7280', fontWeight: 600, fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Finalista</th>
                 <th style={{ padding: '10px 12px' }} />
