@@ -416,6 +416,17 @@ function FormContent({ campos, settings, isPreview }) {
   const [submitted, setSubmitted]   = useState(false);
   const [tycOpen, setTycOpen]       = useState(false);
 
+  const normalizedCampos = useMemo(() => {
+    const hasNombre    = campos.some((c) => c.id === 'nombre');
+    const hasApellidos = campos.some((c) => c.id === 'apellidos');
+    if (hasNombre && hasApellidos) {
+      return campos.map((c) =>
+        (c.id === 'nombre' || c.id === 'apellidos') ? { ...c, ancho: 'half' } : c
+      );
+    }
+    return campos;
+  }, [campos]);
+
   const fileCampos = campos.filter((c) => c.tipo === 'file');
 
   const validateFiles = () => {
@@ -530,7 +541,7 @@ function FormContent({ campos, settings, isPreview }) {
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="cf-form">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '20px 24px' }}>
-          {campos.map((campo) => (
+          {normalizedCampos.map((campo) => (
             <DynamicField
               key={campo.id}
               campo={campo}

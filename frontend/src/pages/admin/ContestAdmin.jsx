@@ -559,16 +559,20 @@ function TabRegistros() {
           </div>
         )}
 
-        {leads.length > 0 && (
-          <>
-            <button onClick={() => exportCSV(leads, visibleCols)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid #374151', color: '#9ca3af', padding: '7px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
-              ↓ CSV
-            </button>
-            <button onClick={() => exportPDF(leads, visibleCols)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(118,185,0,0.08)', border: '1px solid #4a7400', color: '#76B900', padding: '7px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}>
-              ↓ PDF
-            </button>
-          </>
-        )}
+        <button
+          onClick={() => exportCSV(leads, visibleCols)}
+          disabled={leads.length === 0}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid #374151', color: leads.length === 0 ? '#374151' : '#9ca3af', padding: '7px 14px', borderRadius: '6px', cursor: leads.length === 0 ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: 600, opacity: leads.length === 0 ? 0.4 : 1 }}
+        >
+          ↓ CSV
+        </button>
+        <button
+          onClick={() => exportPDF(leads, visibleCols)}
+          disabled={leads.length === 0}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(118,185,0,0.08)', border: `1px solid ${leads.length === 0 ? '#374151' : '#4a7400'}`, color: leads.length === 0 ? '#374151' : '#76B900', padding: '7px 14px', borderRadius: '6px', cursor: leads.length === 0 ? 'not-allowed' : 'pointer', fontSize: '0.8rem', fontWeight: 700, opacity: leads.length === 0 ? 0.4 : 1 }}
+        >
+          ↓ PDF
+        </button>
       </div>
 
       {/* Tabla */}
