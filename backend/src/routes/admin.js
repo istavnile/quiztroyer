@@ -536,10 +536,15 @@ router.get('/concurso', requireAdmin, async (req, res) => {
     const result = { ...lead };
     if (lead.fotoExteriorUrl) {
       try {
-        const filePath = path.join(uploadDir, lead.fotoExteriorUrl.replace('/uploads/', ''));
+        let filePath = lead.fotoExteriorUrl;
+        if (filePath.startsWith('/uploads/')) {
+          filePath = path.join(uploadDir, filePath.substring('/uploads/'.length));
+        }
         if (fs.existsSync(filePath)) {
           const fileData = fs.readFileSync(filePath);
           result.fotoExteriorBase64 = `data:image/jpeg;base64,${fileData.toString('base64')}`;
+        } else {
+          console.warn('[photo exterior] File not found:', filePath);
         }
       } catch (e) {
         console.error('[photo exterior]', lead.fotoExteriorUrl, e.message);
@@ -547,10 +552,15 @@ router.get('/concurso', requireAdmin, async (req, res) => {
     }
     if (lead.fotoInteriorUrl) {
       try {
-        const filePath = path.join(uploadDir, lead.fotoInteriorUrl.replace('/uploads/', ''));
+        let filePath = lead.fotoInteriorUrl;
+        if (filePath.startsWith('/uploads/')) {
+          filePath = path.join(uploadDir, filePath.substring('/uploads/'.length));
+        }
         if (fs.existsSync(filePath)) {
           const fileData = fs.readFileSync(filePath);
           result.fotoInteriorBase64 = `data:image/jpeg;base64,${fileData.toString('base64')}`;
+        } else {
+          console.warn('[photo interior] File not found:', filePath);
         }
       } catch (e) {
         console.error('[photo interior]', lead.fotoInteriorUrl, e.message);
