@@ -518,7 +518,7 @@ router.get('/concurso', requireAdmin, async (req, res) => {
     ];
   }
 
-  const leads = await prisma.contestLead.findMany({
+  let leads = await prisma.contestLead.findMany({
     where,
     orderBy: { createdAt: 'desc' },
     select: {
@@ -530,6 +530,31 @@ router.get('/concurso', requireAdmin, async (req, res) => {
       isFinalist: true, voteCount: true, createdAt: true,
     },
   });
+
+  // Convert images to base64 for PDF export
+  leads = leads.map(lead => {
+    const result = { ...lead };
+    if (lead.fotoExteriorUrl) {
+      try {
+        const filePath = path.join(__dirname, '../../', lead.fotoExteriorUrl);
+        const fileData = fs.readFileSync(filePath);
+        result.fotoExteriorBase64 = `data:image/jpeg;base64,${fileData.toString('base64')}`;
+      } catch (e) {
+        console.error('[photo conversion]', lead.fotoExteriorUrl, e.message);
+      }
+    }
+    if (lead.fotoInteriorUrl) {
+      try {
+        const filePath = path.join(__dirname, '../../', lead.fotoInteriorUrl);
+        const fileData = fs.readFileSync(filePath);
+        result.fotoInteriorBase64 = `data:image/jpeg;base64,${fileData.toString('base64')}`;
+      } catch (e) {
+        console.error('[photo conversion]', lead.fotoInteriorUrl, e.message);
+      }
+    }
+    return result;
+  });
+
   res.json(leads);
 });
 

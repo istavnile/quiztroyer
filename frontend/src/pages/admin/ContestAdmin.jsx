@@ -310,23 +310,11 @@ function exportCSV(leads, cols) {
   URL.revokeObjectURL(url);
 }
 
-const fetchImageAsBase64 = async (url) => {
-  if (!url) return null;
-  try {
-    console.log('[PDF] Loading image:', url);
-    const apiBase = import.meta.env.VITE_API_URL || '';
-    const response = await fetch(`${apiBase}/api/admin/image-base64?url=${encodeURIComponent(url)}`);
-    if (!response.ok) {
-      console.error('[PDF] Image fetch failed:', response.status);
-      return null;
-    }
-    const { base64 } = await response.json();
-    console.log('[PDF] Image loaded successfully');
-    return base64;
-  } catch (e) {
-    console.error('[PDF] Image error:', e.message);
-    return null;
-  }
+// Images are already base64 from backend (fotoExteriorBase64, fotoInteriorBase64)
+const getImageBase64 = (lead, type) => {
+  if (type === 'exterior') return lead.fotoExteriorBase64 || null;
+  if (type === 'interior') return lead.fotoInteriorBase64 || null;
+  return null;
 };
 
 async function exportPDF(leads, cols) {
@@ -365,44 +353,44 @@ async function exportPDF(leads, cols) {
     yPos += 12;
 
     // Fotos
-    if (lead.fotoExteriorUrl) {
+    if (lead.fotoExteriorUrl || lead.fotoExteriorBase64) {
       doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...GREEN);
       doc.text('Foto Exterior:', margin, yPos);
       yPos += 2;
       try {
-        const base64 = await fetchImageAsBase64(lead.fotoExteriorUrl);
+        const base64 = getImageBase64(lead, 'exterior');
         if (base64) {
           doc.addImage(base64, 'JPEG', margin, yPos, 80, 60);
           yPos += 65;
         } else {
           doc.setTextColor(200, 0, 0); doc.setFontSize(7);
-          doc.text('No se pudo cargar imagen', margin, yPos);
+          doc.text('Imagen no disponible', margin, yPos);
           yPos += 6;
         }
       } catch (e) {
         doc.setTextColor(200, 0, 0); doc.setFontSize(7);
-        doc.text('Error al cargar imagen', margin, yPos);
+        doc.text('Error al insertar imagen', margin, yPos);
         yPos += 6;
       }
     }
 
-    if (lead.fotoInteriorUrl) {
+    if (lead.fotoInteriorUrl || lead.fotoInteriorBase64) {
       doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...GREEN);
       doc.text('Foto Interior:', margin, yPos);
       yPos += 2;
       try {
-        const base64 = await fetchImageAsBase64(lead.fotoInteriorUrl);
+        const base64 = getImageBase64(lead, 'interior');
         if (base64) {
           doc.addImage(base64, 'JPEG', margin, yPos, 80, 60);
           yPos += 65;
         } else {
           doc.setTextColor(200, 0, 0); doc.setFontSize(7);
-          doc.text('No se pudo cargar imagen', margin, yPos);
+          doc.text('Imagen no disponible', margin, yPos);
           yPos += 6;
         }
       } catch (e) {
         doc.setTextColor(200, 0, 0); doc.setFontSize(7);
-        doc.text('Error al cargar imagen', margin, yPos);
+        doc.text('Error al insertar imagen', margin, yPos);
         yPos += 6;
       }
     }
