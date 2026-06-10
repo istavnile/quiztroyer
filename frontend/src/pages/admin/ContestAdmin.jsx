@@ -311,25 +311,86 @@ function exportCSV(leads, cols) {
 }
 
 async function exportPDF(leads, cols) {
-  const doc = new jsPDF({ orientation: 'landscape' });
+  const doc = new jsPDF({ orientation: 'portrait' });
   const GREEN = [118, 185, 0];
-  doc.setFillColor(10, 10, 10); doc.rect(0, 0, 297, 36, 'F');
-  doc.setTextColor(...GREEN); doc.setFontSize(15); doc.setFont('helvetica', 'bold');
-  doc.text('El Gran Upgrade — Registros', 14, 16);
-  doc.setTextColor(150, 150, 150); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-  doc.text(`Total: ${leads.length} registros  ·  ${new Date().toLocaleDateString('es-GT')}`, 14, 26);
-  doc.setDrawColor(...GREEN); doc.setLineWidth(0.6); doc.line(14, 33, 283, 33);
-  autoTable(doc, {
-    startY: 38,
-    head: [['#', ...cols.map((c) => c.label)]],
-    body: leads.map((l, i) => [i + 1, ...cols.map((c) => String(c.getValue(l) ?? ''))]),
-    headStyles: { fillColor: GREEN, textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7.5 },
-    bodyStyles: { fontSize: 6.5, textColor: [30, 30, 30] },
-    alternateRowStyles: { fillColor: [244, 249, 240] },
-    columnStyles: { 0: { cellWidth: 8 } },
-    margin: { left: 14, right: 14 },
-  });
-  doc.save('registros-el-gran-upgrade.pdf');
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 14;
+
+  for (let i = 0; i < leads.length; i++) {
+    const lead = leads[i];
+    let yPos = margin;
+
+    // Header
+    doc.setFillColor(10, 10, 10); doc.rect(0, 0, pageWidth, 30, 'F');
+    doc.setTextColor(...GREEN); doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+    doc.text(`${lead.nombre} — ${lead.email}`, margin, 12);
+    doc.setTextColor(150, 150, 150); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+    doc.text(`Registro ${i + 1} de ${leads.length}`, margin, 22);
+    doc.setDrawColor(...GREEN); doc.setLineWidth(0.5); doc.line(margin, 27, pageWidth - margin, 27);
+
+    yPos = 35;
+
+    // Info básica
+    doc.setTextColor(0, 0, 0); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    doc.text('Teléfono:', margin, yPos); doc.setFont('helvetica', 'normal'); doc.text(lead.telefono, margin + 25, yPos);
+    yPos += 6;
+    doc.setFont('helvetica', 'bold'); doc.text('Procesador:', margin, yPos); doc.setFont('helvetica', 'normal');
+    doc.text(PROCESADOR_LABELS[lead.procesador] ?? lead.procesador, margin + 25, yPos);
+    yPos += 6;
+    doc.setFont('helvetica', 'bold'); doc.text('GPU Actual:', margin, yPos); doc.setFont('helvetica', 'normal');
+    doc.text(GRAFICA_LABELS[lead.graficaActual] ?? lead.graficaActual, margin + 25, yPos);
+    yPos += 6;
+    doc.setFont('helvetica', 'bold'); doc.text('PSU:', margin, yPos); doc.setFont('helvetica', 'normal');
+    doc.text(FUENTE_LABELS[lead.fuentePoderWatts] ?? lead.fuentePoderWatts, margin + 25, yPos);
+    yPos += 12;
+
+    // Fotos
+    if (lead.fotoExteriorUrl) {
+      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...GREEN);
+      doc.text('Foto Exterior:', margin, yPos);
+      yPos += 2;
+      try {
+        doc.addImage(lead.fotoExteriorUrl, 'JPEG', margin, yPos, 80, 60);
+        yPos += 65;
+      } catch (e) {
+        doc.setTextColor(200, 0, 0); doc.setFontSize(7);
+        doc.text('Error al cargar imagen', margin, yPos);
+        yPos += 6;
+      }
+    }
+
+    if (lead.fotoInteriorUrl) {
+      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...GREEN);
+      doc.text('Foto Interior:', margin, yPos);
+      yPos += 2;
+      try {
+        doc.addImage(lead.fotoInteriorUrl, 'JPEG', margin, yPos, 80, 60);
+        yPos += 65;
+      } catch (e) {
+        doc.setTextColor(200, 0, 0); doc.setFontSize(7);
+        doc.text('Error al cargar imagen', margin, yPos);
+        yPos += 6;
+      }
+    }
+
+    // Historia
+    if (lead.historia) {
+      if (yPos > pageHeight - 40) doc.addPage();
+      doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...GREEN);
+      doc.text('Historia:', margin, yPos);
+      yPos += 5;
+      doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+      const historiaLines = doc.splitTextToSize(lead.historia, pageWidth - margin * 2);
+      doc.text(historiaLines, margin, yPos);
+
+      if (i < leads.length - 1) doc.addPage();
+    } else if (i < leads.length - 1) {
+      doc.addPage();
+    }
+  }
+
+  doc.save('registros-el-gran-upgrade-completo.pdf');
 }
 
 // ─── Modal de detalle de lead ─────────────────────────────────────────────────
