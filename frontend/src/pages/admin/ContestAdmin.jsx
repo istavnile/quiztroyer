@@ -310,25 +310,20 @@ function exportCSV(leads, cols) {
   URL.revokeObjectURL(url);
 }
 
-const urlToBase64 = (url) => new Promise((resolve) => {
-  const img = new Image();
-  img.crossOrigin = 'anonymous';
-  img.onload = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
-    resolve(canvas.toDataURL('image/jpeg'));
-  };
-  img.onerror = () => resolve(null);
-  img.src = url;
-});
-
-const getAbsoluteUrl = (url) => {
-  if (!url) return '';
-  if (url.startsWith('http')) return url;
-  return url;
+const fetchImageAsBase64 = async (url) => {
+  if (!url) return null;
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  } catch (e) {
+    console.error('Error fetching image:', e);
+    return null;
+  }
 };
 
 async function exportPDF(leads, cols) {
@@ -372,8 +367,7 @@ async function exportPDF(leads, cols) {
       doc.text('Foto Exterior:', margin, yPos);
       yPos += 2;
       try {
-        const imgUrl = getAbsoluteUrl(lead.fotoExteriorUrl);
-        const base64 = await urlToBase64(imgUrl);
+        const base64 = await fetchImageAsBase64(lead.fotoExteriorUrl);
         if (base64) {
           doc.addImage(base64, 'JPEG', margin, yPos, 80, 60);
           yPos += 65;
@@ -394,8 +388,7 @@ async function exportPDF(leads, cols) {
       doc.text('Foto Interior:', margin, yPos);
       yPos += 2;
       try {
-        const imgUrl = getAbsoluteUrl(lead.fotoInteriorUrl);
-        const base64 = await urlToBase64(imgUrl);
+        const base64 = await fetchImageAsBase64(lead.fotoInteriorUrl);
         if (base64) {
           doc.addImage(base64, 'JPEG', margin, yPos, 80, 60);
           yPos += 65;
