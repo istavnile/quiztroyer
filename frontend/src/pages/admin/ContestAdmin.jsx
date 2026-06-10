@@ -310,6 +310,13 @@ function exportCSV(leads, cols) {
   URL.revokeObjectURL(url);
 }
 
+const getAbsoluteUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  const apiBase = import.meta.env.VITE_API_URL || '';
+  return apiBase + url;
+};
+
 async function exportPDF(leads, cols) {
   const doc = new jsPDF({ orientation: 'portrait' });
   const GREEN = [118, 185, 0];
@@ -351,11 +358,12 @@ async function exportPDF(leads, cols) {
       doc.text('Foto Exterior:', margin, yPos);
       yPos += 2;
       try {
-        doc.addImage(lead.fotoExteriorUrl, 'JPEG', margin, yPos, 80, 60);
+        const externalImg = getAbsoluteUrl(lead.fotoExteriorUrl);
+        doc.addImage(externalImg, 'JPEG', margin, yPos, 80, 60);
         yPos += 65;
       } catch (e) {
         doc.setTextColor(200, 0, 0); doc.setFontSize(7);
-        doc.text('Error al cargar imagen', margin, yPos);
+        doc.text('Error al cargar imagen exterior', margin, yPos);
         yPos += 6;
       }
     }
@@ -365,11 +373,12 @@ async function exportPDF(leads, cols) {
       doc.text('Foto Interior:', margin, yPos);
       yPos += 2;
       try {
-        doc.addImage(lead.fotoInteriorUrl, 'JPEG', margin, yPos, 80, 60);
+        const interiorImg = getAbsoluteUrl(lead.fotoInteriorUrl);
+        doc.addImage(interiorImg, 'JPEG', margin, yPos, 80, 60);
         yPos += 65;
       } catch (e) {
         doc.setTextColor(200, 0, 0); doc.setFontSize(7);
-        doc.text('Error al cargar imagen', margin, yPos);
+        doc.text('Error al cargar imagen interior', margin, yPos);
         yPos += 6;
       }
     }
