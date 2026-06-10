@@ -314,20 +314,15 @@ const fetchImageAsBase64 = async (url) => {
   if (!url) return null;
   try {
     console.log('[PDF] Loading image:', url);
-    const response = await fetch(url, { mode: 'cors' });
+    const apiBase = import.meta.env.VITE_API_URL || '';
+    const response = await fetch(`${apiBase}/api/admin/image-base64?url=${encodeURIComponent(url)}`);
     if (!response.ok) {
-      console.error('[PDF] Image fetch failed:', response.status, response.statusText);
+      console.error('[PDF] Image fetch failed:', response.status);
       return null;
     }
-    const blob = await response.blob();
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        console.log('[PDF] Image loaded successfully');
-        resolve(reader.result);
-      };
-      reader.readAsDataURL(blob);
-    });
+    const { base64 } = await response.json();
+    console.log('[PDF] Image loaded successfully');
+    return base64;
   } catch (e) {
     console.error('[PDF] Image error:', e.message);
     return null;

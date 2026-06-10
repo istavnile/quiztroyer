@@ -306,6 +306,34 @@ router.post('/upload-audio', requireAdmin, upload.single('audio'), (req, res) =>
   res.json({ url });
 });
 
+// GET /api/admin/image-base64?url=/uploads/...
+router.get('/image-base64', requireAdmin, (req, res) => {
+  const { url } = req.query;
+  if (!url) return res.status(400).json({ error: 'No URL provided' });
+
+  let filePath = url;
+  if (filePath.startsWith('/uploads/')) {
+    filePath = path.join(__dirname, '../../', filePath);
+  } else if (!path.isAbsolute(filePath)) {
+    return res.status(400).json({ error: 'Invalid path' });
+  }
+
+  try {
+    const fileData = fs.readFileSync(filePath);
+    const base64 = fileData.toString('base64');
+    const ext = path.extname(filePath).toLowerCase();
+    let mimeType = 'image/jpeg';
+    if (ext === '.png') mimeType = 'image/png';
+    else if (ext === '.gif') mimeType = 'image/gif';
+    else if (ext === '.webp') mimeType = 'image/webp';
+
+    res.json({ base64: `data:${mimeType};base64,${base64}` });
+  } catch (e) {
+    console.error('[image-base64]', e.message);
+    res.status(404).json({ error: 'Image not found' });
+  }
+});
+
 // --- RESULTS ---
 
 // GET /api/admin/challenges/:id/results
