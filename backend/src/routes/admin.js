@@ -307,7 +307,7 @@ router.post('/upload-audio', requireAdmin, upload.single('audio'), (req, res) =>
 });
 
 // GET /api/admin/image-base64?url=/uploads/...
-router.get('/image-base64', requireAdmin, (req, res) => {
+router.get('/image-base64', (req, res) => {
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: 'No URL provided' });
 
