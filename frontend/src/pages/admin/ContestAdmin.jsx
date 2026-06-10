@@ -310,11 +310,25 @@ function exportCSV(leads, cols) {
   URL.revokeObjectURL(url);
 }
 
+const urlToBase64 = (url) => new Promise((resolve) => {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    resolve(canvas.toDataURL('image/jpeg'));
+  };
+  img.onerror = () => resolve(null);
+  img.src = url;
+});
+
 const getAbsoluteUrl = (url) => {
   if (!url) return '';
   if (url.startsWith('http')) return url;
-  const apiBase = import.meta.env.VITE_API_URL || '';
-  return apiBase + url;
+  return url;
 };
 
 async function exportPDF(leads, cols) {
@@ -358,12 +372,19 @@ async function exportPDF(leads, cols) {
       doc.text('Foto Exterior:', margin, yPos);
       yPos += 2;
       try {
-        const externalImg = getAbsoluteUrl(lead.fotoExteriorUrl);
-        doc.addImage(externalImg, 'JPEG', margin, yPos, 80, 60);
-        yPos += 65;
+        const imgUrl = getAbsoluteUrl(lead.fotoExteriorUrl);
+        const base64 = await urlToBase64(imgUrl);
+        if (base64) {
+          doc.addImage(base64, 'JPEG', margin, yPos, 80, 60);
+          yPos += 65;
+        } else {
+          doc.setTextColor(200, 0, 0); doc.setFontSize(7);
+          doc.text('No se pudo cargar imagen', margin, yPos);
+          yPos += 6;
+        }
       } catch (e) {
         doc.setTextColor(200, 0, 0); doc.setFontSize(7);
-        doc.text('Error al cargar imagen exterior', margin, yPos);
+        doc.text('Error al cargar imagen', margin, yPos);
         yPos += 6;
       }
     }
@@ -373,12 +394,19 @@ async function exportPDF(leads, cols) {
       doc.text('Foto Interior:', margin, yPos);
       yPos += 2;
       try {
-        const interiorImg = getAbsoluteUrl(lead.fotoInteriorUrl);
-        doc.addImage(interiorImg, 'JPEG', margin, yPos, 80, 60);
-        yPos += 65;
+        const imgUrl = getAbsoluteUrl(lead.fotoInteriorUrl);
+        const base64 = await urlToBase64(imgUrl);
+        if (base64) {
+          doc.addImage(base64, 'JPEG', margin, yPos, 80, 60);
+          yPos += 65;
+        } else {
+          doc.setTextColor(200, 0, 0); doc.setFontSize(7);
+          doc.text('No se pudo cargar imagen', margin, yPos);
+          yPos += 6;
+        }
       } catch (e) {
         doc.setTextColor(200, 0, 0); doc.setFontSize(7);
-        doc.text('Error al cargar imagen interior', margin, yPos);
+        doc.text('Error al cargar imagen', margin, yPos);
         yPos += 6;
       }
     }
