@@ -78,7 +78,6 @@ app.get('/api/settings', async (req, res) => {
 // REST Routes
 app.use('/api/admin/login', authLimiter);
 app.use('/api/contest/register', contestRegisterLimiter);
-app.use('/api/contest/vote', voteLimiter);
 app.use('/api/admin', adminRoutes);
 app.use('/api/challenges', challengeRoutes);
 app.use('/api/raffle', raffleRoutes);
