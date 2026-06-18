@@ -362,6 +362,7 @@ router.get('/finalists', async (req, res) => {
       fotoInteriorUrl: true,
       historia: true,
       voteCount: true,
+      isWinner: true,
     },
     orderBy: { voteCount: 'desc' },
   });
