@@ -416,8 +416,23 @@ async function exportPDF(leads, cols) {
 
 // ─── Modal de detalle de lead ─────────────────────────────────────────────────
 // ─── Modal de detalle de lead ─────────────────────────────────────────────────
-function LeadModal({ lead, campos = [], onClose, onToggleFinalist }) {
-  if (!lead) return null;
+function LeadModal({ lead, campos = [], onClose, onToggleFinalist, onMarkWinner }) {
+  const [marking, setMarking] = useState(false);
+
+  const handleMarkWinner = async () => {
+    setMarking(true);
+    try {
+      const res = await api.put(`/admin/concurso/${lead.id}/winner`);
+      if (res.data.ok) {
+        onMarkWinner(lead.id);
+      }
+    } catch (e) {
+      alert('Error: ' + e.message);
+    } finally {
+      setMarking(false);
+    }
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -436,6 +451,22 @@ function LeadModal({ lead, campos = [], onClose, onToggleFinalist }) {
               <p style={{ color: '#6b7280', fontSize: '0.82rem' }}>{lead.email} · {lead.telefono}</p>
             </div>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              {lead.isWinner && (
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  style={{ color: '#facc15', fontSize: '1.2rem', fontWeight: 800 }}
+                >
+                  👑 GANADOR
+                </motion.div>
+              )}
+              <button
+                onClick={handleMarkWinner}
+                disabled={marking}
+                style={{ background: lead.isWinner ? 'rgba(250,204,21,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${lead.isWinner ? '#facc15' : '#374151'}`, color: lead.isWinner ? '#facc15' : '#9ca3af', padding: '7px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 700, fontSize: '0.82rem', opacity: marking ? 0.5 : 1 }}
+              >
+                {lead.isWinner ? '👑 Ganador' : '☆ Marcar ganador'}
+              </button>
               <button
                 onClick={() => onToggleFinalist(lead)}
                 style={{ background: lead.isFinalist ? 'rgba(118,185,0,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${lead.isFinalist ? '#76B900' : '#374151'}`, color: lead.isFinalist ? '#76B900' : '#9ca3af', padding: '7px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 700, fontSize: '0.82rem' }}
@@ -738,7 +769,15 @@ function TabRegistros() {
 
   return (
     <>
-      <LeadModal lead={modalLoading ? selectedLead : fullLead} campos={campos} onClose={() => { setSelectedLead(null); setFullLead(null); }} onToggleFinalist={toggleFinalist} />
+      <LeadModal
+        lead={modalLoading ? selectedLead : fullLead}
+        campos={campos}
+        onClose={() => { setSelectedLead(null); setFullLead(null); }}
+        onToggleFinalist={toggleFinalist}
+        onMarkWinner={(id) => {
+          setLeads(prev => prev.map(l => l.id === id ? { ...l, isWinner: true } : { ...l, isWinner: false }));
+        }}
+      />
 
       <ExportModal
         allCols={allCols}
@@ -872,6 +911,17 @@ function TabRegistros() {
                   {visibleCols.map((col) => (
                     <td key={col.id} style={tdStyle}>{col.renderCell(lead)}</td>
                   ))}
+                  <td style={tdStyle}>
+                    {lead.isWinner && (
+                      <motion.div
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        style={{ fontSize: '1.2rem', fontWeight: 800 }}
+                      >
+                        👑
+                      </motion.div>
+                    )}
+                  </td>
                   <td style={tdStyle}>
                     <button onClick={(e) => { e.stopPropagation(); toggleFinalist(lead); }} style={{ background: lead.isFinalist ? 'rgba(118,185,0,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${lead.isFinalist ? '#76B900' : '#374151'}`, color: lead.isFinalist ? '#76B900' : '#6b7280', padding: '4px 12px', borderRadius: '999px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
                       {lead.isFinalist ? '★ Finalista' : '☆ Nominado'}
