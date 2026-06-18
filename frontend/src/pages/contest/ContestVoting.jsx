@@ -168,6 +168,7 @@ export default function ContestVoting() {
   const [loading, setLoading] = useState(true);
   const [votedFor, setVotedFor] = useState(null); // entryId | null
   const [voting, setVoting] = useState(false);
+  const [votingOpen, setVotingOpen] = useState(false);
   const [toast, setToast] = useState(null); // { msg, type }
 
   const showToast = (msg, type = 'success') => {
@@ -194,6 +195,7 @@ export default function ContestVoting() {
           document.title = data.titulo;
           return () => { document.title = prev; };
         }
+        setVotingOpen(data.votingOpen ?? false);
       })
       .catch(() => {});
   }, []);
@@ -287,6 +289,23 @@ export default function ContestVoting() {
             <Spinner />
             <p style={{ marginTop: '16px', fontSize: '0.9rem' }}>Cargando finalistas...</p>
           </div>
+        ) : !votingOpen ? (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            style={{
+              textAlign: 'center', padding: '80px 24px',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '16px', background: 'rgba(255,255,255,0.02)',
+            }}
+          >
+            <div style={{ marginBottom: '16px', opacity: 0.35 }}><UilTrophy size="52" color="#facc15" /></div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '8px' }}>
+              Las votaciones aún no están abiertas
+            </h2>
+            <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
+              Vuelve pronto para votar por tu finalista favorito.
+            </p>
+          </motion.div>
         ) : finalists.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
