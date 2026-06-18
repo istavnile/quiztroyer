@@ -455,9 +455,26 @@ function LeadModal({ lead, campos = [], onClose, onToggleFinalist, onMarkWinner 
                 <motion.div
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
-                  style={{ color: '#facc15', fontSize: '1.2rem', fontWeight: 800 }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    color: '#facc15',
+                    fontWeight: 700,
+                    fontSize: '0.85rem'
+                  }}
                 >
-                  👑 GANADOR
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    borderTop: '3px solid #facc15',
+                    borderLeft: '2px solid #facc15',
+                    borderRight: '2px solid #facc15',
+                    borderRadius: '1px 1px 0 0',
+                    position: 'relative',
+                    boxShadow: 'inset 0 2px 0 -1px #facc15'
+                  }} />
+                  GANADOR
                 </motion.div>
               )}
               <button
@@ -916,10 +933,16 @@ function TabRegistros() {
                       <motion.div
                         initial={{ scale: 0, rotate: -180 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        style={{ fontSize: '1.2rem', fontWeight: 800 }}
-                      >
-                        👑
-                      </motion.div>
+                        style={{
+                          width: '18px',
+                          height: '14px',
+                          borderTop: '2.5px solid #facc15',
+                          borderLeft: '1.5px solid #facc15',
+                          borderRight: '1.5px solid #facc15',
+                          borderRadius: '1px 1px 0 0',
+                          boxShadow: 'inset 0 1.5px 0 -0.5px #facc15'
+                        }}
+                      />
                     )}
                   </td>
                   <td style={tdStyle}>
