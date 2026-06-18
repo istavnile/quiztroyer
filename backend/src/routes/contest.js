@@ -12,6 +12,7 @@ const prisma = new PrismaClient();
 const DEFAULT_SETTINGS = {
   // Registration gate — admin-controlled toggle
   registrationOpen: false,
+  votingOpen: false,
 
   // Hero
   titulo: 'El Upgrade de lo que realmente importa.',

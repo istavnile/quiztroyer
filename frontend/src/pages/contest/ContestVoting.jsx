@@ -169,6 +169,7 @@ export default function ContestVoting() {
   const [votedFor, setVotedFor] = useState(null); // entryId | null
   const [voting, setVoting] = useState(false);
   const [toast, setToast] = useState(null); // { msg, type }
+  const [votingOpen, setVotingOpen] = useState(false);
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
@@ -193,6 +194,9 @@ export default function ContestVoting() {
           const prev = document.title;
           document.title = data.titulo;
           return () => { document.title = prev; };
+        }
+        if (data.votingOpen !== undefined) {
+          setVotingOpen(data.votingOpen);
         }
       })
       .catch(() => {});
@@ -287,7 +291,7 @@ export default function ContestVoting() {
             <Spinner />
             <p style={{ marginTop: '16px', fontSize: '0.9rem' }}>Cargando finalistas...</p>
           </div>
-        ) : finalists.length === 0 ? (
+        ) : !votingOpen || finalists.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             style={{
