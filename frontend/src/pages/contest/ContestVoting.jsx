@@ -197,15 +197,23 @@ export default function ContestVoting() {
       .catch(() => {});
   }, []);
 
-  // Load winner
+  // Load winner and poll for changes
   useEffect(() => {
-    fetch(`${API}/api/contest/finalists`, { cache: 'no-store' })
-      .then((r) => r.json())
-      .then((finalists) => {
+    const loadWinner = async () => {
+      try {
+        const res = await fetch(`${API}/api/contest/finalists`, { cache: 'no-store' });
+        const finalists = await res.json();
         const w = finalists.find((f) => f.isWinner);
         setWinner(w || null);
-      })
-      .catch(() => {});
+        setFinalists(finalists);
+      } catch (e) {
+        console.error('Failed to load finalists:', e);
+      }
+    };
+
+    loadWinner();
+    const interval = setInterval(loadWinner, 5000); // Poll every 5 seconds
+    return () => clearInterval(interval);
   }, []);
 
   // Verificar estado de voto: primero cookie, luego backend
