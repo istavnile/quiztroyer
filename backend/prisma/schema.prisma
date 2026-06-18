@@ -251,8 +251,6 @@ model ContestVote {
   entry     ContestLead @relation(fields: [entryId], references: [id], onDelete: Cascade)
   voterIp   String
   createdAt DateTime    @default(now())
-
-  @@unique([voterIp])
 }
 
 // ─── Settings persistentes (una sola fila por tabla, id = "singleton") ──────
