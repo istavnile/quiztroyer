@@ -601,5 +601,38 @@ router.delete('/concurso/:id', requireAdmin, async (req, res) => {
   res.json({ ok: true });
 });
 
+// POST /api/admin/fix-urls — Corrige URLs de HTTP a HTTPS
+router.post('/fix-urls', requireAdmin, async (req, res) => {
+  try {
+    const leads = await prisma.contestLead.findMany({
+      where: {
+        OR: [
+          { fotoExteriorUrl: { contains: 'http://' } },
+          { fotoInteriorUrl: { contains: 'http://' } },
+        ],
+      },
+    });
+
+    let updated = 0;
+    for (const lead of leads) {
+      const exterior = lead.fotoExteriorUrl?.replace('http://', 'https://') || lead.fotoExteriorUrl;
+      const interior = lead.fotoInteriorUrl?.replace('http://', 'https://') || lead.fotoInteriorUrl;
+
+      if (exterior !== lead.fotoExteriorUrl || interior !== lead.fotoInteriorUrl) {
+        await prisma.contestLead.update({
+          where: { id: lead.id },
+          data: { fotoExteriorUrl: exterior, fotoInteriorUrl: interior },
+        });
+        updated++;
+      }
+    }
+
+    res.json({ ok: true, updated, message: `${updated} registros actualizados de HTTP a HTTPS` });
+  } catch (err) {
+    console.error('[fix-urls]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
 
