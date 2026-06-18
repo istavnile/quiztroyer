@@ -371,7 +371,7 @@ router.get('/finalists', async (req, res) => {
 // ─── GET /api/contest/vote-status ─────────────────────────────────────────────
 router.get('/vote-status', async (req, res) => {
   const ip = getClientIp(req);
-  const existing = await prisma.contestVote.findUnique({ where: { voterIp: ip } });
+  const existing = await prisma.contestVote.findFirst({ where: { voterIp: ip } });
   res.json({ hasVoted: !!existing, votedFor: existing?.entryId ?? null });
 });
 
