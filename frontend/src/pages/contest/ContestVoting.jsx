@@ -168,6 +168,7 @@ export default function ContestVoting() {
   const [loading, setLoading] = useState(true);
   const [votedFor, setVotedFor] = useState(null); // entryId | null
   const [voting, setVoting] = useState(false);
+  const [winner, setWinner] = useState(null);
   const [toast, setToast] = useState(null); // { msg, type }
 
   const showToast = (msg, type = 'success') => {
@@ -194,6 +195,17 @@ export default function ContestVoting() {
           document.title = data.titulo;
           return () => { document.title = prev; };
         }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Load winner
+  useEffect(() => {
+    fetch(`${API}/api/contest/finalists`, { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((finalists) => {
+        const w = finalists.find((f) => f.isWinner);
+        setWinner(w || null);
       })
       .catch(() => {});
   }, []);
@@ -335,6 +347,76 @@ export default function ContestVoting() {
           </>
         )}
       </div>
+
+      {/* Winner Overlay */}
+      <AnimatePresence>
+        {winner && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.85)',
+              backdropFilter: 'blur(8px)',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '24px',
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              style={{
+                textAlign: 'center',
+                maxWidth: '600px',
+              }}
+            >
+              <motion.div
+                animate={{ rotateZ: [0, 5, -5, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                style={{
+                  fontSize: '4rem',
+                  marginBottom: '24px',
+                }}
+              >
+                👑
+              </motion.div>
+              <h2 style={{
+                fontSize: '2.5rem',
+                fontWeight: 900,
+                color: '#76B900',
+                marginBottom: '8px',
+              }}>
+                ¡{winner.nombre}!
+              </h2>
+              <p style={{
+                fontSize: '1.2rem',
+                color: '#facc15',
+                marginBottom: '24px',
+                fontWeight: 700,
+              }}>
+                Es el ganador
+              </p>
+              <div style={{
+                fontSize: '1rem',
+                color: '#9ca3af',
+                marginBottom: '16px',
+              }}>
+                <p style={{ marginBottom: '8px' }}>{winner.historia}</p>
+                <p style={{ marginTop: '16px', color: '#6b7280' }}>
+                  Total de votos: <strong style={{ color: '#76B900', fontSize: '1.2rem' }}>{winner.voteCount}</strong>
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </ContestLayout>
   );
 }
