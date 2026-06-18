@@ -419,6 +419,8 @@ async function exportPDF(leads, cols) {
 function LeadModal({ lead, campos = [], onClose, onToggleFinalist, onMarkWinner }) {
   const [marking, setMarking] = useState(false);
 
+  if (!lead || !lead.nombre) return null;
+
   const handleMarkWinner = async () => {
     setMarking(true);
     try {
