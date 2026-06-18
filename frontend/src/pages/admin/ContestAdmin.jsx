@@ -1028,6 +1028,8 @@ function TabConfiguracion() {
   const [cfg, setCfg]         = useState(DEFAULTS);
   const [saving, setSaving]   = useState(false);
   const [saved, setSaved]     = useState(false);
+  const [fixingUrls, setFixingUrls] = useState(false);
+  const [fixedUrls, setFixedUrls] = useState(false);
   const [section, setSection] = useState('hero');
   const loadedRef             = useRef(false);
   const autoSaveTimer         = useRef(null);
@@ -1065,6 +1067,21 @@ function TabConfiguracion() {
       setTimeout(() => setSaved(false), 2500);
     } catch (e) { alert('Error al guardar: ' + e.message); }
     finally { setSaving(false); }
+  };
+
+  const fixUrls = async () => {
+    setFixingUrls(true);
+    try {
+      const res = await api.post('/admin/fix-urls');
+      if (res.data.ok) {
+        setFixedUrls(true);
+        setTimeout(() => setFixedUrls(false), 3000);
+      }
+    } catch (e) {
+      alert('Error al reparar URLs: ' + e.message);
+    } finally {
+      setFixingUrls(false);
+    }
   };
 
   const sidebarBtnSt = (active) => ({
@@ -1120,7 +1137,7 @@ function TabConfiguracion() {
             </button>
           ))}
         </div>
-        <div style={{ padding: '16px', borderTop: '1px solid #1f2937' }}>
+        <div style={{ padding: '16px', borderTop: '1px solid #1f2937', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <button onClick={save} disabled={saving} style={{
             width: '100%', background: saving ? '#4a7400' : '#76B900',
             color: '#000', fontWeight: 800, padding: '10px',
@@ -1129,11 +1146,26 @@ function TabConfiguracion() {
           }}>
             {saving ? 'Guardando...' : 'Guardar ahora'}
           </button>
-          <p style={{ fontSize: '0.72rem', textAlign: 'center', margin: '6px 0 0', color: saved ? '#76B900' : '#374151', fontWeight: saved ? 600 : 400 }}>
+          <p style={{ fontSize: '0.72rem', textAlign: 'center', margin: '0', color: saved ? '#76B900' : '#374151', fontWeight: saved ? 600 : 400 }}>
             {saved ? '✓ Guardado' : 'Auto-guarda al editar'}
           </p>
+
+          <button onClick={fixUrls} disabled={fixingUrls} style={{
+            width: '100%', background: fixingUrls ? 'rgba(118,185,0,0.4)' : 'rgba(118,185,0,0.12)',
+            color: '#76B900', fontWeight: 700, padding: '9px',
+            borderRadius: '6px', border: '1px solid rgba(118,185,0,0.3)', cursor: fixingUrls ? 'not-allowed' : 'pointer',
+            fontSize: '0.8rem', transition: 'background .2s', opacity: fixingUrls ? 0.6 : 1,
+          }}>
+            {fixingUrls ? 'Reparando...' : '⚡ Reparar URLs'}
+          </button>
+          {fixedUrls && (
+            <p style={{ fontSize: '0.72rem', textAlign: 'center', margin: '0', color: '#76B900', fontWeight: 600 }}>
+              ✓ URLs actualizadas
+            </p>
+          )}
+
           <a href="/concursos/el-gran-upgrade" target="_blank" rel="noopener noreferrer"
-            style={{ display: 'block', color: '#374151', fontSize: '0.76rem', textAlign: 'center', textDecoration: 'none', marginTop: '10px' }}>
+            style={{ display: 'block', color: '#374151', fontSize: '0.76rem', textAlign: 'center', textDecoration: 'none', marginTop: '4px' }}>
             Ver página pública ↗
           </a>
         </div>
