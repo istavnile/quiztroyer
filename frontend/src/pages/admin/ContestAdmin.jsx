@@ -988,7 +988,6 @@ const DEFAULT_TECH_TERMS = [
 
 const DEFAULTS = {
   registrationOpen: false,
-  votingOpen: false,
   titulo: 'El Gran Upgrade', subtitulo: '', badge: '', imagenHero: '',
   techBgEnabled: true, techBgOpacity: 1.0, techBgTerms: DEFAULT_TECH_TERMS,
   campos: [],
@@ -1110,35 +1109,6 @@ function TabConfiguracion() {
           >
             <span style={{ fontSize: '0.85rem' }}>{cfg.registrationOpen ? '🟢' : '🔴'}</span>
             {cfg.registrationOpen ? 'ABIERTO' : 'CERRADO'}
-          </button>
-        </div>
-
-        {/* Voting toggle — always visible */}
-        <div style={{
-          margin: '8px 12px 4px',
-          padding: '12px 14px',
-          borderRadius: '8px',
-          border: `1px solid ${cfg.votingOpen ? '#facc15' : '#374151'}`,
-          background: cfg.votingOpen ? 'rgba(250,204,21,0.08)' : 'rgba(255,255,255,0.02)',
-          transition: 'border-color .2s, background .2s',
-        }}>
-          <p style={{ fontSize: '0.68rem', fontWeight: 700, color: '#6b7280', margin: '0 0 8px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Votación
-          </p>
-          <button
-            onClick={() => set('votingOpen', !cfg.votingOpen)}
-            style={{
-              width: '100%', padding: '8px 12px',
-              border: 'none', borderRadius: '6px', cursor: 'pointer',
-              fontWeight: 800, fontSize: '0.82rem', letterSpacing: '0.06em',
-              background: cfg.votingOpen ? '#facc15' : '#1f2937',
-              color: cfg.votingOpen ? '#000' : '#6b7280',
-              transition: 'background .2s, color .2s',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
-            }}
-          >
-            <span style={{ fontSize: '0.85rem' }}>{cfg.votingOpen ? '🟢' : '🔴'}</span>
-            {cfg.votingOpen ? 'ABIERTO' : 'CERRADO'}
           </button>
         </div>
 
