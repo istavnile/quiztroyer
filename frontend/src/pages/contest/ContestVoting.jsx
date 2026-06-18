@@ -22,7 +22,6 @@ function FinalistCard({ finalist, votedFor, onVote, voting }) {
   const [showFull, setShowFull] = useState(false);
   const [imgView, setImgView] = useState('exterior');
   const isMyVote = votedFor === finalist.id;
-  const hasVoted = votedFor !== null;
 
   return (
     <motion.div
@@ -30,7 +29,7 @@ function FinalistCard({ finalist, votedFor, onVote, voting }) {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      whileHover={!hasVoted ? { y: -4 } : {}}
+      whileHover={{ y: -4 }}
       style={{
         background: isMyVote
           ? 'linear-gradient(135deg, rgba(118,185,0,0.12), rgba(118,185,0,0.04))'
@@ -114,27 +113,26 @@ function FinalistCard({ finalist, votedFor, onVote, voting }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
           <VoteCounter count={finalist.voteCount} />
 
-          {!hasVoted ? (
-            <button
-              onClick={() => onVote(finalist.id)}
-              disabled={voting}
-              style={{
-                background: '#76B900', color: '#000', fontWeight: 800,
-                padding: '9px 22px', borderRadius: '6px', border: 'none',
-                cursor: voting ? 'not-allowed' : 'pointer',
-                fontSize: '0.88rem', opacity: voting ? 0.7 : 1,
-                transition: 'transform .15s',
-              }}
-              onMouseEnter={(e) => { if (!voting) e.currentTarget.style.transform = 'scale(1.05)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-            >
-              Votar
-            </button>
-          ) : isMyVote ? (
-            <span style={{ color: '#76B900', fontSize: '0.85rem', fontWeight: 700 }}>✓ Votaste aquí</span>
-          ) : (
-            <span style={{ color: '#4b5563', fontSize: '0.82rem' }}>Ya votaste</span>
-          )}
+          <button
+            onClick={() => onVote(finalist.id)}
+            disabled={voting}
+            style={{
+              background: isMyVote ? 'rgba(118,185,0,0.3)' : '#76B900',
+              color: isMyVote ? '#76B900' : '#000',
+              fontWeight: 800,
+              padding: '9px 22px',
+              borderRadius: '6px',
+              border: isMyVote ? '1px solid #76B900' : 'none',
+              cursor: voting ? 'not-allowed' : 'pointer',
+              fontSize: '0.88rem',
+              opacity: voting ? 0.7 : 1,
+              transition: 'transform .15s',
+            }}
+            onMouseEnter={(e) => { if (!voting) e.currentTarget.style.transform = 'scale(1.05)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+          >
+            {isMyVote ? '✓ Votaste' : 'Votar'}
+          </button>
         </div>
       </div>
     </motion.div>
@@ -225,7 +223,7 @@ export default function ContestVoting() {
   }, [fetchFinalists]);
 
   const handleVote = async (entryId) => {
-    if (voting || votedFor) return;
+    if (voting) return;
     setVoting(true);
     try {
       const res = await fetch(`${API}/api/contest/vote/${entryId}`, { method: 'POST' });
