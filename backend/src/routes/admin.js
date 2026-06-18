@@ -601,6 +601,25 @@ router.delete('/concurso/:id', requireAdmin, async (req, res) => {
   res.json({ ok: true });
 });
 
+// PUT /api/admin/concurso/:id/winner
+router.put('/concurso/:id/winner', requireAdmin, async (req, res) => {
+  const { id } = req.params;
+
+  // Remove winner from any previous winner
+  await prisma.contestLead.updateMany({
+    where: { isWinner: true },
+    data: { isWinner: false },
+  });
+
+  // Set new winner
+  const winner = await prisma.contestLead.update({
+    where: { id },
+    data: { isWinner: true },
+  });
+
+  res.json({ ok: true, winner });
+});
+
 // POST /api/admin/fix-urls — Corrige URLs de HTTP a HTTPS
 router.post('/fix-urls', requireAdmin, async (req, res) => {
   try {

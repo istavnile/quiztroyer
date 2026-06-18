@@ -399,25 +399,6 @@ router.post('/vote/:id', async (req, res) => {
   res.json({ ok: true, voteCount: updated.voteCount });
 });
 
-// ─── PUT /api/admin/concurso/:id/winner ───────────────────────────────────────
-router.put('/concurso/:id/winner', require('../middleware/auth').requireAdmin, async (req, res) => {
-  const { id } = req.params;
-
-  // Remove winner from any previous winner
-  await prisma.contestLead.updateMany({
-    where: { isWinner: true },
-    data: { isWinner: false },
-  });
-
-  // Set new winner
-  const winner = await prisma.contestLead.update({
-    where: { id },
-    data: { isWinner: true },
-  });
-
-  res.json({ ok: true, winner });
-});
-
 module.exports = router;
 module.exports.readContestSettings = readContestSettings;
 module.exports.sanitizeUrls = sanitizeUrls;
