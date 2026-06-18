@@ -232,12 +232,14 @@ model ContestLead {
   aceptaTyC        Boolean
   aceptaMarketing  Boolean
   isFinalist       Boolean          @default(false)
+  isWinner         Boolean          @default(false)
   voteCount        Int              @default(0)
   camposExtra      Json?
   votes            ContestVote[]
   createdAt        DateTime         @default(now())
 
   @@index([isFinalist])
+  @@index([isWinner])
   @@index([procesador])
   @@index([graficaActual])
   @@index([fuentePoderWatts])

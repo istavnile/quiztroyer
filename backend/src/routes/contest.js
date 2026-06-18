@@ -376,6 +376,7 @@ router.get('/vote-status', async (req, res) => {
 });
 
 // ─── POST /api/contest/vote/:id ───────────────────────────────────────────────
+// Allow multiple votes per IP (no rate limiting)
 router.post('/vote/:id', async (req, res) => {
   const { id } = req.params;
   const ip = getClientIp(req);
@@ -384,11 +385,6 @@ router.post('/vote/:id', async (req, res) => {
     where: { id, isFinalist: true },
   });
   if (!finalist) return res.status(404).json({ error: 'Finalista no encontrado.' });
-
-  const existingVote = await prisma.contestVote.findUnique({ where: { voterIp: ip } });
-  if (existingVote) {
-    return res.status(409).json({ error: 'Ya emitiste tu voto.', votedFor: existingVote.entryId });
-  }
 
   await prisma.$transaction([
     prisma.contestVote.create({ data: { entryId: id, voterIp: ip } }),
@@ -401,6 +397,25 @@ router.post('/vote/:id', async (req, res) => {
   });
 
   res.json({ ok: true, voteCount: updated.voteCount });
+});
+
+// ─── PUT /api/admin/concurso/:id/winner ───────────────────────────────────────
+router.put('/concurso/:id/winner', require('../middleware/auth').requireAdmin, async (req, res) => {
+  const { id } = req.params;
+
+  // Remove winner from any previous winner
+  await prisma.contestLead.updateMany({
+    where: { isWinner: true },
+    data: { isWinner: false },
+  });
+
+  // Set new winner
+  const winner = await prisma.contestLead.update({
+    where: { id },
+    data: { isWinner: true },
+  });
+
+  res.json({ ok: true, winner });
 });
 
 module.exports = router;
